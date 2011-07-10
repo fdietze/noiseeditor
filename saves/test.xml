@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<document>
+			<nodes><node type="preview" title="Preview" id="1">
+						<pos x="470" y="56"></pos>
+						<size width="282" height="318"></size><image offsety="-11.364496" offsetx="-8.778087" zoom="0.099999994"></image><depth checked="true"></depth><zslider value="50"></zslider>
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							<intype type="d:Float"></intype><intype type="m:Material"></intype>
+						</intypes>
+		
+						<functions>
+							
+						</functions>
+					</node><node type="predefined" title="Source" id="3">
+						<pos x="24" y="117"></pos>
+						
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							
+						</intypes>
+		
+						<functions>
+							<function name="sourcev" outtype="Vec3">source</function><function name="sourcex" outtype="Float">source.x</function><function name="sourcey" outtype="Float">source.y</function><function name="sourcez" outtype="Float">source.z</function>
+						</functions>
+					</node><node type="predefined" title="NoiseV" id="5">
+						<pos x="144" y="121"></pos>
+						
+						<sliders>
+							<slider name="inscale" value="50"></slider><slider name="outscale" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="v:Vec3=Vec3(0)"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="noise3v" outtype="Float">noise1(v*pow(10f,2f*inscale-2.5f))*outscale</function>
+						</functions>
+					</node></nodes>
+			<connections><connection>
+						<in nodeid="1" connector="0"></in>
+						<out nodeid="5" connector="0"></out>
+					</connection><connection>
+						<in nodeid="5" connector="0"></in>
+						<out nodeid="3" connector="0"></out>
+					</connection></connections>
+		</document>
