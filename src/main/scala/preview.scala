@@ -19,6 +19,9 @@ import simplex3d.math.float.functions._
 
 import actors.Futures.future
 
+//TODO: png export
+//TODO: shader export
+
 class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 
 	override def resized = image.recalc
