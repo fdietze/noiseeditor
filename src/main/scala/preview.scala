@@ -42,6 +42,8 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		"valuesstretched" -> "Values stretched",
 		"valuesnormalized" -> "Values normalized")
 	
+	val timer = new Timer
+	
 	val image = new PreviewImage
 	class PreviewImage extends Component with ScrollableZoomOffset {
 		preferredSize = Vec2i(250, 250)
@@ -74,8 +76,9 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 				//TODO: Ursprung links unten, koordinaten swizzeling
 				//TODO: Tooltip-raytrace
 				
-				//TODO: benchmark calculations
+				timer.reset
 				timer.start
+
 				val data:Array[Int] =
 				viewcombobox.selection.item._1 match {
 					case "iso" =>

@@ -17,19 +17,27 @@ package object utilities {
 def time[A](msg:String)(function: => A) = {
 	val start = System.nanoTime
 	val returnvalue = function
-	val duration = (System.nanoTime-start)/1000000000.
+	val duration = (System.nanoTime-start)/1000000000.0
 	printf("%s: %fs\n", msg, duration)
 	returnvalue
 }
 
-object timer {
+class Timer {
 	var starttime = 0L
-	var endtime = 0L
+	var passedtime = 0L
+
 	def getTime = System.nanoTime
 
-	def start { starttime = getTime }
-	def stop = { endtime = getTime }
-	def read = (endtime - starttime)/1000000000.
+	def start  { starttime = getTime }
+	def stop   { passedtime += getTime - starttime }
+	def measure[A](function: => A) = {
+		start
+		val returnvalue = function
+		stop
+		returnvalue
+	}
+	def reset  { passedtime = 0 }
+	def read =   passedtime/1000000000.0
 }
 
 
