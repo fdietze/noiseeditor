@@ -284,26 +284,32 @@ class InterpreterQueue extends tools.nsc.interpreter.IMain {
 	val jq = new JobQueue
 	
 	
-	private def compile[T](code:String):T = {
-		//TODO: Better handling of wrong type
+	private def compile[T:Manifest](code:String):Option[T] = {
+		//TODO: Important: Better handling of wrong type
 		if( interpret(code) == Success ) {
-			if( valueOfTerm(mostRecentVar).isInstanceOf[T] )
-				println("right type!")
-			else
-				println("wrong type!")
-			valueOfTerm(mostRecentVar) match {
-				case Some(result) => result.asInstanceOf[T]
-				case None => Unit.asInstanceOf[T]
+/*			val term = runtimeTypeOfTerm(mostRecentVar)
+//			val termtype = manifest[term]
+			val manifesttype = manifest[T]
+			
+			println(term + "\n" + manifesttype + "\n" + manifesttype.erasure.getName)
+			
+			if( manifesttype != termtype ) {
+				println("Type of compiled code does not match:\nIs: " + termtype + "\nShould be: " + manifesttype)
+				None
 			}
+			else*/
+				valueOfTerm(mostRecentVar).asInstanceOf[Option[T]]
 		}
-		else
-			throw new RuntimeException("error in interpreted code\n")
+		else {
+			println("error in interpreted code\n")
+			None
+		}
 	}
 	
-	def apply[T](code:String):Future[T] = {
+	def apply[T:Manifest](code:String):Future[Option[T]] = {
 		(jq !! Job(() => {
 			compile[T](code)
-		})).asInstanceOf[Future[T]]
+		})).asInstanceOf[Future[Option[T]]]
 	}
 	
 	def fbind(name: String, boundType: String, value: Any): Future[Result] = {

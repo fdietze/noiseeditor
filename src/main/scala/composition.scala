@@ -140,6 +140,13 @@ val noise1 = new Noise(ClassicalGradientNoise){
 	}
 	
 	def compile {
-		densityfunction = InterpreterManager[(Vec3) => (Float,Material)](code)()
+		type t = (Vec3) => (Float, Material)
+		//type t = Function1[Vec3, Tuple2[Float, Material]]
+		val compilation = InterpreterManager[t](code)
+		compilation() match {
+			case Some(function) => 
+				densityfunction = function
+			case None =>
+		}
 	}
 }
