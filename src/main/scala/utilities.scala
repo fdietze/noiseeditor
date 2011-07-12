@@ -266,7 +266,7 @@ class JobQueue extends DaemonActor {
 					catch {
 						case e:Exception => println("JobQueue: Exception caught: " + e)
 					}
-				case _ => throw new RuntimeException("Message was not a Job")
+				case _ => throw new RuntimeException("Message was not a Job\n")
 			}
 		}
 	}
@@ -285,13 +285,19 @@ class InterpreterQueue extends tools.nsc.interpreter.IMain {
 	
 	
 	private def compile[T](code:String):T = {
-		if( interpret(code) == Success )
+		//TODO: Better handling of wrong type
+		if( interpret(code) == Success ) {
+			if( valueOfTerm(mostRecentVar).isInstanceOf[T] )
+				println("right type!")
+			else
+				println("wrong type!")
 			valueOfTerm(mostRecentVar) match {
 				case Some(result) => result.asInstanceOf[T]
 				case None => Unit.asInstanceOf[T]
 			}
+		}
 		else
-			throw new ScriptException("error in interpreted code\n")
+			throw new RuntimeException("error in interpreted code\n")
 	}
 	
 	def apply[T](code:String):Future[T] = {
