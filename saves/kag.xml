@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<document>
+			<nodes><node type="custom" title="Custom" id="4">
+						<pos x="103" y="350"></pos>
+						<size width="290" height="257"></size>
+						<sliders>
+							<slider name="s1" value="15"></slider><slider name="s2" value="74"></slider><slider name="s3" value="50"></slider><slider name="s4" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="a:Float"></intype><intype type="b:Float"></intype><intype type="c:Float"></intype><intype type="d:Float"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="custom_f4_t1310342203" outname=" " outtype="Float">s2 * ( if(abs(s1 * a)&gt;Pi) 0 else cos(s1 * a) + 1 )</function>
+						</functions>
+					</node><node type="predefined" title="Product" id="5">
+						<pos x="438" y="291"></pos>
+						
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							<intype type="xs:Seq[Float]=Nil"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="product_t1310342203" outname=" " outtype="Float">xs.product</function>
+						</functions>
+					</node><node type="predefined" title="Sum" id="6">
+						<pos x="473" y="172"></pos>
+						
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							<intype type="xs:Seq[Float]=Nil"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="sum_t1310342203" outname=" " outtype="Float">xs.sum</function>
+						</functions>
+					</node><node type="predefined" title="Feature Noise" id="3">
+						<pos x="205" y="151"></pos>
+						
+						<sliders>
+							<slider name="size" value="57"></slider><slider name="scale" value="63"></slider><slider name="offset" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="v:Seq[Vec3]=Seq(Vec3(0))"></intype><intype type="x:Seq[Float]=Nil"></intype><intype type="y:Seq[Float]=Nil"></intype><intype type="z:Seq[Float]=Nil"></intype><intype type="add:Seq[Float]=Nil"></intype><intype type="sub:Seq[Float]=Nil"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="fnoise_1308700798_t1309182284_t1310342203" outname=" " outtype="Float">
+			val invexpsize = pow(256,((0.5f-size)*2f))
+			val expoutscale = pow(256,((scale-0.5f)*2f))/invexpsize
+			val linearoutoffset = (offset-0.5f)*2f
+			val sumv = v.reduce( (x,y) =&gt; x+y ) + Vec3(x.sum,y.sum,z.sum);
+			(noise1(sumv*invexpsize)+linearoutoffset)*expoutscale + add.sum - sub.sum
+			</function>
+						</functions>
+					</node><node type="preview" title="Preview" id="2">
+						<pos x="551" y="113"></pos>
+						<size width="669" height="567"></size><image offsety="-56.620968" offsetx="-83.02545" zoom="0.28531176"></image><view selected="iso"></view><zslider value="44.0"></zslider>
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							<intype type="d:Float"></intype><intype type="m:Material"></intype>
+						</intypes>
+		
+						<functions>
+							
+						</functions>
+					</node><node type="predefined" title="Feature Source" id="1">
+						<pos x="-47" y="182"></pos>
+						
+						<sliders>
+							<slider name="scale" value="60"></slider><slider name="x" value="47"></slider><slider name="y" value="45"></slider><slider name="z" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							
+						</intypes>
+		
+						<functions>
+							<function name="srcv1308700001_1308700798_t1309182284_t1310342203" outname="v" outtype="Vec3">(source + (Vec3(x,y,z)-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="srcx1308700001_1308700798_t1309182284_t1310342203" outname="x" outtype="Float">(source.x + (x-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="srcy1308700001_1308700798_t1309182284_t1310342203" outname="y" outtype="Float">(source.y + (y-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="srcz1308700001_1308700798_t1309182284_t1310342203" outname="z" outtype="Float">(source.z + (z-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function>
+						</functions>
+					</node></nodes>
+			<connections><connection>
+						<in nodeid="3" connector="0"></in>
+						<out nodeid="1" connector="0"></out>
+					</connection><connection>
+						<in nodeid="4" connector="0"></in>
+						<out nodeid="1" connector="1"></out>
+					</connection><connection>
+						<in nodeid="6" connector="0"></in>
+						<out nodeid="1" connector="2"></out>
+					</connection><connection>
+						<in nodeid="2" connector="0"></in>
+						<out nodeid="6" connector="0"></out>
+					</connection><connection>
+						<in nodeid="4" connector="2"></in>
+						<out nodeid="1" connector="3"></out>
+					</connection><connection>
+						<in nodeid="5" connector="0"></in>
+						<out nodeid="3" connector="0"></out>
+					</connection><connection>
+						<in nodeid="5" connector="0"></in>
+						<out nodeid="4" connector="0"></out>
+					</connection><connection>
+						<in nodeid="6" connector="0"></in>
+						<out nodeid="5" connector="0"></out>
+					</connection><connection>
+						<in nodeid="4" connector="1"></in>
+						<out nodeid="1" connector="2"></out>
+					</connection></connections>
+		</document>
