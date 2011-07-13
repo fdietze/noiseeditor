@@ -5,7 +5,8 @@ case class FunctionNodeType(category:String, title:String, intypes:Seq[String], 
 //TODO: import from XML file
 //TODO: All Scales exponential
 //TODO: Compile check of all Nodes
-//TODO: More High Level nodes, like Surface, Layers, ...
+//TODO: More High Level nodes, like Surface, Layers, Fractal Noise, Turbulence
+//TODO: More Noise types, like cellular noise
 object FunctionNodeDatabase{
 	val functionnodetypes = Seq(
 		FunctionNodeType("Noise", "Noise xyz", Seq("x:Float","y:Float","z:Float"), Seq("size","outscale","outoffset"),
@@ -17,7 +18,7 @@ object FunctionNodeDatabase{
 			(noise1(v*invexpsize)+linearoutoffset)*expoutscale
 			""", "Float")),
 
-		FunctionNodeType("Noise", "Feature Noise", Seq("v:Seq[Vec3]=Seq(Vec3(0))","x:Seq[Float]=Nil","y:Seq[Float]=Nil","z:Seq[Float]=Nil","add:Seq[Float]=Nil","sub:Seq[Float]=Nil"),	Seq("size","scale","offset"),
+		FunctionNodeType("Noise", "Rich Noise", Seq("v:Seq[Vec3]=Seq(Vec3(0))","x:Seq[Float]=Nil","y:Seq[Float]=Nil","z:Seq[Float]=Nil","add:Seq[Float]=Nil","sub:Seq[Float]=Nil"),	Seq("size","scale","offset"),
 			Function("fnoise","""
 			val invexpsize = pow(256,((0.5f-size)*2f))
 			val expoutscale = pow(256,((scale-0.5f)*2f))/invexpsize
@@ -101,17 +102,14 @@ object FunctionNodeDatabase{
 		FunctionNodeType("Material", "Material Threshold", Seq("x:Material=Material(0xFFFFFF)","t:Float","y:Material=Material(0)"),	Seq("threshold"),
 			Function("matthreshold", "if(t > (threshold-0.5f)*2f) x else y", "Material")),
 		
-//TODO: Scale pro Koordinate
-		FunctionNodeType("Source", "Feature Source", Nil, Seq("scale", "x", "y", "z"),
-			Function("fsrcv", "(source + (Vec3(x,y,z)-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))", "Vec3", "v"),
-			Function("fsrcx", "(source.x + (x-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))", "Float", "x"),
-			Function("fsrcy", "(source.y + (y-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))", "Float", "y"),
-			Function("fsrcz", "(source.z + (z-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))", "Float", "z")),
-		FunctionNodeType("Source", "Source v", Nil, Nil, Function("srcv", "source", "Vec3", "v")),
-		FunctionNodeType("Source", "Source x", Nil, Nil, Function("srcx", "source.x", "Float", "x")),
-		FunctionNodeType("Source", "Source y", Nil, Nil, Function("srcy", "source.y", "Float", "y")),
-		FunctionNodeType("Source", "Source z", Nil, Nil, Function("srcz", "source.z", "Float", "z")),
-		FunctionNodeType("Source", "Source xyz", Nil, Nil,
+		FunctionNodeType("Source", "Scalable Source", Nil, Seq("scale"),
+			Function("scalesrcv", "source * (pow(256,((0.5f-scale)*2f)))", "Vec3", "v"),
+			Function("scalesrcx", "(source * (pow(256,((0.5f-scale)*2f)))).x", "Float", "x"),
+			Function("scalesrcy", "(source * (pow(256,((0.5f-scale)*2f)))).y", "Float", "y"),
+			Function("scalesrcz", "(source * (pow(256,((0.5f-scale)*2f)))).z", "Float", "z")),
+			
+		FunctionNodeType("Source", "Source", Nil, Nil,
+			Function("srcv", "source", "Vec3", "v"),
 			Function("srcxyzx", "source.x", "Float", "x"),
 			Function("srcxyzy", "source.y", "Float", "y"),
 			Function("srcxyzz", "source.z", "Float", "z"))
