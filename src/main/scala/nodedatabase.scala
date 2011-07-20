@@ -1,7 +1,7 @@
 package noiseeditor
 
 case class Function(name:String, code:String, outtype:String, outname:String = " ")
-case class FunctionNodeType(category:String, title:String, intypes:Seq[String], slidernames:Seq[String], functions:Function*)
+case class FunctionNodeType(category:String, title:String, intypes:Seq[String], sliders:Seq[AnyRef], functions:Function*)
 //TODO: import from XML file
 //TODO: All Scales exponential
 //TODO: Compile check of all Nodes
@@ -9,7 +9,7 @@ case class FunctionNodeType(category:String, title:String, intypes:Seq[String], 
 //TODO: More Noise types, like cellular noise
 object FunctionNodeDatabase{
 	val functionnodetypes = Seq(
-		FunctionNodeType("Noise", "Noise xyz", Seq("x:Float","y:Float","z:Float"), Seq("size","outscale","outoffset"),
+		FunctionNodeType("Noise", "Noise xyz", Seq("x:Float","y:Float","z:Float"), Seq("size",("outscale","s*5"),"outoffset"),
 			Function("noise3" ,"""
 			val v = Vec3(x,y,z)
 			val invexpsize = pow(256,((0.5f-size)*2f))
@@ -89,16 +89,8 @@ object FunctionNodeDatabase{
 		FunctionNodeType("Material", "Material Blue", Nil, Nil, Function("matblue", "Material(0x0000FF)", "Material")),
 		FunctionNodeType("Material", "Material Yellow", Nil, Nil, Function("matyellow", "Material(0xFFFF00)", "Material")),
 		FunctionNodeType("Material", "Material RGB", Nil, Seq("r","g","b"), Function("matrgb", "Material((r*255).toInt << 16 | (g*255).toInt << 8 | (b*255).toInt)", "Material")),
-		
-		// King Arthurs Gold
-		FunctionNodeType("Material", "Material Earth", Nil, Nil, Function("matearth", "Material(0x5a3910)", "Material")),
-		FunctionNodeType("Material", "Material Cave",  Nil, Nil, Function("matcave",  "Material(0x1f0000)", "Material")),
-		FunctionNodeType("Material", "Material Gravel",Nil, Nil, Function("matgravel","Material(0x282828)", "Material")),
-		FunctionNodeType("Material", "Material Stone", Nil, Nil, Function("matstone", "Material(0x373737)", "Material")),
-		FunctionNodeType("Material", "Material Gold",  Nil, Nil, Function("matgold",  "Material(0xfab614)", "Material")),
-		FunctionNodeType("Material", "Material Solid", Nil, Nil, Function("matsolid", "Material(0x1e321e)", "Material")),
-		FunctionNodeType("Material", "Material Solid", Nil, Nil, Function("matwood",  "Material(0x097b11)", "Material")),
-		
+
+
 		FunctionNodeType("Material", "Material Threshold", Seq("x:Material=Material(0xFFFFFF)","t:Float","y:Material=Material(0)"),	Seq("threshold"),
 			Function("matthreshold", "if(t > (threshold-0.5f)*2f) x else y", "Material")),
 		
@@ -112,7 +104,18 @@ object FunctionNodeDatabase{
 			Function("srcv", "source", "Vec3", "v"),
 			Function("srcxyzx", "source.x", "Float", "x"),
 			Function("srcxyzy", "source.y", "Float", "y"),
-			Function("srcxyzz", "source.z", "Float", "z"))
+			Function("srcxyzz", "source.z", "Float", "z")),
+
+		
+		// King Arthurs Gold
+		FunctionNodeType("Material", "Earth", Nil, Nil, Function("matearth", "Material(0x5a3910)", "Material")),
+		FunctionNodeType("Material", "Cave",  Nil, Nil, Function("matcave",  "Material(0x1f0000)", "Material")),
+		FunctionNodeType("Material", "Gravel",Nil, Nil, Function("matgravel","Material(0x282828)", "Material")),
+		FunctionNodeType("Material", "Stone", Nil, Nil, Function("matstone", "Material(0x373737)", "Material")),
+		FunctionNodeType("Material", "Gold",  Nil, Nil, Function("matgold",  "Material(0xfab614)", "Material")),
+		FunctionNodeType("Material", "Solid", Nil, Nil, Function("matsolid", "Material(0x1e321e)", "Material")),
+		FunctionNodeType("Material", "Wood", Nil, Nil, Function("matwood",  "Material(0x097b11)", "Material"))
+		
 		
 	)
 

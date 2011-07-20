@@ -59,7 +59,8 @@ class FunctionSlider(slidername:String, nodeid:Int, initvalue:Int = 50) extends 
 	name = slidername
 	value = initvalue
 	val globalname = "n" + nodeid + "_" + name
-	def globalvalue = value/100f
+	def transform(s:Float) = s
+	def globalvalue = transform(value/100f)
 	//TODO: Variable Größe
 	preferredSize = Vec2i(100,preferredSize.height)
 	tooltip = globalvalue.toString
@@ -67,7 +68,7 @@ class FunctionSlider(slidername:String, nodeid:Int, initvalue:Int = 50) extends 
 
 abstract class Node(val title:String, val id:Int = Node.nextid) extends BoxPanel(Vertical) with Movable {
 	def intypes:Seq[String] = Nil
-	def initslidernames:Seq[String] = Nil
+	def sliderdefinitions:Seq[AnyRef] = Nil
 	def functions:Seq[Function] = Nil
 
 	val sliders:Seq[FunctionSlider] = Nil
@@ -98,7 +99,27 @@ trait NodeInit extends Node with DelayedInit {
 		contents ++= outconnectors
 	}
 
-	override val sliders = initslidernames.map( slidername => new FunctionSlider(slidername, nodeid = id) )
+	override val sliders = 
+	for( slider <- sliderdefinitions ) yield {
+		slider match {
+			case name:String => new FunctionSlider(name, nodeid = id)
+			case (name:String, formula:String) =>
+				println("slider tuple")
+				new FunctionSlider(name, nodeid = id) {
+				// evaluate slider formula
+				println("init formula")
+				val compilation = InterpreterManager[Float => Float]("(s:Float) => " + formula)
+				println("use formula")
+				val function = compilation() match {
+					case Some(f) => f
+					case None => super.transform _
+				}
+				
+				println("override formula")
+				override def transform(s:Float) = function(s)
+			}
+		}
+	}
 
 	val sliderpanel = new GridBagPanel {
 		val constraints = new Constraints
@@ -156,7 +177,7 @@ trait NodeInit extends Node with DelayedInit {
 class PredefinedNode(title:String, id:Int, nodetype:FunctionNodeType) extends Node(title, id) with NodeInit {
 	override def functions = nodetype.functions
 	override def intypes = nodetype.intypes
-	override def initslidernames = nodetype.slidernames
+	override def sliderdefinitions = nodetype.sliders
 
 	contents +=	new BoxPanel(Horizontal){
 		contents += inconnectorpanel
@@ -169,7 +190,7 @@ class PredefinedNode(title:String, id:Int, nodetype:FunctionNodeType) extends No
 class CustomNode(title:String, id:Int, slidernames:Seq[String], override val intypes:Seq[String]) extends Node(title, id) with NodeInit with Resizable {
 	//TODO compilefehler im Node anzeigen
 	println("CustomNode Constructor")
-	override def initslidernames = slidernames
+	override def sliderdefinitions = slidernames
 	override def functions = Seq(Function(
 		name = "custom_f" + id,
 		code = if(funcfield != null) funcfield.text else "",
