@@ -25,6 +25,7 @@ import utilities._
 case class Material(color:Int = MaterialDefaultColor)
 
 object NoiseEditor extends SimpleSwingApplication {
+	UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName())
 
 	def reset {
 		NodeManager.reset
@@ -52,7 +53,6 @@ object NoiseEditor extends SimpleSwingApplication {
 	}
 
 	val top = new MainFrame {
-		UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName())
 		peer.setLocationByPlatform( true )
 		minimumSize = Vec2i(320, 240)
 		preferredSize = Vec2i(800,600)

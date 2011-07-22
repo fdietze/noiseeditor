@@ -9,7 +9,7 @@ case class FunctionNodeType(category:String, title:String, intypes:Seq[String], 
 //TODO: More Noise types, like cellular noise
 object FunctionNodeDatabase{
 	val functionnodetypes = Seq(
-		FunctionNodeType("Noise", "Noise xyz", Seq("x:Float","y:Float","z:Float"), Seq("size",("outscale","s*5"),"outoffset"),
+		FunctionNodeType("Noise", "Noise xyz", Seq("x:Float","y:Float","z:Float"), Seq("size","outscale","outoffset"),
 			Function("noise3" ,"""
 			val v = Vec3(x,y,z)
 			val invexpsize = pow(256,((0.5f-size)*2f))
@@ -17,6 +17,17 @@ object FunctionNodeDatabase{
 			val linearoutoffset = (outoffset-0.5f)*2f
 			(noise1(v*invexpsize)+linearoutoffset)*expoutscale
 			""", "Float")),
+
+		FunctionNodeType("Noise", "Noise xyz (fast sliders)", Seq("x:Float","y:Float","z:Float"),
+			Seq(
+				("size", "pow(256,((0.5f-s)*2f))"),
+				("outscale", "pow(256,((s-0.5f)*2f))"),
+				("outoffset", "(s-0.5f)*2f")),
+			Function("noise3" ,"""
+			val v = Vec3(x,y,z)
+			(noise1(v*size)+outoffset)*outscale/size
+			""", "Float")),
+
 
 		FunctionNodeType("Noise", "Rich Noise", Seq("v:Seq[Vec3]=Seq(Vec3(0))","x:Seq[Float]=Nil","y:Seq[Float]=Nil","z:Seq[Float]=Nil","add:Seq[Float]=Nil","sub:Seq[Float]=Nil"),	Seq("size","scale","offset"),
 			Function("fnoise","""

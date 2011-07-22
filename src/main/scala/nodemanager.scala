@@ -35,7 +35,7 @@ object NodeManager extends NullPanel("NodeManager") {
 		listenTo(node)
 		
 		for(slider <- node.sliders){
-			slidervalues(slider.globalname) = Box(0.5f)
+			slidervalues(slider.globalname) = Box(slider.globalvalue)
 			InterpreterManager.fbind(slider.globalname, "noiseeditor.utilities.Box[Float]", slidervalues(slider.globalname))
 		}
 	}

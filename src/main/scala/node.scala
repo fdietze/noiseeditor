@@ -59,11 +59,13 @@ class FunctionSlider(slidername:String, nodeid:Int, initvalue:Int = 50) extends 
 	name = slidername
 	value = initvalue
 	val globalname = "n" + nodeid + "_" + name
-	def transform(s:Float) = s
+	var formula:Option[String] = None
+	var transform:Float => Float = s => s
 	def globalvalue = transform(value/100f)
-	//TODO: Variable Größe
-	preferredSize = Vec2i(100,preferredSize.height)
 	tooltip = globalvalue.toString
+
+	//TODO: variable slider size
+	preferredSize = Vec2i(100,preferredSize.height)
 }
 
 abstract class Node(val title:String, val id:Int = Node.nextid) extends BoxPanel(Vertical) with Movable {
@@ -104,20 +106,16 @@ trait NodeInit extends Node with DelayedInit {
 		slider match {
 			case name:String => new FunctionSlider(name, nodeid = id)
 			case (name:String, formula:String) =>
-				println("slider tuple")
-				new FunctionSlider(name, nodeid = id) {
-				// evaluate slider formula
-				println("init formula")
 				val compilation = InterpreterManager[Float => Float]("(s:Float) => " + formula)
-				println("use formula")
-				val function = compilation() match {
-					case Some(f) => f
-					case None => super.transform _
+				new FunctionSlider(name, nodeid = id) {
+					compilation() match {
+						case Some(f) =>
+							transform = f
+							formula = formula
+						case None =>
+					}
+					tooltip = globalvalue.toString
 				}
-				
-				println("override formula")
-				override def transform(s:Float) = function(s)
-			}
 		}
 	}
 
