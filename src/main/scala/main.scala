@@ -45,6 +45,9 @@ object NoiseEditor extends SimpleSwingApplication {
 		InterpreterManager
 		NodeManager.listenTo(top)
 		ConnectionManager.listenTo(top, NodeManager)
+
+		NodeManager.peer.setSize(top.preferredSize)
+		ConnectionManager.peer.setSize(top.preferredSize)
 	
 		// Load some preconnected nodes
 		//TODO: Different Resourcepath on Mac OSX?
@@ -126,7 +129,7 @@ object NoiseEditor extends SimpleSwingApplication {
 				}
 			}
 			
-			contents += new Menu("Add other stuff"){
+			contents += new Menu("Other"){
 				contents += new MenuItem("Preview"){
 					action = new Action("Preview"){
 						def apply = NodeManager.add(Node.preview())
@@ -138,7 +141,6 @@ object NoiseEditor extends SimpleSwingApplication {
 					}
 				}
 			}
-			
 		}
 	}
 

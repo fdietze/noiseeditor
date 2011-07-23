@@ -32,9 +32,12 @@ package object config{
 	}
 	
 	val TypeDefaults = Map(
+		"Int" -> "0",
+		"Double" -> "0.0",
 		"Float" -> "0f",
 		"Seq" -> "Nil",
-		"Vec3" -> "Vec3(0)"
+		"Vec3" -> "Vec3(0)",
+		"Vec2" -> "Vec2(0)"
 	)
 	
 	

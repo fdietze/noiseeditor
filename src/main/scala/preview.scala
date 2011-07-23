@@ -40,8 +40,14 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		"valuesclamped" -> "Values clamped",
 		"valuesclampedgrid" -> "Values clamped +Grid",
 		"valuesstretched" -> "Values stretched",
-		"valuesnormalized" -> "Values normalized")
+		"valuesnormalized" -> "Values normalized"
+		)
 	
+	val perspectives = Seq(
+		("topview", ((v:Vec3) => v), "Side view"),
+		("sideview", ((v:Vec3) => Vec3(v.x,v.z,-v.y)), "Top view")
+		)
+		
 	val timer = new Timer
 	
 	val image = new PreviewImage
@@ -80,12 +86,12 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 				timer.start
 
 				val data:Array[Int] =
-				viewcombobox.selection.item._1 match {
+				viewcombobox.selected match {
 					case "iso" =>
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y = i/width
-							val result = composition( Vec3( transformZoomOffset(Vec2(x,y)) ,z) )
+							val result = composition( perspectivecombobox.selected( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
 							if( result._1 >= 0 )
 								result._2.color
 							else
@@ -100,11 +106,11 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 
 							var counter = 0
 					
-							var result = composition( Vec3( transformZoomOffset(Vec2(x,y)) ,tmpz) )
+							var result = composition( perspectivecombobox.selected( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
 							while( result._1 < 0 && counter < DepthMaxsteps ){
 								tmpz += DepthStepSize*zoom
 								counter += 1
-								result = composition( Vec3( transformZoomOffset(Vec2(x,y)) ,tmpz) )
+								result = composition( perspectivecombobox.selected( Vec3( transformZoomOffset(Vec2(x,y)) ,tmpz) ) )
 							} 
 					
 							counter = if(counter == 0) 0 else counter + 2
@@ -126,7 +132,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y = i/width
-							val result = composition( Vec3( transformZoomOffset(Vec2(x,y)) ,z) )
+							val result = composition( perspectivecombobox.selected( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
 							val value = (clamp( (result._1+1f)*0.5f, 0f, 1f )*255f).toInt
 							graycolor(value)
 						}.toArray
@@ -141,7 +147,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 							 || abs(translated.y - round(translated.y)) < zoom*0.5f )
 								GridColor
 							else {
-								val result = composition( Vec3( translated ,z) )
+								val result = composition( perspectivecombobox.selected( Vec3( translated ,z) ) )
 								val value = (clamp( (result._1+1f)*0.5f, 0f, 1f )*255f).toInt
 								if( result._1 > 0 )
 									mixcolors(IsolineColor, graycolor(value), 0.3f)
@@ -156,7 +162,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y = i/width
-							val result = composition( Vec3( transformZoomOffset(Vec2(x,y)) ,z) )
+							val result = composition( perspectivecombobox.selected( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
 							val value = (stretch( result._1)*255f).toInt
 							graycolor(value)
 						}.toArray
@@ -167,7 +173,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y = i/width
-							val result = composition( Vec3( transformZoomOffset(Vec2(x,y)) ,z) )._1
+							val result = composition( perspectivecombobox.selected( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )._1
 							if( result < minvalue ) minvalue = result
 							if( result > maxvalue ) maxvalue = result
 							result
@@ -185,7 +191,9 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 					var i = 0
 					("" /: s.reverse)( (x,y) => {i+=1;x + (if(i%3==1) "." else "") +y}).drop(1).reverse
 				}
-				speedlabel.text = "%s px/s".format(thousandspoints(((width*height)/timer.read).toLong.toString))	
+
+				speedlabel.value = math.max((width*height)/timer.read, speedlabel.value)
+				speedlabel.text = "%s px/s max".format(thousandspoints((speedlabel.value).toLong.toString))	
 				bufferedimage.setRGB(0, 0, width, height, data, 0, width)
 				
 				// Grid indicator
@@ -221,7 +229,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 					image.recalc
 			}
 		}
-		contents += new Label("z:")
+		contents += new Label("depth:")
 		contents += slider
 		var floatvalue = 50f
 		def value = floatvalue
@@ -234,6 +242,24 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 	val viewcombobox = new ComboBox(viewtypes) {
 		renderer = Renderer(_._2)
 		maximumSize = preferredSize
+		def selected = selection.item._1
+		def select(item:String) {
+			val index = viewtypes.map(_._1).indexOf(item)
+			selection.index = if( index == -1 ) selection.index else index
+
+		}
+	}
+
+	val perspectivecombobox = new ComboBox(perspectives) {
+		renderer = Renderer(_._3)
+		maximumSize = preferredSize
+		def selected = selection.item._2
+		def selectedname = selection.item._1
+		def select(item:String) {
+			val index = perspectives.map(_._1).indexOf(item)
+			selection.index = if( index == -1 ) selection.index else index
+
+		}
 	}
 
 	val resetbutton = new Button("reset") {
@@ -269,7 +295,9 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		}
 	}
 	
-	val speedlabel = new Label("")
+	val speedlabel = new Label(""){
+		var value:Double = 0.0
+	}
 
 	contents += new BoxPanel(Horizontal) {
 		contents += inconnectorpanel
@@ -279,7 +307,10 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 			contents += zslider
 			contents += new BoxPanel(Horizontal) {
 				contents += viewcombobox
+				contents += perspectivecombobox
 				contents += resetbutton
+			}
+			contents += new BoxPanel(Horizontal) {
 				contents += exportbutton
 				contents += removebutton
 			}
@@ -291,11 +322,12 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		future{
 			composition.generate(densityconnector, materialconnector)
 			composition.compile
+			speedlabel.value = 0.0
 			image.recalc
 		}
 	}
 	
-	listenTo(ConnectionManager, NodeManager, viewcombobox.selection)
+	listenTo(ConnectionManager, NodeManager, viewcombobox.selection, perspectivecombobox.selection)
 	reactions += {
 		case NodeValueChanged(source, node, slider, value) =>
 			if( composition.involvedsliders contains slider )
@@ -307,7 +339,12 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		case e:NodeChanged =>
 			recompile
 
-		case SelectionChanged(source) if( source eq viewcombobox ) =>
+		case SelectionChanged(`viewcombobox`) =>
+			speedlabel.value = 0.0
+			image.recalc
+
+		case SelectionChanged(`perspectivecombobox`) =>
+			speedlabel.value = 0.0
 			image.recalc
 	}	
 }

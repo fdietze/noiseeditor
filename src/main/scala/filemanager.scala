@@ -69,7 +69,7 @@ object FileManager extends Publisher {
 				var file = chooser.selectedFile
 				if( !file.getName.toLowerCase.endsWith(".xml") )
 					file = new File(file.getPath + ".xml")
-					
+				//TODO: Ask if overwriting file	
 				FileManager.writeSession(file)
 				currentFile = Some(file)
 				setFileunchanged
@@ -170,6 +170,7 @@ object FileManager extends Publisher {
 
 			val slidernames = ( node \ "sliders" \ "slider" ) map ( _ \ "@name" text)
 			val slidervalues = ( node \ "sliders" \ "slider" ) map ( s => (s \ "@value").text.toInt)
+			val sliderformulas = ( node \ "sliders" \ "slider" ) map ( s => (s \ "@formula").text) map ( f => if( f.isEmpty ) "s" else f)
 			val intypes = ( node \ "intypes" \ "intype" ) map ( _  \ "@type" text )
 			
 			val functions =
@@ -187,7 +188,7 @@ object FileManager extends Publisher {
 			
 			nodetype match {
 			case "predefined" =>
-				val nodetype = FunctionNodeType("", title, intypes, slidernames, functions:_*)
+				val nodetype = FunctionNodeType("", title, intypes, slidernames zip sliderformulas, functions:_*)
 				val predefined = Node(nodetype, newid(id))
 				nodeforid(predefined.id) = predefined
 				NodeManager.add(predefined)
@@ -214,16 +215,19 @@ object FileManager extends Publisher {
 				val offset = Vec2(offsetx, offsety)
 				val zoom = (node \ "image" \ "@zoom").text.toFloat
 				val selectedview = (node \ "view" \ "@selected").text
+				val selectedperspective = (node \ "perspective" \ "@selected").text
 				val zslider = (node \ "zslider" \ "@value").text.toFloat
 				val preview = Node.preview(newid(id))
+
 				nodeforid(preview.id) = preview
 				NodeManager.add(preview)
 				preview.peer.setLocation(location)
 				preview.peer.setSize(size)
 				preview.image.offset = offset
 				preview.image.zoom = zoom
-				val selectedviewindex = preview.viewtypes.map(_._1).indexOf(selectedview)
-				preview.viewcombobox.selection.index = if( selectedviewindex == -1 ) 0 else selectedviewindex
+				
+				preview.viewcombobox.select(selectedview)
+				preview.perspectivecombobox.select(selectedperspective)				
 				preview.zslider.value = zslider
 			}
 		}
@@ -268,7 +272,8 @@ object FileManager extends Publisher {
 							import preview._
 							<size width={size.width} height={size.height} />
 							<image offsetx={image.offset.x} offsety={image.offset.y} zoom={image.zoom} />
-							<view selected={viewcombobox.selection.item._1} />
+							<view selected={viewcombobox.selected} />
+							<perspective selected={perspectivecombobox.selectedname} />
 							<zslider value={zslider.value} />
 						}
 						else if( nodetype == "custom") {
@@ -276,7 +281,7 @@ object FileManager extends Publisher {
 						}
 						}
 						<sliders>
-							{sliders.map( slider => <slider name={slider.name} value={slider.value} /> )}
+							{sliders.map( slider => <slider name={slider.name} value={slider.value} formula={slider.tformula} /> )}
 						</sliders>
 		
 						<intypes>

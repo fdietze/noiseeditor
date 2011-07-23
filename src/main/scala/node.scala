@@ -59,8 +59,10 @@ class FunctionSlider(slidername:String, nodeid:Int, initvalue:Int = 50) extends 
 	name = slidername
 	value = initvalue
 	val globalname = "n" + nodeid + "_" + name
-	var formula:Option[String] = None
+
+	var tformula = "s"
 	var transform:Float => Float = s => s
+
 	def globalvalue = transform(value/100f)
 	tooltip = globalvalue.toString
 
@@ -111,7 +113,7 @@ trait NodeInit extends Node with DelayedInit {
 					compilation() match {
 						case Some(f) =>
 							transform = f
-							formula = formula
+							tformula = formula
 						case None =>
 					}
 					tooltip = globalvalue.toString

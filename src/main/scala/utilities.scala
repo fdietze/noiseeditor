@@ -301,7 +301,7 @@ class InterpreterQueue extends tools.nsc.interpreter.IMain {
 				valueOfTerm(mostRecentVar).asInstanceOf[Option[T]]
 		}
 		else {
-			println("error in interpreted code\n")
+			println("error in interpreted code: "+code+"\n")
 			None
 		}
 	}
