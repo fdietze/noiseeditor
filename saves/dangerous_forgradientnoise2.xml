@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<document>
+			<nodes><node type="predefined" title="Rich Noise" id="7">
+						<pos x="336" y="13"></pos>
+						
+						<sliders>
+							<slider name="size" formula="pow(256,((0.5f-s)*2f))" value="94"></slider><slider name="scale" formula="pow(256,((s-0.5f)*2f))" value="45"></slider><slider name="offset" formula="(s-0.5f)*2f" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="v:Seq[Vec3]"></intype><intype type="x:Seq[Float]"></intype><intype type="y:Seq[Float]"></intype><intype type="z:Seq[Float]"></intype><intype type="add:Seq[Float]"></intype><intype type="sub:Seq[Float]"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="richnoise3_t1311722299" outname=" " outtype="Float">
+			val sumv = v.fold[Vec3](Vec3(0))( (a,b) =&gt; a+b ) + Vec3(x.sum,y.sum,z.sum)
+			(noise1(sumv*size)+offset)*scale/size + add.sum - sub.sum
+			</function>
+						</functions>
+					</node><node type="predefined" title="Noise v" id="11">
+						<pos x="111" y="32"></pos>
+						
+						<sliders>
+							<slider name="size" formula="pow(256,((0.5f-s)*2f))" value="93"></slider><slider name="scale" formula="pow(256,((s-0.5f)*2f))" value="58"></slider><slider name="offset" formula="(s-0.5f)*2f" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="v:Vec3=Vec3(0)"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="noise3v_t1311722299" outname=" " outtype="Float">(noise1(v*size)+offset)*scale/size</function>
+						</functions>
+					</node><node type="predefined" title="Source" id="6">
+						<pos x="10" y="20"></pos>
+						
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							
+						</intypes>
+		
+						<functions>
+							<function name="srcv_t1311722299" outname="v" outtype="Vec3">source</function><function name="srcxyzx_t1311722299" outname="x" outtype="Float">source.x</function><function name="srcxyzy_t1311722299" outname="y" outtype="Float">source.y</function><function name="srcxyzz_t1311722299" outname="z" outtype="Float">source.z</function>
+						</functions>
+					</node><node type="preview" title="Preview" id="9">
+						<pos x="583" y="14"></pos>
+						<size width="579" height="464"></size><image offsety="-133.94328" offsetx="-311.0273" zoom="0.7400254"></image><view selected="iso"></view><perspective selected="topview"></perspective><zslider value="50.0"></zslider>
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							<intype type="d:Float"></intype><intype type="m:Material"></intype>
+						</intypes>
+		
+						<functions>
+							
+						</functions>
+					</node><node type="predefined" title="Rich Noise" id="8">
+						<pos x="132" y="219"></pos>
+						
+						<sliders>
+							<slider name="size" formula="pow(256,((0.5f-s)*2f))" value="80"></slider><slider name="scale" formula="pow(256,((s-0.5f)*2f))" value="71"></slider><slider name="offset" formula="(s-0.5f)*2f" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="v:Seq[Vec3]"></intype><intype type="x:Seq[Float]"></intype><intype type="y:Seq[Float]"></intype><intype type="z:Seq[Float]"></intype><intype type="add:Seq[Float]"></intype><intype type="sub:Seq[Float]"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="richnoise3_t1311722299" outname=" " outtype="Float">
+			val sumv = v.fold[Vec3](Vec3(0))( (a,b) =&gt; a+b ) + Vec3(x.sum,y.sum,z.sum)
+			(noise1(sumv*size)+offset)*scale/size + add.sum - sub.sum
+			</function>
+						</functions>
+					</node></nodes>
+			<connections><connection>
+						<in nodeid="11" connector="0"></in>
+						<out nodeid="6" connector="0"></out>
+					</connection><connection>
+						<in nodeid="7" connector="4"></in>
+						<out nodeid="11" connector="0"></out>
+					</connection><connection>
+						<in nodeid="7" connector="4"></in>
+						<out nodeid="6" connector="2"></out>
+					</connection><connection>
+						<in nodeid="9" connector="0"></in>
+						<out nodeid="7" connector="0"></out>
+					</connection><connection>
+						<in nodeid="7" connector="0"></in>
+						<out nodeid="6" connector="0"></out>
+					</connection><connection>
+						<in nodeid="8" connector="0"></in>
+						<out nodeid="6" connector="0"></out>
+					</connection><connection>
+						<in nodeid="7" connector="2"></in>
+						<out nodeid="8" connector="0"></out>
+					</connection></connections>
+		</document>

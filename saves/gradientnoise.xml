@@ -1,55 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <document>
-			<nodes><node type="predefined" title="Feature Source" id="4">
-						<pos x="75" y="-561"></pos>
-						
-						<sliders>
-							<slider name="scale" value="50"></slider><slider name="x" value="50"></slider><slider name="y" value="50"></slider><slider name="z" value="50"></slider>
-						</sliders>
-		
-						<intypes>
-							
-						</intypes>
-		
-						<functions>
-							<function name="fsrcv_t1309708241_t1309812647_t1309962443_t1310225508" outname="v" outtype="Vec3">(source + (Vec3(x,y,z)-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="fsrcx_t1309708241_t1309812647_t1309962443_t1310225508" outname="x" outtype="Float">(source.x + (x-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="fsrcy_t1309708241_t1309812647_t1309962443_t1310225508" outname="y" outtype="Float">(source.y + (y-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="fsrcz_t1309708241_t1309812647_t1309962443_t1310225508" outname="z" outtype="Float">(source.z + (z-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function>
-						</functions>
-					</node><node type="predefined" title="Source xyz" id="3">
-						<pos x="89" y="522"></pos>
-						
-						<sliders>
-							
-						</sliders>
-		
-						<intypes>
-							
-						</intypes>
-		
-						<functions>
-							<function name="srcxyzx_t1309812647_t1309962443_t1310225508" outname="x" outtype="Float">source.x</function><function name="srcxyzy_t1309812647_t1309962443_t1310225508" outname="y" outtype="Float">source.y</function><function name="srcxyzz_t1309812647_t1309962443_t1310225508" outname="z" outtype="Float">source.z</function>
-						</functions>
-					</node><node type="predefined" title="Noise v" id="2">
-						<pos x="797" y="-563"></pos>
-						
-						<sliders>
-							<slider name="size" value="50"></slider><slider name="outscale" value="50"></slider><slider name="outoffset" value="50"></slider>
-						</sliders>
-		
-						<intypes>
-							<intype type="v:Vec3=Vec3(0)"></intype>
-						</intypes>
-		
-						<functions>
-							<function name="noise3v_t1309708241_t1309812647_t1309962443_t1310225508" outname=" " outtype="Float">
-			val invexpsize = pow(256,((0.5f-size)*2f))
-			val expoutscale = pow(256,((outscale-0.5f)*2f))/invexpsize
-			val linearoutoffset = (outoffset-0.5f)*2f
-			(noise1(v*invexpsize)+linearoutoffset)*expoutscale
-			</function>
-						</functions>
-					</node><node type="preview" title="Preview" id="8">
-						<pos x="997" y="-562"></pos>
-						<size width="276" height="325"></size><image offsety="0.0" offsetx="0.0" zoom="0.1"></image><view selected="iso"></view><zslider value="50.0"></zslider>
+			<nodes><node type="preview" title="Preview" id="4">
+						<pos x="937" y="-2"></pos>
+						<size width="460" height="372"></size><image offsety="62.49999" offsetx="5.5000057" zoom="0.1"></image><view selected="iso"></view><perspective selected="topview"></perspective><zslider value="50.0"></zslider>
 						<sliders>
 							
 						</sliders>
@@ -61,11 +14,25 @@
 						<functions>
 							
 						</functions>
-					</node><node type="custom" title="Custom" id="1">
-						<pos x="75" y="-422"></pos>
+					</node><node type="preview" title="Preview" id="7">
+						<pos x="881" y="1032"></pos>
+						<size width="285" height="330"></size><image offsety="-2.31964979E9" offsetx="-2.48246758E9" zoom="1.8990618E7"></image><view selected="iso"></view><perspective selected="topview"></perspective><zslider value="50.0"></zslider>
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							<intype type="d:Float"></intype><intype type="m:Material"></intype>
+						</intypes>
+		
+						<functions>
+							
+						</functions>
+					</node><node type="custom" title="Custom" id="5">
+						<pos x="17" y="204"></pos>
 						<size width="781" height="759"></size>
 						<sliders>
-							<slider name="s1" value="23"></slider><slider name="s2" value="0"></slider><slider name="s3" value="0"></slider>
+							<slider name="s1" formula="s" value="15"></slider><slider name="s2" formula="s" value="0"></slider><slider name="s3" formula="s" value="0"></slider>
 						</sliders>
 		
 						<intypes>
@@ -73,7 +40,7 @@
 						</intypes>
 		
 						<functions>
-							<function name="custom_f1_t1310225508" outname=" " outtype="Float">// Improved Noise
+							<function name="custom_f5_t1311509044" outname=" " outtype="Float">// Improved Noise
 // from http://mrl.nyu.edu/~perlin/noise/
 // Changes: Own Hash-function with seed =&gt; no Permutation-Table
 
@@ -81,18 +48,19 @@
 			def fastfloor(x:Double) = (if(x &gt; 0) x else (x-1)).toInt
 			def fade(t:Double) = t * t * t * (t * (t * 6 - 15) + 10)
 			def lerp(t:Double, a:Double, b:Double) = a + t * (b - a)
-			//def hash(k:Int) = (((k*0x12345678) &gt;&gt; ((k*0x87754351)&amp;31))^seed) &amp; 0x7FFFFFFF
+			def hash(k:Int) = (((k*0x12345678) &gt;&gt; ((k*0x87754351)&amp;31))^seed) &amp; 0x7FFFFFFF
 			// universal hash function:
-			def hash(k:Int) = ((0x1345452*k+seed) % 1332427) % 0x93564
+			//def hash(k:Int) = ((0x1345452*k+seed) % 1332427) % 0x93564
 
-			def grad_optimized(hash:Int, x:Double, y:Double, z:Double) = {
+			def grad(hash:Int, x:Double, y:Double, z:Double) = {
 				val h = hash &amp; 15
 				val u = if(h&lt;8) x else y
 				val v = if(h&lt;4) y else {if(h==12 || h==14) x else z}
 				(if((h&amp;1) == 0) u else -u) + (if((h&amp;2) == 0) v else -v)
 			}
 			
-			def grad_simplified(hash:Int, x:Double, y:Double, z:Double) = {
+			// Simplified grad
+			/*def grad(hash:Int, x:Double, y:Double, z:Double) = {
 				val gradients = Array(
 					Vec3( 1, 1, 0),
 					Vec3(-1, 1, 0),
@@ -115,10 +83,8 @@
 					Vec3( 0,-1,-1)
 				)
 				dot( gradients(hash &amp; 15), Vec3(x.toFloat,y.toFloat,z.toFloat) )
-			}
+			}//*/
 			
-			def grad = grad_optimized _
-
 			val X = fastfloor(x)
 			val Y = fastfloor(y)
 			val Z = fastfloor(z)
@@ -146,11 +112,39 @@
 
 	noise3(a.toDouble,b.toDouble,c.toDouble,(s1*100).toInt).toFloat</function>
 						</functions>
-					</node><node type="custom" title="Custom" id="5">
-						<pos x="326" y="522"></pos>
+					</node><node type="preview" title="Preview" id="8">
+						<pos x="864" y="411"></pos>
+						<size width="590" height="351"></size><image offsety="33.499992" offsetx="31.699986" zoom="0.1"></image><view selected="iso"></view><perspective selected="topview"></perspective><zslider value="50.0"></zslider>
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							<intype type="d:Float"></intype><intype type="m:Material"></intype>
+						</intypes>
+		
+						<functions>
+							
+						</functions>
+					</node><node type="predefined" title="Source" id="9">
+						<pos x="-2" y="43"></pos>
+						
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							
+						</intypes>
+		
+						<functions>
+							<function name="srcv_t1311509044" outname="v" outtype="Vec3">source</function><function name="srcxyzx_t1311509044" outname="x" outtype="Float">source.x</function><function name="srcxyzy_t1311509044" outname="y" outtype="Float">source.y</function><function name="srcxyzz_t1311509044" outname="z" outtype="Float">source.z</function>
+						</functions>
+					</node><node type="custom" title="Custom" id="6">
+						<pos x="268" y="1148"></pos>
 						<size width="513" height="368"></size>
 						<sliders>
-							<slider name="s1" value="100"></slider><slider name="s2" value="50"></slider><slider name="s3" value="50"></slider>
+							<slider name="s1" formula="s" value="100"></slider><slider name="s2" formula="s" value="50"></slider><slider name="s3" formula="s" value="50"></slider>
 						</sliders>
 		
 						<intypes>
@@ -158,7 +152,7 @@
 						</intypes>
 		
 						<functions>
-							<function name="custom_f5_t1310225508" outname=" " outtype="Float">// testing the hash function
+							<function name="custom_f6_t1311509044" outname=" " outtype="Float">// testing the hash function
 
 val seed = (s1*100).toInt
 
@@ -170,64 +164,64 @@ val seed = (s1*100).toInt
 
 (hash(hash(hash(a.toInt) + b.toInt) + c.toInt) &amp; 1)-0.5f</function>
 						</functions>
-					</node><node type="preview" title="Preview" id="6">
-						<pos x="939" y="406"></pos>
-						<size width="285" height="330"></size><image offsety="-2.31964979E9" offsetx="-2.48246758E9" zoom="1.8990618E7"></image><view selected="iso"></view><zslider value="50.0"></zslider>
+					</node><node type="predefined" title="Noise v" id="10">
+						<pos x="672" y="65"></pos>
+						
 						<sliders>
-							
+							<slider name="size" formula="pow(256,((0.5f-s)*2f))" value="50"></slider><slider name="scale" formula="pow(256,((s-0.5f)*2f))" value="50"></slider><slider name="offset" formula="(s-0.5f)*2f" value="50"></slider>
 						</sliders>
 		
 						<intypes>
-							<intype type="d:Float"></intype><intype type="m:Material"></intype>
+							<intype type="v:Vec3=Vec3(0)"></intype>
 						</intypes>
 		
 						<functions>
-							
+							<function name="noise3v_t1311509044" outname=" " outtype="Float">(noise1(v*size)+offset)*scale/size</function>
 						</functions>
-					</node><node type="preview" title="Preview" id="7">
-						<pos x="900" y="-357"></pos>
-						<size width="878" height="636"></size><image offsety="34.027542" offsetx="84.05482" zoom="0.056447368"></image><view selected="valuesclampedgrid"></view><zslider value="50.0"></zslider>
+					</node><node type="predefined" title="Source xyz" id="2">
+						<pos x="31" y="1148"></pos>
+						
 						<sliders>
 							
 						</sliders>
 		
 						<intypes>
-							<intype type="d:Float"></intype><intype type="m:Material"></intype>
+							
 						</intypes>
 		
 						<functions>
-							
+							<function name="srcxyzx_t1309812647_t1309962443_t1310225508_t1311509044" outname="x" outtype="Float">source.x</function><function name="srcxyzy_t1309812647_t1309962443_t1310225508_t1311509044" outname="y" outtype="Float">source.y</function><function name="srcxyzz_t1309812647_t1309962443_t1310225508_t1311509044" outname="z" outtype="Float">source.z</function>
 						</functions>
 					</node></nodes>
 			<connections><connection>
-						<in nodeid="1" connector="0"></in>
-						<out nodeid="4" connector="1"></out>
-					</connection><connection>
-						<in nodeid="1" connector="2"></in>
-						<out nodeid="4" connector="3"></out>
-					</connection><connection>
-						<in nodeid="7" connector="0"></in>
-						<out nodeid="1" connector="0"></out>
-					</connection><connection>
-						<in nodeid="1" connector="1"></in>
-						<out nodeid="4" connector="2"></out>
-					</connection><connection>
-						<in nodeid="2" connector="0"></in>
-						<out nodeid="4" connector="0"></out>
-					</connection><connection>
 						<in nodeid="5" connector="0"></in>
-						<out nodeid="3" connector="0"></out>
-					</connection><connection>
-						<in nodeid="5" connector="1"></in>
-						<out nodeid="3" connector="1"></out>
+						<out nodeid="9" connector="1"></out>
 					</connection><connection>
 						<in nodeid="6" connector="0"></in>
-						<out nodeid="5" connector="0"></out>
-					</connection><connection>
-						<in nodeid="8" connector="0"></in>
 						<out nodeid="2" connector="0"></out>
 					</connection><connection>
+						<in nodeid="4" connector="0"></in>
+						<out nodeid="10" connector="0"></out>
+					</connection><connection>
+						<in nodeid="6" connector="1"></in>
+						<out nodeid="2" connector="1"></out>
+					</connection><connection>
+						<in nodeid="10" connector="0"></in>
+						<out nodeid="9" connector="0"></out>
+					</connection><connection>
+						<in nodeid="5" connector="1"></in>
+						<out nodeid="9" connector="2"></out>
+					</connection><connection>
 						<in nodeid="5" connector="2"></in>
-						<out nodeid="3" connector="2"></out>
+						<out nodeid="9" connector="3"></out>
+					</connection><connection>
+						<in nodeid="7" connector="0"></in>
+						<out nodeid="6" connector="0"></out>
+					</connection><connection>
+						<in nodeid="8" connector="0"></in>
+						<out nodeid="5" connector="0"></out>
+					</connection><connection>
+						<in nodeid="6" connector="2"></in>
+						<out nodeid="2" connector="2"></out>
 					</connection></connections>
 		</document>
