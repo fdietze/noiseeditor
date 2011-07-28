@@ -8,12 +8,53 @@ import simplex3d.math._
 import simplex3d.math.double._
 import simplex3d.math.double.functions._
 
+class FunctionTree {
+	class Node {
+		val children = new collection.mutable.HashMap[String, FunctionNode]()
+		def apply(parameter:String) = children(parameter)
+		def update(parameter:String, function:Function) { children(parameter) = new FunctionNode(function) }
+	}
+	
+	class FunctionNode(val function:Function) extends Node {
+		def name = function.name
+		def code = function.code
+		def outtype = function.outtype
+	}
+	
+	val root = new Node
+	def apply(parameter:String) = root(parameter)
+	def update(parameter:String, function:Function) { root(parameter) = function }
+}
+
 class Composition extends Publisher{
 	var densityfunction:( Vec3 ) => (Double, Material) = (v) => (0,Material())
 	var code = "0"
 	var involvedsliders = Set[String]()
 
 	def apply( v:Vec3 ):(Double, Material) = densityfunction(v)
+	
+	def functiontree(
+		densityconnector:InConnector,
+		materialconnector:InConnector):FunctionTree = {
+		
+		import ConnectionManager.connections
+		val tree = new FunctionTree
+		val densityconnection = connections(densityconnector)
+		val materialconnection = connections(materialconnector)
+
+		val nextnodes = new collection.mutable.Queue[Node]
+		
+
+
+		// If there is a connection at this densityconnector
+		if( densityconnection.nonEmpty ){
+			val connector = densityconnection.head
+			tree("d") = connector.function
+			nextnodes += connector.node
+		}			
+		
+		tree
+	}
 	
 	def generate (
 		densityconnector:InConnector,

@@ -12,7 +12,7 @@ import simplex3d.math._
 import simplex3d.math.double._
 import simplex3d.math.double.functions._
 
-abstract class Connector(val title:String, val funcname:String, val datatype:String, val node:Node) extends Button(title){
+abstract class Connector(val title:String, val datatype:String, val node:Node) extends Button(title){
 	margin = new Insets(0,0,0,0)
 	val originalbackground = background
 	val highlightbackground = ConnectorHighlightColor
@@ -23,16 +23,18 @@ abstract class Connector(val title:String, val funcname:String, val datatype:Str
 			publish(HitConnector(source = this,connector = this))
 	}
 	override def toString = getClass.getName.split('.').last + "(" + title + ")"
+	def funcname = ""
 }
 
 case class InConnector(
 	override val title:String,
 	override val datatype:String,
-	override val node:Node ) extends Connector(title, "", datatype, node)
+	override val node:Node ) extends Connector(title, datatype, node)
 case class OutConnector(
-	override val title:String,
-	override val funcname:String,
-	override val datatype:String,
-	override val node:Node) extends Connector(title, funcname, datatype, node)
+	val function:Function,
+	override val node:Node) extends Connector(function.name, function.outtype, node) {
+	
+	override def funcname = function.name
+}
 
 

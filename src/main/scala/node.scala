@@ -91,8 +91,8 @@ trait NodeInit extends Node with DelayedInit {
 		val RegexArg(argname, argtype, _, _) = intype
 		new InConnector(argname, argtype, thisnode)
 	}
-	override val outconnectors = for( Function(funcname, _, outtype, outname) <- functions ) yield{
-		new OutConnector(outname, funcname, outtype, thisnode)
+	override val outconnectors = for( function @ Function(funcname, _, outtype, outname) <- functions ) yield{
+		new OutConnector(function, thisnode)
 	}
 	
 	val inconnectorpanel = new BoxPanel(Vertical) {
