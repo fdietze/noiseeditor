@@ -63,7 +63,6 @@ object NodeManager extends NullPanel("NodeManager") {
 	reactions += {
 		case NodeValueChanged(source, node, slider, value) if(source ne this) =>
 			slidervalues(slider).value = value
-			println("slider changed: " + value)
 			publish(NodeValueChanged(source = this, node, slider, value))
 
 		case NodeChanged(source, node) if(source ne this) =>

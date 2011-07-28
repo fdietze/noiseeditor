@@ -90,39 +90,44 @@ object ConnectionManager extends Component {
 	}
 	
 	def changeConnection(in:InConnector, out:OutConnector):Boolean = {
-		val RegexType(insupertype, _, insubtype) = in.datatype
-		
-		// If input is not connected yet
-		// or a sequence
-		if( out.datatype == insupertype && (connections(in).size == 0 || connections.edgeExists(in, out))
-			|| out.datatype == insubtype ) {
-			connections.flipedge((in,out))
-
-			if( cycleAt(in) ) {				
-				connections.flipedge((in,out))
-				false
-			}
-			else {
-				this.repaint
-				true
-			}
-		}
-		
-		// Replace input by another
-		else if( out.datatype == insupertype
-		         && connections(in).size == 1 ) {
-			connections -= (in,connections(in).head)
-			connections += (in,out)
-			
-			if( cycleAt(in) ){
-				connections += (in,connections(in).head)
+		if( out.datatype == in.datatype ) {
+			// If already connected
+			if( connections.edgeExists(in, out) )
+			{
 				connections -= (in,out)
-				false
+				true
 			}
 			else
 			{
-				this.repaint
-				true
+				connections(in).size match {
+					// If input is not connected yet
+					case 0 => 
+						connections.flipedge((in,out))
+						if( cycleAt(in) ) {
+							connections.flipedge((in,out))
+							false
+						}
+						else {
+							this.repaint
+							true
+						}
+					// Replace input by another
+					case 1 =>
+						connections -= (in,connections(in).head)
+						connections += (in,out)
+			
+						if( cycleAt(in) ){
+							connections += (in,connections(in).head)
+							connections -= (in,out)
+							false
+						}
+						else
+						{
+							this.repaint
+							true
+						}
+					case _ => throw new Exception("Too Many Connections at Connector.Z")
+				}
 			}
 		}
 		else

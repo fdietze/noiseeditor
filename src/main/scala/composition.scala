@@ -58,30 +58,19 @@ class Composition extends Publisher{
 			import currentnode._
 			
 			val inconnections = inconnectors.map(c => connections(c))
+			
 			val currentargs = 
 			((for( (inconnection, intype) <- inconnections zip intypes ) yield {
 				if( inconnection.nonEmpty ) {
-					var connectors:Set[_ <: Connector] = Set(inconnection.head)
-					var prefix = ""
-					var suffix = ""
+					var connector = inconnection.head
 			
-					val RegexArg(_, RegexType(argsupertype, _, _), _, _) = intype
-					// If this connector accepts more than one input
-					if( argsupertype == "Seq" ) {
-						connectors = inconnection.toSet
-						prefix = "Seq("
-						suffix = ")"
-					}
-			
-					prefix + (for( connector <- connectors ) yield {
 						nextnodes += connector.node
 						"vn" + connector.node.id + "_" + connector.funcname
-					}).mkString(", ") + suffix
 				}
 				else {
-					val RegexArg(_, RegexType(argsupertype, _, _), _, argdefault) = intype
+					val RegexArg(_, argtype, _, argdefault) = intype
 					if( argdefault == null )
-						TypeDefaults(argsupertype)
+						TypeDefaults(argtype)
 					else
 						argdefault
 				}
