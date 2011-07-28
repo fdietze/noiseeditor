@@ -6,13 +6,13 @@ import scala.util.matching.Regex
 
 package object config{
 	val RegexArg = new Regex("""([a-z][A-Za-z0-9]*)\W*\:\W*([A-Z][A-Za-z0-9\[\]\ ]*)(\W*\=\W*(.*))?""")
-	// val RegexArg(arname, argtype, _, argdefault) = "xs : Seq[Float] = Seq(0f)"
+	// val RegexArg(arname, argtype, _, argdefault) = "xs : Seq[Double] = Seq(0)"
 
 	val RegexType = new Regex("""([A-Z][A-Za-z0-9]*)(\W*\[\W*([A-Z][A-Za-z0-9]*)\W*\]\W*)?""")
 	// val RegexType(supertype, _, subtype) = argtype
 	
 	val GridIndicatorColor:Color = new Color(0x39B3E9)
-	val GridIndicatorScale = 0.1f
+	val GridIndicatorScale = 0.1
 	val IsolineColor:Int = 0x39E9B3
 	val GridColor:Int = 0xFFB578
 	
@@ -21,7 +21,7 @@ package object config{
 	
 	val MaterialDefaultColor = 0x000000
 	
-	val DepthStepSize = 3f
+	val DepthStepSize = 3.0
 	val DepthMaxsteps = 16
 	val DepthFadeOutFactor = 0.81
 	
@@ -34,7 +34,6 @@ package object config{
 	val TypeDefaults = Map(
 		"Int" -> "0",
 		"Double" -> "0.0",
-		"Float" -> "0f",
 		"Seq" -> "Nil",
 		"Vec3" -> "Vec3(0)",
 		"Vec2" -> "Vec2(0)"

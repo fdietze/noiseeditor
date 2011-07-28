@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <document>
-			<nodes><node type="predefined" title="Source" id="4">
-						<pos x="58" y="169"></pos>
+			<nodes><node type="predefined" title="Source" id="1">
+						<pos x="30" y="134"></pos>
 						
 						<sliders>
 							
@@ -12,37 +12,34 @@
 						</intypes>
 		
 						<functions>
-							<function name="srcv_t1311185974" outname="v" outtype="Vec3">source</function><function name="srcxyzx_t1311185974" outname="x" outtype="Float">source.x</function><function name="srcxyzy_t1311185974" outname="y" outtype="Float">source.y</function><function name="srcxyzz_t1311185974" outname="z" outtype="Float">source.z</function>
+							<function name="srcv_t1311862866" outname="v" outtype="Vec3">source</function><function name="srcxyzx_t1311862866" outname="x" outtype="Double">source.x</function><function name="srcxyzy_t1311862866" outname="y" outtype="Double">source.y</function><function name="srcxyzz_t1311862866" outname="z" outtype="Double">source.z</function>
 						</functions>
-					</node><node type="predefined" title="Rich Noise" id="5">
-						<pos x="196" y="159"></pos>
+					</node><node type="predefined" title="Fast Rich Noise" id="2">
+						<pos x="156" y="101"></pos>
 						
 						<sliders>
-							<slider name="size" value="66"></slider><slider name="scale" value="60"></slider><slider name="offset" value="50"></slider>
+							<slider name="size" formula="pow(256,((0.5-s)*2))" value="50"></slider><slider name="scale" formula="pow(256,((s-0.5)*2))" value="50"></slider><slider name="offset" formula="(s-0.5)*2" value="50"></slider>
 						</sliders>
 		
 						<intypes>
-							<intype type="v:Seq[Vec3]=Seq(Vec3(0))"></intype><intype type="x:Seq[Float]=Nil"></intype><intype type="y:Seq[Float]=Nil"></intype><intype type="z:Seq[Float]=Nil"></intype><intype type="add:Seq[Float]=Nil"></intype><intype type="sub:Seq[Float]=Nil"></intype>
+							<intype type="v:Vec3"></intype><intype type="x:Double"></intype><intype type="y:Double"></intype><intype type="z:Double"></intype><intype type="add:Double"></intype><intype type="sub:Double"></intype>
 						</intypes>
 		
 						<functions>
-							<function name="fnoise_t1311185974" outname=" " outtype="Float">
-			val invexpsize = pow(256,((0.5f-size)*2f))
-			val expoutscale = pow(256,((scale-0.5f)*2f))/invexpsize
-			val linearoutoffset = (offset-0.5f)*2f
-			val sumv = v.reduce( (x,y) =&gt; x+y ) + Vec3(x.sum,y.sum,z.sum);
-			(noise1(sumv*invexpsize)+linearoutoffset)*expoutscale + add.sum - sub.sum
+							<function name="frichnoise3_t1311862866" outname=" " outtype="Double">
+			val sumv = v + Vec3(x,y,z)
+			(noise1(sumv*size)+offset)*scale/size + add - sub
 			</function>
 						</functions>
-					</node><node type="preview" title="Preview" id="6">
-						<pos x="428" y="93"></pos>
-						<size width="327" height="319"></size><image offsety="-14.741003" offsetx="40.966003" zoom="0.11"></image><view selected="iso"></view><zslider value="50.0"></zslider>
+					</node><node type="preview" title="Preview" id="3">
+						<pos x="387" y="26"></pos>
+						<size width="355" height="342"></size><image offsety="-2.784501822730359" offsetx="15.921968502893295" zoom="0.026333125430607975"></image><view selected="iso"></view><perspective selected="topview"></perspective><depthslider value="50.0"></depthslider>
 						<sliders>
 							
 						</sliders>
 		
 						<intypes>
-							<intype type="d:Float"></intype><intype type="m:Material"></intype>
+							<intype type="d:Double"></intype><intype type="m:Material"></intype>
 						</intypes>
 		
 						<functions>
@@ -50,13 +47,13 @@
 						</functions>
 					</node></nodes>
 			<connections><connection>
-						<in nodeid="5" connector="4"></in>
-						<out nodeid="4" connector="2"></out>
+						<in nodeid="3" connector="0"></in>
+						<out nodeid="2" connector="0"></out>
 					</connection><connection>
-						<in nodeid="5" connector="0"></in>
-						<out nodeid="4" connector="0"></out>
+						<in nodeid="2" connector="4"></in>
+						<out nodeid="1" connector="2"></out>
 					</connection><connection>
-						<in nodeid="6" connector="0"></in>
-						<out nodeid="5" connector="0"></out>
+						<in nodeid="2" connector="0"></in>
+						<out nodeid="1" connector="0"></out>
 					</connection></connections>
 		</document>

@@ -11,8 +11,8 @@ import Orientation._
 import java.awt.Color._
 
 import simplex3d.math._
-import simplex3d.math.float._
-import simplex3d.math.float.functions._
+import simplex3d.math.double._
+import simplex3d.math.double.functions._
 
 import config._
 import utilities._

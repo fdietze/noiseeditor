@@ -11,8 +11,8 @@ import Orientation._
 import java.awt.Color._
 
 import simplex3d.math._
-import simplex3d.math.float._
-import simplex3d.math.float.functions._
+import simplex3d.math.double._
+import simplex3d.math.double.functions._
 
 import actors.Futures.future
 
@@ -22,7 +22,7 @@ object NodeManager extends NullPanel("NodeManager") {
 	println("Starting NodeManager...")
 	
 	var nodes = Set[Node]()
-	val slidervalues = new collection.mutable.HashMap[String, Box[Float]]
+	val slidervalues = new collection.mutable.HashMap[String, Box[Double]]
 	var spawnpos = Vec2i(10,10)
 	
 	def add( node:Node ) {
@@ -34,9 +34,9 @@ object NodeManager extends NullPanel("NodeManager") {
 		
 		listenTo(node)
 		
-		for(slider <- node.sliders){
+		for(slider <- node.sliders) {
 			slidervalues(slider.globalname) = Box(slider.globalvalue)
-			InterpreterManager.fbind(slider.globalname, "noiseeditor.utilities.Box[Float]", slidervalues(slider.globalname))
+			InterpreterManager.fbind(slider.globalname, "noiseeditor.utilities.Box[Double]", slidervalues(slider.globalname))
 		}
 	}
 
@@ -63,6 +63,7 @@ object NodeManager extends NullPanel("NodeManager") {
 	reactions += {
 		case NodeValueChanged(source, node, slider, value) if(source ne this) =>
 			slidervalues(slider).value = value
+			println("slider changed: " + value)
 			publish(NodeValueChanged(source = this, node, slider, value))
 
 		case NodeChanged(source, node) if(source ne this) =>

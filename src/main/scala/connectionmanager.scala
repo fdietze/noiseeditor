@@ -9,8 +9,8 @@ import Orientation._
 import java.awt.Color._
 
 import simplex3d.math._
-import simplex3d.math.float._
-import simplex3d.math.float.functions._
+import simplex3d.math.double._
+import simplex3d.math.double.functions._
 
 
 object ConnectionManager extends Component {
@@ -61,7 +61,7 @@ object ConnectionManager extends Component {
 						case _ => None
 					}
 					
-					if( nextinconnectors contains startconnector  )
+					if( nextinconnectors contains startconnector )
 						return true
 					nextnodes ++= nextinconnectors.map(_.node)
 				}

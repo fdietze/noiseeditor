@@ -11,8 +11,8 @@ import Orientation._
 import java.awt.Color._
 
 import simplex3d.math._
-import simplex3d.math.float._
-import simplex3d.math.float.functions._
+import simplex3d.math.double._
+import simplex3d.math.double.functions._
 
 import actors.Futures.future
 
@@ -41,7 +41,7 @@ object Node {
 		//TODO: Export to file and load it everytime
 		new CustomNode("Custom", id,
 			slidernames = Seq("s1","s2","s3","s4"),
-			intypes = Seq("a:Float","b:Float","c:Float","d:Float"))
+			intypes = Seq("a:Double","b:Double","c:Double","d:Double"))
 	}
 
 	def loadcustom( slidernames:Seq[String], intypes:Seq[String], function:String, id:Int = nextid ) = {
@@ -61,9 +61,9 @@ class FunctionSlider(slidername:String, nodeid:Int, initvalue:Int = 50) extends 
 	val globalname = "n" + nodeid + "_" + name
 
 	var tformula = "s"
-	var transform:Float => Float = s => s
+	var transform:Double => Double = s => s
 
-	def globalvalue = transform(value/100f)
+	def globalvalue = transform(value/100.0)
 	tooltip = globalvalue.toString
 
 	//TODO: variable slider size
@@ -108,7 +108,7 @@ trait NodeInit extends Node with DelayedInit {
 		slider match {
 			case name:String => new FunctionSlider(name, nodeid = id)
 			case (name:String, formula:String) =>
-				val compilation = InterpreterManager[Float => Float]("(s:Float) => " + formula)
+				val compilation = InterpreterManager[Double => Double]("(s:Double) => " + formula)
 				new FunctionSlider(name, nodeid = id) {
 					compilation() match {
 						case Some(f) =>
@@ -194,10 +194,10 @@ class CustomNode(title:String, id:Int, slidernames:Seq[String], override val int
 	override def functions = Seq(Function(
 		name = "custom_f" + id,
 		code = if(funcfield != null) funcfield.text else "",
-		outtype = "Float"
+		outtype = "Double"
 	))
 
-	val funcfield = new TextArea("0f") {
+	val funcfield = new TextArea("0") {
 		font = new Font("Monospaced", java.awt.Font.PLAIN, 11)
 		tabSize = 4
 		//lineWrap = true

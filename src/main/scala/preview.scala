@@ -14,8 +14,8 @@ import java.awt.Color._
 import java.awt.image.BufferedImage
 
 import simplex3d.math._
-import simplex3d.math.float._
-import simplex3d.math.float.functions._
+import simplex3d.math.double._
+import simplex3d.math.double.functions._
 
 import actors.Futures.future
 
@@ -27,7 +27,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 	override def resized = image.recalc
 	
 	
-	override def intypes = Seq("d:Float", "m:Material")
+	override def intypes = Seq("d:Double", "m:Material")
 	
 	val densityconnector = inconnectors(0)
 	val materialconnector = inconnectors(1)
@@ -59,10 +59,10 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		var needsrecalc = true
 		def recalc {needsrecalc = true; repaint}
 
-		var z = 0f
+		var z = 0.0
 
 		override def scrolledorzoomed = {
-			zslider.value = (100f*GridIndicatorScale*z/(32f*zoom))+50f
+			depthslider.value = (100*GridIndicatorScale*z/(32*zoom))+50
 			recalc
 		}
 		zoom = GridIndicatorScale
@@ -118,8 +118,8 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 					
 							val color = result._2.color
 							val r = (color & 0xff0000) >> 16
-							val g = (color & 0x00ff00) >> 8
-							val b =  color & 0x0000ff
+							val g = (color & 0x00f00) >> 8
+							val b =  color & 0x0000f
 						
 							val nr = 255 - ((255-r) * factor).toInt
 							val ng = 255 - ((255-g) * factor).toInt
@@ -133,7 +133,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 							val x = i%width
 							val y = i/width
 							val result = composition( perspectivecombobox.selected( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
-							val value = (clamp( (result._1+1f)*0.5f, 0f, 1f )*255f).toInt
+							val value = (clamp( (result._1+1)*0.5, 0, 1 )*255).toInt
 							graycolor(value)
 						}.toArray
 
@@ -143,33 +143,33 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 							val y = i/width
 							val translated = transformZoomOffset(Vec2(x,y))
 
-							if( abs(translated.x - round(translated.x)) < zoom*0.5f
-							 || abs(translated.y - round(translated.y)) < zoom*0.5f )
+							if( abs(translated.x - round(translated.x)) < zoom*0.5
+							 || abs(translated.y - round(translated.y)) < zoom*0.5 )
 								GridColor
 							else {
 								val result = composition( perspectivecombobox.selected( Vec3( translated ,z) ) )
-								val value = (clamp( (result._1+1f)*0.5f, 0f, 1f )*255f).toInt
+								val value = (clamp( (result._1+1)*0.5, 0, 1 )*255).toInt
 								if( result._1 > 0 )
-									mixcolors(IsolineColor, graycolor(value), 0.3f)
+									mixcolors(IsolineColor, graycolor(value), 0.3)
 								else
 									graycolor(value)
 							}
 						}.toArray
 
 					case "valuesstretched" =>
-						def stretch(x:Float) = atan(x*0.33f)/math.Pi+0.5
+						def stretch(x:Double) = atan(x*0.33)/math.Pi+0.5
 						
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y = i/width
 							val result = composition( perspectivecombobox.selected( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
-							val value = (stretch( result._1)*255f).toInt
+							val value = (stretch( result._1)*255).toInt
 							graycolor(value)
 						}.toArray
 
 					case "valuesnormalized" =>
-						var minvalue = scala.Float.MaxValue
-						var maxvalue = scala.Float.MinValue
+						var minvalue = scala.Double.MaxValue
+						var maxvalue = scala.Double.MinValue
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y = i/width
@@ -178,8 +178,8 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 							if( result > maxvalue ) maxvalue = result
 							result
 						}.map{ v =>
-							val value = (((v - minvalue) / (maxvalue-minvalue))*255f).toInt
-							val isovalue = (((0f - minvalue) / (maxvalue-minvalue))*255f).toInt
+							val value = (((v - minvalue) / (maxvalue-minvalue))*255).toInt
+							val isovalue = (((0 - minvalue) / (maxvalue-minvalue))*255).toInt
 							if( abs(value-isovalue) < 3 )
 								IsolineColor
 							else
@@ -199,7 +199,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 				// Grid indicator
 				val ig = bufferedimage.createGraphics
 				ig.setColor(GridIndicatorColor);
-				ig.drawRect(10,10,(1f/zoom).toInt,(1f/zoom).toInt)
+				ig.drawRect(10,10,(1/zoom).toInt,(1/zoom).toInt)
 				
 				needsrecalc = false
 			}
@@ -219,22 +219,22 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		}
 	}
 	
-	val zslider = new BoxPanel(Horizontal) {
+	val depthslider = new BoxPanel(Horizontal) {
 		val slider = new Slider {
 			reactions += {
 				case e:ValueChanged =>
 					if( floatvalue.toInt != value )
-						floatvalue = value.toFloat
-					image.z = (floatvalue-50)/100f/GridIndicatorScale*32f*image.zoom
+						floatvalue = value.toDouble
+					image.z = (floatvalue-50)/100/GridIndicatorScale*32*image.zoom
 					image.recalc
 			}
 		}
 		contents += new Label("depth:")
 		contents += slider
-		var floatvalue = 50f
+		var floatvalue = 50.0
 		def value = floatvalue
-		def value_=(x:Float) = {
-			floatvalue = max(0f,min(x,100f))
+		def value_=(x:Double) = {
+			floatvalue = max(0,min(x,100))
 			slider.value = floatvalue.toInt
 		}
 	}
@@ -268,7 +268,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 			case e:ButtonClicked =>
 				image.zoom = GridIndicatorScale
 				image.offset = Vec2(0)
-				zslider.value = 50
+				depthslider.value = 50
 				image.recalc
 		}
 	}
@@ -304,7 +304,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		contents += new BoxPanel(Vertical) {
 			contents += image
 			contents += speedlabel
-			contents += zslider
+			contents += depthslider
 			contents += new BoxPanel(Horizontal) {
 				contents += viewcombobox
 				contents += perspectivecombobox

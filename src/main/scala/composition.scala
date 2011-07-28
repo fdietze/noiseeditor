@@ -5,15 +5,15 @@ import config._
 import utilities._
 
 import simplex3d.math._
-import simplex3d.math.float._
-import simplex3d.math.float.functions._
+import simplex3d.math.double._
+import simplex3d.math.double.functions._
 
 class Composition extends Publisher{
-	var densityfunction:( Vec3 ) => (Float, Material) = (v) => (0f,Material())
-	var code = "0f"
+	var densityfunction:( Vec3 ) => (Double, Material) = (v) => (0,Material())
+	var code = "0"
 	var involvedsliders = Set[String]()
 
-	def apply( v:Vec3 ):(Float, Material) = densityfunction(v)
+	def apply( v:Vec3 ):(Double, Material) = densityfunction(v)
 	
 	def generate (
 		densityconnector:InConnector,
@@ -27,7 +27,7 @@ class Composition extends Publisher{
 		involvedsliders = Set[String]()
 		
 		val resultingval = new {
-			var density ="0f"
+			var density ="0"
 			var material="Material()"
 		}
 
@@ -101,7 +101,7 @@ class Composition extends Publisher{
 			for( Function(name, code, outtype, _) <- currentnode.functions ) {
 				funcdefs += "def %s(%s) = {%s}".format(
 					name,
-					(intypes ++ sliders.map( s => s.name + ":Float")).mkString(", "),
+					(intypes ++ sliders.map( s => s.name + ":Double")).mkString(", "),
 					code
 				)
 				var currentnodeval = "val vn%d_%s = %s(%s)".format(
@@ -117,7 +117,7 @@ class Composition extends Publisher{
 		
 		val composition = """(source:Vec3) => {
 val noise1 = new Noise(ClassicalGradientNoise){
-	def apply(u:Vec3):Float = super.apply(u).toFloat
+	def apply(u:Vec3):Double = super.apply(u)
 }
 %s
 
@@ -140,8 +140,8 @@ val noise1 = new Noise(ClassicalGradientNoise){
 	}
 	
 	def compile {
-		type t = (Vec3) => (Float, Material)
-		//type t = Function1[Vec3, Tuple2[Float, Material]]
+		type t = (Vec3) => (Double, Material)
+		//type t = Function1[Vec3, Tuple2[Double, Material]]
 		val compilation = InterpreterManager[t](code)
 		compilation() match {
 			case Some(function) => 

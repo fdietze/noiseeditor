@@ -17,7 +17,7 @@ object InterpreterManager extends InterpreterQueue {
 	settings.embeddedDefaults[noiseeditor.Material]
 	
 	
-	Seq("lib/simplex3d-math-core.jar","lib/simplex3d-math-double.jar","lib/simplex3d-math-float.jar",
+	Seq("lib/simplex3d-math-core.jar","lib/simplex3d-math-double.jar",
 		"lib/simplex3d-algorithm-noise.jar").
 	    foreach (settings.classpath.append _)
 	
@@ -26,8 +26,8 @@ object InterpreterManager extends InterpreterQueue {
 	def init {
 		val imports =
 			"import simplex3d.math._\n" + 
-			"import simplex3d.math.float._\n" +
-			"import simplex3d.math.float.functions._\n" +
+			"import simplex3d.math.double._\n" +
+			"import simplex3d.math.double.functions._\n" +
 			"import simplex3d.noise._\n" +
 			"import noiseeditor.Material\n" +
 			"import noiseeditor.utilities.Box\n"

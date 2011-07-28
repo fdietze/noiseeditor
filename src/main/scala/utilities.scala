@@ -9,8 +9,8 @@ import javax.swing.border.BevelBorder._
 import java.io.File
 
 import simplex3d.math._
-import simplex3d.math.float._
-import simplex3d.math.float.functions._
+import simplex3d.math.double._
+import simplex3d.math.double.functions._
 
 package object utilities {
 
@@ -46,7 +46,7 @@ def graycolor(w:Int) = rgbcolor(w,w,w)
 def red(c:Int) = c >> 16
 def green(c:Int) = (c & 0x00FF00) >> 8
 def blue(c:Int) = c & 0xFF
-def mixcolors(a:Int, b:Int, t:Float=0.5f) = {
+def mixcolors(a:Int, b:Int, t:Double=0.5) = {
 	rgbcolor(
 		(t*red(a)   + (1-t)*red(b)  ).toInt,
 		(t*green(a) + (1-t)*green(b)).toInt,
@@ -222,12 +222,12 @@ trait Resizable extends Component{
 }
 
 trait ScrollableZoomOffset extends Component{
-	var offset = Vec2(0)
-	var zoom = 1f
-	val zoomFactor = 1.1f
+	var offset = Vec2(0.0)
+	var zoom = 1.0
+	val zoomFactor = 1.1
 	var lastpoint = Vec2(0)
 	def transformZoomOffset(v:Vec2) = v * zoom + offset
-	def transformZoomOffset(v:Vec3) = v * zoom + Vec3(offset,0f)
+	def transformZoomOffset(v:Vec3) = v * zoom + Vec3(offset,0.0)
 	def scrolledorzoomed {}
 	listenTo(mouse.clicks, mouse.moves, mouse.wheel)
 	reactions += {

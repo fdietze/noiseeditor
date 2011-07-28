@@ -9,8 +9,8 @@ import Orientation._
 import java.awt.Color._
 
 import simplex3d.math._
-import simplex3d.math.float._
-import simplex3d.math.float.functions._
+import simplex3d.math.double._
+import simplex3d.math.double.functions._
 
 abstract class Connector(val title:String, val funcname:String, val datatype:String, val node:Node) extends Button(title){
 	margin = new Insets(0,0,0,0)

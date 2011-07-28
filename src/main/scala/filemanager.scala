@@ -7,8 +7,8 @@ import event._
 import Orientation._
 
 import simplex3d.math._
-import simplex3d.math.float._
-import simplex3d.math.float.functions._
+import simplex3d.math.double._
+import simplex3d.math.double.functions._
 
 import utilities._
 
@@ -174,15 +174,14 @@ object FileManager extends Publisher {
 			val intypes = ( node \ "intypes" \ "intype" ) map ( _  \ "@type" text )
 			
 			val functions =
-			for( function <- node \ "functions" \ "function" ) yield {
-				val name =    (function \ "@name"   ).text
-				val code =    function.text
-				val outtype = (function \ "@outtype").text
-				var outname = (function \ "@outname").text
-				//Fix for older files
-				if( outname.isEmpty ) outname = " "
-				new Function(name,code,outtype,outname)
-			}
+				for( function <- node \ "functions" \ "function" ) yield {
+					val name =    (function \ "@name"   ).text
+					val code =    function.text
+					val outtype = (function \ "@outtype").text
+					var outname = (function \ "@outname").text
+
+					new Function(name,code,outtype,outname)
+				}
 			
 
 			
@@ -210,13 +209,13 @@ object FileManager extends Publisher {
 				val width = (node \ "size" \ "@width").text.toInt
 				val height = (node \ "size" \ "@height").text.toInt
 				val size = Vec2i(width,height)
-				val offsetx = (node \ "image" \ "@offsetx").text.toFloat
-				val offsety = (node \ "image" \ "@offsety").text.toFloat
+				val offsetx = (node \ "image" \ "@offsetx").text.toDouble
+				val offsety = (node \ "image" \ "@offsety").text.toDouble
 				val offset = Vec2(offsetx, offsety)
-				val zoom = (node \ "image" \ "@zoom").text.toFloat
+				val zoom = (node \ "image" \ "@zoom").text.toDouble
 				val selectedview = (node \ "view" \ "@selected").text
 				val selectedperspective = (node \ "perspective" \ "@selected").text
-				val zslider = (node \ "zslider" \ "@value").text.toFloat
+				val depthslider = (node \ "depthslider" \ "@value").text.toDouble
 				val preview = Node.preview(newid(id))
 
 				nodeforid(preview.id) = preview
@@ -228,7 +227,7 @@ object FileManager extends Publisher {
 				
 				preview.viewcombobox.select(selectedview)
 				preview.perspectivecombobox.select(selectedperspective)				
-				preview.zslider.value = zslider
+				preview.depthslider.value = depthslider
 			}
 		}
 
@@ -247,7 +246,7 @@ object FileManager extends Publisher {
 	def writeSession(file:File) {
 		println("writing " + file)
 		implicit def intToString(x:Int) = x.toString
-		implicit def floatToString(x:Float) = x.toString
+		implicit def doubleToString(x:Double) = x.toString
 		implicit def booleanToString(x:Boolean) = x.toString
 		
 		//TODO: replace last suffix
@@ -274,7 +273,7 @@ object FileManager extends Publisher {
 							<image offsetx={image.offset.x} offsety={image.offset.y} zoom={image.zoom} />
 							<view selected={viewcombobox.selected} />
 							<perspective selected={perspectivecombobox.selectedname} />
-							<zslider value={zslider.value} />
+							<depthslider value={depthslider.value} />
 						}
 						else if( nodetype == "custom") {
 							<size width={size.width} height={size.height} />
