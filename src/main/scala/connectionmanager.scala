@@ -126,7 +126,6 @@ object ConnectionManager extends Component {
 							this.repaint
 							true
 						}
-					case _ => throw new Exception("Too Many Connections at Connector.Z")
 				}
 			}
 		}

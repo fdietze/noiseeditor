@@ -27,7 +27,7 @@ class Composition extends Publisher{
 		involvedsliders = Set[String]()
 		
 		val resultingval = new {
-			var density ="0"
+			var density ="0.0"
 			var material="Material()"
 		}
 
