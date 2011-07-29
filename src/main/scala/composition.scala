@@ -33,7 +33,7 @@ class Composition extends Publisher{
 
 	def apply( v:Vec3 ):(Double, Material) = densityfunction(v)
 	
-	def functiontree(
+	/*def functiontree(
 		densityconnector:InConnector,
 		materialconnector:InConnector):FunctionTree = {
 		
@@ -54,7 +54,7 @@ class Composition extends Publisher{
 		}			
 		
 		tree
-	}
+	}*/
 	
 	def generate (
 		densityconnector:InConnector,

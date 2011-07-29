@@ -55,6 +55,94 @@ def mixcolors(a:Int, b:Int, t:Double=0.5) = {
 }
 
 
+class ConnectionTree {
+	// Graph without cycles and out-degree = 1
+	type FROM = InConnector
+	type TO   = OutConnector
+	type NODE = Node
+	
+	import collection.mutable._
+	var edges = new HashMap[FROM,TO]
+	
+	override def toString = "NodeTree(" + edges + ")"
+	
+	def clear = edges.clear
+	
+	// add edge and tell if something changed
+	def += (edge:(FROM,TO)):Boolean = {
+		val (from,to) = edge
+		val oldvalue = edges.get(from)
+		edges += edge
+		if( cycleAt(to,from) ) {
+			oldvalue match {
+				case Some(value) => edges += (from -> value)
+				case None => edges -= from
+			}
+			false
+		}
+		else
+			true
+	}
+
+	def -= (edge:(FROM,TO)) {
+		val (from,to) = edge
+		edges.get(from) match {
+			case Some(to) =>
+				edges -= from
+			case None =>
+		}
+	}
+	
+/*	
+	def -=[T1](vertex:FROM) {
+		edges -= vertex
+	}
+	
+	def -=[T1,T2](vertex:TO) {
+		for( (from,to) <- edges; if to == vertex )
+			edges -= from
+	}*/
+
+	def -=[T1,T2,T3](node:NODE) {
+		edges = edges.filterNot { p => {
+			val (k,v) = p
+			(k.node ne node) || (v.node ne node)
+		}}
+	}
+	
+	def apply(from:FROM, to:TO):Boolean = {
+		if( edges isDefinedAt from )
+			edges(from) eq to
+		else
+			false
+	}
+	
+	// Find parents of vertex
+	def apply(vertex:TO):Set[FROM] = {
+		var parents = Set[FROM]()
+		for( (from,to) <- edges if vertex eq to )
+			parents += from
+		parents
+	}
+
+	// Child of vertex
+	def apply(vertex:FROM):Option[TO] = edges.get(vertex)
+	
+	// Tell if there is a path: to -> from over corresponding nodes
+	def cycleAt(to:TO,from:FROM):Boolean = {
+		var nextnodes = new collection.mutable.Queue[Node]
+		nextnodes += to.node
+		while( nextnodes.nonEmpty ) {
+			val currentnode = nextnodes.dequeue
+			val froms = currentnode.inconnectors
+			if( froms contains from )
+				return true
+			nextnodes ++= froms.map(apply _).flatten.map(_.node).distinct
+		}
+		return false
+	}
+}
+
 class Graph[T] {
 	import collection.mutable._
 	private var data = new HashMap[T, Set[T]] with MultiMap[T,T]

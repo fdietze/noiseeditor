@@ -16,20 +16,19 @@ import simplex3d.math.double.functions._
 object ConnectionManager extends Component {
 	println("Starting ConnectionManager...")
 	
-	val connections = new Graph[Connector]
+	val connections = new ConnectionTree
 
 	def reset {
-		connections.reset
+		connections.clear
 		commitconnection
 	}
 	
-	def removeconnectors(connectors:Connector*) {
-		if( connectors contains connstart.orNull )
-				resetconnstart
-		connectors.foreach( c => connections -= c )
+	// remove all connections to a node
+	def removeNode(node:Node) {
+		connections -= node
+		resetconnstart
 	}
 	
-	var connstart:Option[Connector] = None
 	
 	override def paint(g:Graphics2D) {
 		import java.awt.Color._
@@ -46,28 +45,8 @@ object ConnectionManager extends Component {
 		}
 	}
 	
-	def cycleAt(start:InConnector):Boolean = {
-		start match {
-			case startconnector:InConnector =>
-				var nextnodes = new collection.mutable.Queue[Node]
-				nextnodes += startconnector.node
-				while( nextnodes.nonEmpty ) {
-					val currentnode = nextnodes.dequeue
-					
-					val outconnection:Set[Connector] = currentnode.outconnectors.map(connections(_)).toSet.flatten
-					
-					val nextinconnectors:Set[InConnector] = outconnection.flatMap {
-						case connector:InConnector => Some(connector)
-						case _ => None
-					}
-					
-					if( nextinconnectors contains startconnector )
-						return true
-					nextnodes ++= nextinconnectors.map(_.node)
-				}
-		}
-		return false
-	}
+
+	var connstart:Option[Connector] = None
 
 	def resetconnstart {
 		connstart match {
@@ -92,41 +71,19 @@ object ConnectionManager extends Component {
 	def changeConnection(in:InConnector, out:OutConnector):Boolean = {
 		if( out.datatype == in.datatype ) {
 			// If already connected
-			if( connections.edgeExists(in, out) )
+			if( connections(in, out) )
 			{
 				connections -= (in,out)
 				true
 			}
-			else
+			else // not connected or connected with a different connector
 			{
-				connections(in).size match {
-					// If input is not connected yet
-					case 0 => 
-						connections.flipedge((in,out))
-						if( cycleAt(in) ) {
-							connections.flipedge((in,out))
-							false
-						}
-						else {
-							this.repaint
-							true
-						}
-					// Replace input by another
-					case 1 =>
-						connections -= (in,connections(in).head)
-						connections += (in,out)
-			
-						if( cycleAt(in) ){
-							connections += (in,connections(in).head)
-							connections -= (in,out)
-							false
-						}
-						else
-						{
-							this.repaint
-							true
-						}
+				if( connections += (in -> out) ) {
+					this.repaint
+					true
 				}
+				else
+					false
 			}
 		}
 		else

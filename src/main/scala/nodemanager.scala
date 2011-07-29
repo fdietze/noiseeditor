@@ -44,8 +44,7 @@ object NodeManager extends NullPanel("NodeManager") {
 		deafTo(node)
 		node.deafTo(ConnectionManager, NodeManager)
 		
-		ConnectionManager.removeconnectors(node.inconnectors:_*)
-		ConnectionManager.removeconnectors(node.outconnectors:_*)
+		ConnectionManager.removeNode(node)
 		
 		removeComponent(node)
 		nodes -= node

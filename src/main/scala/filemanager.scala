@@ -293,7 +293,7 @@ object FileManager extends Publisher {
 					</node>
 				}
 			}</nodes>
-			<connections>{
+			<connections>{/*
 				for( connection <- ConnectionManager.connections.edges ) yield {
 					val (in,out) =
 					connection match {
@@ -311,7 +311,7 @@ object FileManager extends Publisher {
 						<out nodeid={out.node.id} connector={outindex} />
 					</connection>
 				}
-			}</connections>
+			*/}</connections>
 		</document>
 		
 		XML.save(file.getPath, node = document, enc="UTF-8", xmlDecl=true)
