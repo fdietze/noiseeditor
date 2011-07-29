@@ -33,33 +33,40 @@ class Composition extends Publisher{
 
 	def apply( v:Vec3 ):(Double, Material) = densityfunction(v)
 	
-	/*def functiontree(
-		densityconnector:InConnector,
-		materialconnector:InConnector):FunctionTree = {
+
+	def functiontree(
+			densityconnector:InConnector,
+			materialconnector:InConnector):FunctionTree = {
 		
 		import ConnectionManager.connections
 		val tree = new FunctionTree
-		val densityconnection = connections(densityconnector)
-		val materialconnection = connections(materialconnector)
 
 		val nextnodes = new collection.mutable.Queue[Node]
-		
-
 
 		// If there is a connection at this densityconnector
-		if( densityconnection.nonEmpty ){
-			val connector = densityconnection.head
+		connections(densityconnector) match {
+			case Some(connector) =>
 			tree("d") = connector.function
-			nextnodes += connector.node
-		}			
-		
+				nextnodes += connector.node
+			case None =>
+		}
+
+		// If there is a connection at this materialconnector
+		connections(materialconnector) match {
+			case Some(connector) =>
+			tree("m") = connector.function
+				nextnodes += connector.node
+			case None =>
+		}
+				
 		tree
-	}*/
-	
+	}
+
+
 	def generate (
-		densityconnector:InConnector,
-		materialconnector:InConnector,
-		constantsliders:Boolean = false ):String = {
+			densityconnector:InConnector,
+			materialconnector:InConnector,
+			constantsliders:Boolean = false ):String = {
 
 		import ConnectionManager.connections
 		
@@ -72,55 +79,50 @@ class Composition extends Publisher{
 			var material="Material()"
 		}
 
-		val densityconnection = connections(densityconnector)
-		val materialconnection = connections(materialconnector)
-
 		val nextnodes = new collection.mutable.Queue[Node]
-		
-
 
 		// If there is a connection at this densityconnector
-		if( densityconnection.nonEmpty ){
-			val connector = densityconnection.head
-			resultingval.density = "vn" + connector.node.id + "_" + connector.funcname
-			nextnodes += connector.node
-		}			
+		connections(densityconnector) match {
+			case Some(connector) =>
+				resultingval.density = "vn" + connector.node.id + "_" + connector.funcname
+				nextnodes += connector.node
+			case None =>
+		}
 		
 		// If there is a connection at this materialconnector
-		if( materialconnection.nonEmpty ){
-			val connector = materialconnection.head
-			resultingval.material = "vn" + connector.node.id + "_" + connector.funcname
-			nextnodes += connector.node
-		}			
+		connections(materialconnector) match {
+			case Some(connector) =>
+				resultingval.material = "vn" + connector.node.id + "_" + connector.funcname
+				nextnodes += connector.node
+			case None =>
+		}
 				
-		while( nextnodes.nonEmpty )
-		{
+		while( nextnodes.nonEmpty ) {
 			val currentnode = nextnodes.dequeue
 			import currentnode._
 			
-			val inconnections = inconnectors.map(c => connections(c))
+			val inconnections = inconnectors.map( c => connections(c) )
 			
-			val currentargs = 
+			val currentargs =
 			((for( (inconnection, intype) <- inconnections zip intypes ) yield {
-				if( inconnection.nonEmpty ) {
-					var connector = inconnection.head
-			
+				
+				inconnection match {
+					case Some(connector) =>
 						nextnodes += connector.node
 						"vn" + connector.node.id + "_" + connector.funcname
-				}
-				else {
-					val RegexArg(_, argtype, _, argdefault) = intype
-					if( argdefault == null )
-						TypeDefaults(argtype)
-					else
-						argdefault
+					case None =>
+						val RegexArg(_, argtype, _, argdefault) = intype
+						if( argdefault == null )
+							TypeDefaults(argtype)
+						else
+							argdefault
 				}
 			}) ++
 	
 			(if( constantsliders )
-				sliders.map(s => s.globalvalue + "f")
+				sliders.map( s => s.globalvalue )
 			else {
-				for( slider <- sliders ) yield {
+					for( slider <- sliders ) yield {
 					involvedsliders += slider.globalname
 					slider.globalname + ".value"
 				}

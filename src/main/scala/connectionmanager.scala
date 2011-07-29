@@ -68,25 +68,28 @@ object ConnectionManager extends Component {
 		publish(NodeConnected(this))
 	}
 	
+	// Try to connect in and out and tell if something changed
 	def changeConnection(in:InConnector, out:OutConnector):Boolean = {
 		if( out.datatype == in.datatype ) {
 			// If already connected
 			if( connections(in, out) )
 			{
+				// disconnect
 				connections -= (in,out)
 				true
 			}
 			else // not connected or connected with a different connector
 			{
+				// add or replace connection
 				if( connections += (in -> out) ) {
 					this.repaint
 					true
 				}
-				else
+				else // Connection would produce cycle
 					false
 			}
 		}
-		else
+		else // Datatypes don't match
 			false
 	}
 	

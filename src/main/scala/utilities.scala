@@ -83,7 +83,8 @@ class ConnectionTree {
 		else
 			true
 	}
-
+	
+	// Remove Connection from -> to
 	def -= (edge:(FROM,TO)) {
 		val (from,to) = edge
 		edges.get(from) match {
@@ -93,23 +94,19 @@ class ConnectionTree {
 		}
 	}
 	
-/*	
-	def -=[T1](vertex:FROM) {
-		edges -= vertex
-	}
+	// Remove vertices
+	def -=[T1]   (vertex:FROM) { edges -= vertex }
+	def -=[T1,T2](vertex:TO  ) { edges = edges.filter( x => x._2 ne vertex ) }
 	
-	def -=[T1,T2](vertex:TO) {
-		for( (from,to) <- edges; if to == vertex )
-			edges -= from
-	}*/
-
+	// Remove all connections to a node
 	def -=[T1,T2,T3](node:NODE) {
-		edges = edges.filterNot { p => {
-			val (k,v) = p
-			(k.node ne node) || (v.node ne node)
-		}}
+		for( in <- node.inconnectors )
+			this -= in
+		for( out <- node.outconnectors )
+			this -= out
 	}
 	
+	// Tell if there is a connection: from -> to
 	def apply(from:FROM, to:TO):Boolean = {
 		if( edges isDefinedAt from )
 			edges(from) eq to
@@ -127,7 +124,9 @@ class ConnectionTree {
 
 	// Child of vertex
 	def apply(vertex:FROM):Option[TO] = edges.get(vertex)
-	
+
+
+
 	// Tell if there is a path: to -> from over corresponding nodes
 	def cycleAt(to:TO,from:FROM):Boolean = {
 		var nextnodes = new collection.mutable.Queue[Node]
@@ -142,7 +141,7 @@ class ConnectionTree {
 		return false
 	}
 }
-
+/*
 class Graph[T] {
 	import collection.mutable._
 	private var data = new HashMap[T, Set[T]] with MultiMap[T,T]
@@ -195,7 +194,7 @@ class Graph[T] {
 			this += edge
 	}
 }
-
+*/
 implicit def awtPointToVec2i( v:java.awt.Point ) = Vec2i(v.x, v.y)
 implicit def Vec2iToawtPoint( v:Vec2i ) = new java.awt.Point(v.x, v.y)
 implicit def awtDimensionToVec2i( v:java.awt.Dimension ) = Vec2i(v.getWidth.toInt, v.getHeight.toInt)
