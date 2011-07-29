@@ -56,9 +56,8 @@ def mixcolors(a:Int, b:Int, t:Double=0.5) = {
 
 case class FunctionTree(
 		function: Function,
-		parameters: Map[String,FunctionTree],
-		sliders: Map[String, String],
-		nodeid:Int ) {
+		node: Node,
+		parameters: Map[String,FunctionTree] ) {
 }
 
 class ConnectionTree {
@@ -147,60 +146,7 @@ class ConnectionTree {
 		return false
 	}
 }
-/*
-class Graph[T] {
-	import collection.mutable._
-	private var data = new HashMap[T, Set[T]] with MultiMap[T,T]
-	var edges = Set[(T,T)]()
-	def vertices = data.keys
-	
-	def reset {
-		edges = Set()
-		data = new HashMap[T, Set[T]] with MultiMap[T,T]
-	}
-	
-	def += (edge:(T,T)) {
-		val (a,b) = edge
-		data.addBinding(a,b)
-		data.addBinding(b,a)
-		if( !edges.contains((b,a)) )
-			edges += ((a,b))
-	}
 
-	def -= (edge:(T,T)) {
-		val (a,b) = edge
-		data.removeBinding(a,b)
-		data.removeBinding(b,a)
-		edges -= ((a,b))
-		edges -= ((b,a))
-	}
-
-	def -= (vertex:T) {
-		val adjacents = apply(vertex)
-		for( adjacent <- adjacents ) {
-			this -= (vertex, adjacent)
-		}
-	}
-	
-	def edgeExists(edge:(T,T)) = {
-		data.entryExists(edge._1, x => x == edge._2)
-	}
-	
-	def apply(vertex:T) = {
-		data.get(vertex) match{
-			case Some(adjacents) => adjacents
-			case None => Set()
-		}
-	}
-	
-	def flipedge(edge:(T,T)){
-		if( edges.contains(edge) || edges.contains((edge._2,edge._1)) )
-			this -= edge
-		else
-			this += edge
-	}
-}
-*/
 implicit def awtPointToVec2i( v:java.awt.Point ) = Vec2i(v.x, v.y)
 implicit def Vec2iToawtPoint( v:Vec2i ) = new java.awt.Point(v.x, v.y)
 implicit def awtDimensionToVec2i( v:java.awt.Dimension ) = Vec2i(v.getWidth.toInt, v.getHeight.toInt)

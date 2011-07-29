@@ -22,15 +22,11 @@ class Composition extends Publisher{
 
 		connections(in) match {
 			case Some(out) =>
-				val children = out.node.inconnectors.map(
+				val parameters = out.node.inconnectors.map(
 						nextin => nextin.title -> functiontree(nextin)
-					).filter( x => x._2 != null ).toMap
+					).toMap
 
-				val sliders = out.node.sliders.map(
-					s => s.name -> s.globalname
-				).toMap
-
-				FunctionTree(out.function, children, sliders, out.node.id)
+				FunctionTree(out.function, out.node, parameters)
 				
 			case None =>
 				null
@@ -38,18 +34,39 @@ class Composition extends Publisher{
 	}
 
 	def generatecode(tree:FunctionTree):String = {
-		var functions = Set[(Function,Map[String,String],Int)]()
+		// (function,parameters,sliders,nodeid)
+		var nodes = Seq[(Function, Node, Seq[String])]()
+//		var functions = Set[(Function,Seq[String],Seq[String])]()
 		
 		// get all Functions via BFS
 		var nexttrees = new collection.mutable.Queue[FunctionTree]
 		nexttrees += tree
 		while( nexttrees.nonEmpty ) {
 			val currenttree = nexttrees.dequeue
-			functions += ((currenttree.function, currenttree.sliders, currenttree.nodeid))
-			nexttrees ++= currenttree.parameters.values
+			nodes +:= ((
+				currenttree.function,
+				currenttree.node,
+				currenttree.parameters.values.map( t =>
+					t match {
+						case ft:FunctionTree =>
+							"vn%d_%s".format(t.node.id,t.function.name)
+						case _ =>
+							"DEFAULT"
+					}
+					 ).toSeq))
+	//		functions += currenttree.function
+			
+			nexttrees ++= currenttree.parameters.values.filter( x => x != null)
 		}
 		
-		println(functions)
+		for( (function, node, parameters) <- nodes ) {
+			println("val vn%d_%s = %s(%s)".format(
+				node.id,
+				function.name,
+				function.name,
+				(parameters ++ node.sliders.map(_.globalname)).mkString(",")
+			))
+		}
 		
 		""
 	}
