@@ -213,6 +213,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 			case e:MouseMoved =>
 				tooltip = transformZoomOffset(Vec3(e.point,z)) + " => " +
 					composition( transformZoomOffset(Vec3(e.point,z)) )
+					//BUG: Does not work for z != 0
 			case e:MouseDragged =>
 				tooltip = transformZoomOffset(Vec3(e.point,z)) + " => " +
 					composition( transformZoomOffset(Vec3(e.point,z)) )
@@ -220,7 +221,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 	}
 	
 	val depthslider = new BoxPanel(Horizontal) {
-		val slider = new Slider {
+		val slider = new Slider with ScrollableSlider {
 			reactions += {
 				case e:ValueChanged =>
 					if( floatvalue.toInt != value )
@@ -320,6 +321,14 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 	def recompile {
 		println("Preview("+id+"): starting compiler in background...")
 		future{
+			val functiontree = composition.functiontree(densityconnector)
+			println("### Tree:\n" + functiontree)
+			if( functiontree != null ) {
+				println("### Code:")
+				composition.generatecode(functiontree)
+			}
+			
+			
 			composition.generate(densityconnector, materialconnector)
 			composition.compile
 			speedlabel.value = 0.0

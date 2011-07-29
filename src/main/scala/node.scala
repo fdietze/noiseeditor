@@ -55,7 +55,7 @@ object Node {
 	}
 }
 
-class FunctionSlider(slidername:String, nodeid:Int, initvalue:Int = 50) extends Slider {
+class FunctionSlider(slidername:String, nodeid:Int, initvalue:Int = 50) extends Slider with ScrollableSlider {
 	name = slidername
 	value = initvalue
 	val globalname = "n" + nodeid + "_" + name

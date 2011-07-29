@@ -8,23 +8,7 @@ import simplex3d.math._
 import simplex3d.math.double._
 import simplex3d.math.double.functions._
 
-class FunctionTree {
-	class Node {
-		val children = new collection.mutable.HashMap[String, FunctionNode]()
-		def apply(parameter:String) = children(parameter)
-		def update(parameter:String, function:Function) { children(parameter) = new FunctionNode(function) }
-	}
-	
-	class FunctionNode(val function:Function) extends Node {
-		def name = function.name
-		def code = function.code
-		def outtype = function.outtype
-	}
-	
-	val root = new Node
-	def apply(parameter:String) = root(parameter)
-	def update(parameter:String, function:Function) { root(parameter) = function }
-}
+
 
 class Composition extends Publisher{
 	var densityfunction:( Vec3 ) => (Double, Material) = (v) => (0,Material())
@@ -33,35 +17,42 @@ class Composition extends Publisher{
 
 	def apply( v:Vec3 ):(Double, Material) = densityfunction(v)
 	
-
-	def functiontree(
-			densityconnector:InConnector,
-			materialconnector:InConnector):FunctionTree = {
-		
+	def functiontree(in:InConnector):FunctionTree = {
 		import ConnectionManager.connections
-		val tree = new FunctionTree
 
-		val nextnodes = new collection.mutable.Queue[Node]
+		connections(in) match {
+			case Some(out) =>
+				val children = out.node.inconnectors.map(
+						nextin => nextin.title -> functiontree(nextin)
+					).filter( x => x._2 != null ).toMap
 
-		// If there is a connection at this densityconnector
-		connections(densityconnector) match {
-			case Some(connector) =>
-			tree("d") = connector.function
-				nextnodes += connector.node
-			case None =>
-		}
+				val sliders = out.node.sliders.map(
+					s => s.name -> s.globalname
+				).toMap
 
-		// If there is a connection at this materialconnector
-		connections(materialconnector) match {
-			case Some(connector) =>
-			tree("m") = connector.function
-				nextnodes += connector.node
-			case None =>
-		}
+				FunctionTree(out.function, children, sliders, out.node.id)
 				
-		tree
+			case None =>
+				null
+		}
 	}
 
+	def generatecode(tree:FunctionTree):String = {
+		var functions = Set[(Function,Map[String,String],Int)]()
+		
+		// get all Functions via BFS
+		var nexttrees = new collection.mutable.Queue[FunctionTree]
+		nexttrees += tree
+		while( nexttrees.nonEmpty ) {
+			val currenttree = nexttrees.dequeue
+			functions += ((currenttree.function, currenttree.sliders, currenttree.nodeid))
+			nexttrees ++= currenttree.parameters.values
+		}
+		
+		println(functions)
+		
+		""
+	}
 
 	def generate (
 			densityconnector:InConnector,

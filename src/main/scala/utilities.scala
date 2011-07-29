@@ -54,6 +54,12 @@ def mixcolors(a:Int, b:Int, t:Double=0.5) = {
 	)
 }
 
+case class FunctionTree(
+		function: Function,
+		parameters: Map[String,FunctionTree],
+		sliders: Map[String, String],
+		nodeid:Int ) {
+}
 
 class ConnectionTree {
 	// Graph without cycles and out-degree = 1
@@ -308,7 +314,7 @@ trait Resizable extends Component{
 	}
 }
 
-trait ScrollableZoomOffset extends Component{
+trait ScrollableZoomOffset extends Component {
 	var offset = Vec2(0.0)
 	var zoom = 1.0
 	val zoomFactor = 1.1
@@ -337,6 +343,14 @@ trait ScrollableZoomOffset extends Component{
 				offset += mousepos*zoom*zoomFactor - mousepos*zoom
 			}
 			scrolledorzoomed
+	}
+}
+
+trait ScrollableSlider extends Slider {
+	listenTo(mouse.wheel)
+	reactions += {
+		case e:MouseWheelMoved =>
+			value -= e.rotation
 	}
 }
 
