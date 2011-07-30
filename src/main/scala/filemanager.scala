@@ -257,7 +257,7 @@ object FileManager extends Publisher {
 			<nodes>{
 				for(node <- NodeManager.nodes) yield {
 					import node._
-					val nodetype = node match{
+					val nodetype = node match {
 						case n:PredefinedNode => "predefined"
 						case n:CustomNode => "custom"
 						case n:Preview => "preview"

@@ -20,9 +20,10 @@ import simplex3d.math.double.functions._
 import actors.Futures.future
 
 //TODO: png export
-//TODO: shader export
+
 
 class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
+	println("hier")
 
 	override def resized = image.recalc
 	
@@ -31,6 +32,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 	
 	val densityconnector = inconnectors(0)
 	val materialconnector = inconnectors(1)
+	
 	
 	val composition = new Composition
 	
@@ -329,10 +331,10 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 			}*/
 			
 			
-			/*composition.generate(densityconnector, materialconnector)
+			composition.generate(densityconnector, materialconnector)
 			composition.compile
 			speedlabel.value = 0.0
-			image.recalc*/
+			image.recalc
 		}
 	}
 	

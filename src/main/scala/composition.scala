@@ -10,7 +10,7 @@ import simplex3d.math.double.functions._
 
 
 
-class Composition extends Publisher{
+class Composition extends Publisher {
 	var densityfunction:( Vec3 ) => (Double, Material) = (v) => (0,Material())
 	var code = "0"
 	var involvedsliders = Set[String]()
@@ -22,7 +22,7 @@ class Composition extends Publisher{
 
 		connections(in) match {
 			case Some(out) =>
-				val parameters = out.node.inconnectors.map( nextin => {
+				val arguments = out.node.inconnectors.map( nextin => {
 						val tree = functiontree(nextin)
 						tree match {
 							case t:FunctionTree => nextin.title -> Some(t)
@@ -31,7 +31,7 @@ class Composition extends Publisher{
 						
 					})
 
-				FunctionTree(out.function, out.node, parameters)
+				FunctionTree(out.function, out.node, arguments)
 				
 			case None =>
 				null
@@ -108,7 +108,7 @@ class Composition extends Publisher{
 		// If there is a connection at this densityconnector
 		connections(densityconnector) match {
 			case Some(connector) =>
-				resultingval.density = "vn" + connector.node.id + "_" + connector.funcname
+				resultingval.density = "vn" + connector.node.id + "_" + connector.function.name
 				nextnodes += connector.node
 			case None =>
 		}
@@ -116,7 +116,7 @@ class Composition extends Publisher{
 		// If there is a connection at this materialconnector
 		connections(materialconnector) match {
 			case Some(connector) =>
-				resultingval.material = "vn" + connector.node.id + "_" + connector.funcname
+				resultingval.material = "vn" + connector.node.id + "_" + connector.function.name
 				nextnodes += connector.node
 			case None =>
 		}
@@ -128,18 +128,14 @@ class Composition extends Publisher{
 			val inconnections = inconnectors.map( c => connections(c) )
 			
 			val currentargs =
-			((for( (inconnection, NodeArgument(_,intype,_)) <- inconnections zip arguments ) yield {
+			((for( (inconnection, NodeArgument(_,argtype,argdefault)) <- inconnections zip arguments ) yield {
 				
 				inconnection match {
 					case Some(connector) =>
 						nextnodes += connector.node
-						"vn" + connector.node.id + "_" + connector.funcname
+						"vn" + connector.node.id + "_" + connector.function.name
 					case None =>
-						val RegexArg(_, argtype, _, argdefault) = intype
-						if( argdefault == null )
-							TypeDefaults(argtype)
-						else
-							argdefault
+						argdefault
 				}
 			}) ++
 	
@@ -171,7 +167,7 @@ class Composition extends Publisher{
 			}
 		}
 		
-		val composition = """(worldpos:Vec3) => {
+		val composition = """(world:Vec3) => {
 val noise1 = new Noise(ClassicalGradientNoise){
 	def apply(u:Vec3):Double = super.apply(u)
 }

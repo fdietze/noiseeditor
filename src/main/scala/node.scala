@@ -65,7 +65,7 @@ class FormulaSlider(slidername:String, nodeid:Int, initvalue:Int = 50) extends S
 	var transform:Double => Double = s => s
 
 	def globalvalue = transform(value/100.0)
-	override def tooltip = globalvalue.toString
+	tooltip = globalvalue.toString
 
 	//TODO: variable slider size
 	preferredSize = Vec2i(100,preferredSize.height)
@@ -113,7 +113,7 @@ trait NodeInit extends Node with DelayedInit {
 						tformula = formula
 					case None =>
 				}
-				//tooltip = globalvalue.toString
+				tooltip = globalvalue.toString
 			}
 		}
 
@@ -157,7 +157,7 @@ trait NodeInit extends Node with DelayedInit {
 				slider.globalname,
 				slider.globalvalue
 			))
-			//slider.tooltip = slider.globalvalue.toString
+			slider.tooltip = slider.globalvalue.toString
 	}
 
 	def delayedInit(constructor: => Unit) {
@@ -192,7 +192,7 @@ class CustomNode(title:String, id:Int, override val arguments:Seq[NodeArgument],
 		code = if(funcfield != null) funcfield.text else ""
 	))
 
-	val funcfield = new TextArea("0") {
+	val funcfield = new TextArea("0.0") {
 		font = new Font("Monospaced", java.awt.Font.PLAIN, 11)
 		tabSize = 4
 		//lineWrap = true

@@ -8,6 +8,7 @@ import utilities._
 
 object ModuleManager{
 	println("Starting ModuleManager...")
+
 	val nodeCategories:Seq[NodeCategory] = Seq(
 
 		/*FunctionNodeType("Noise", "Noise xyz", Seq("x:Double","y:Double","z:Double"),
@@ -90,7 +91,7 @@ object ModuleManager{
 			)
 		)*/
 	)
-	println("done")
+
 /*		
 
 		

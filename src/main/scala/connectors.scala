@@ -23,6 +23,7 @@ abstract class Connector(val title:String, val datatype:String, val node:Node) e
 			publish(HitConnector(source = this,connector = this))
 	}
 	override def toString = getClass.getName.split('.').last + "(" + title + ", " + node + ")"
+	//TODO: remove:
 	def funcname = ""
 }
 

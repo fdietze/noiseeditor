@@ -17,9 +17,9 @@ object InterpreterManager extends InterpreterQueue {
 	settings.embeddedDefaults[noiseeditor.Material]
 	
 	
-	Seq("lib/simplex3d-math-core.jar","lib/simplex3d-math-double.jar",
+	/*Seq("lib/simplex3d-math-core.jar","lib/simplex3d-math-double.jar",
 		"lib/simplex3d-algorithm-noise.jar").
-	    foreach (settings.classpath.append _)
+	    foreach (settings.classpath.append _)*/
 	
 	init
 	

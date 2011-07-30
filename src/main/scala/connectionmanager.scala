@@ -41,6 +41,7 @@ object ConnectionManager extends Component {
 			val apos = convertPoint(a.peer.getParent, a.location, this.peer) + a.size / 2
 			val bpos = convertPoint(b.peer.getParent, b.location, this.peer) + b.size / 2
 			
+			//TODO: Draw Bezier Curves instead of Lines
 			drawLine( apos.x, apos.y, bpos.x, bpos.y)
 		}
 	}

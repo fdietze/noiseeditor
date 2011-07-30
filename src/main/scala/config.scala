@@ -4,7 +4,7 @@ import java.awt.Color
 import java.awt.Color._
 import scala.util.matching.Regex
 
-package object config{
+package object config {
 	val RegexArg = new Regex("""([a-z][A-Za-z0-9]*)\W*\:\W*([A-Z][A-Za-z0-9\[\]\ ]*)(\W*\=\W*(.*))?""")
 	// val RegexArg(arname, argtype, _, argdefault) = "xs : Seq[Double] = Seq(0)"
 
@@ -36,7 +36,8 @@ package object config{
 		"Double" -> "0.0",
 		"Seq" -> "Nil",
 		"Vec3" -> "Vec3(0)",
-		"Vec2" -> "Vec2(0)"
+		"Vec2" -> "Vec2(0)",
+		"Material" -> "Material(0x000000)"
 	)
 	
 	val SliderDataType = "Double"
