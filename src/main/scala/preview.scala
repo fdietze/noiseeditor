@@ -27,7 +27,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 	override def resized = image.recalc
 	
 	
-	override def intypes = Seq("d:Double", "m:Material")
+	override def arguments = Seq(NodeArgument("d,","Double"), NodeArgument("m","Material"))
 	
 	val densityconnector = inconnectors(0)
 	val materialconnector = inconnectors(1)
@@ -321,18 +321,18 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 	def recompile {
 		println("Preview("+id+"): starting compiler in background...")
 		future{
-			val functiontree = composition.functiontree(densityconnector)
+			/*val functiontree = composition.functiontree(densityconnector)
 			println("### Tree:\n" + functiontree)
 			if( functiontree != null ) {
 				println("### Code:")
 				composition.generatecode(functiontree)
-			}
+			}*/
 			
 			
-			composition.generate(densityconnector, materialconnector)
+			/*composition.generate(densityconnector, materialconnector)
 			composition.compile
 			speedlabel.value = 0.0
-			image.recalc
+			image.recalc*/
 		}
 	}
 	

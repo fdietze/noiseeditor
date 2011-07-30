@@ -116,10 +116,11 @@ object NoiseEditor extends SimpleSwingApplication {
 					}
 				}
 			}
-
-			for( category <- FunctionNodeDatabase.categories ) {
-				contents += new Menu(category){
-					for( nodetype <- FunctionNodeDatabase.functionnodetypes.filter(t => t.category == category) ) {
+			
+			for( NodeCategory(title, nodetypes) <- ModuleManager.nodeCategories ) {
+				println("category: " + title)
+				contents += new Menu(title){
+					for( nodetype <- nodetypes ) {
 						contents += new MenuItem(nodetype.title) {
 							action = new Action(nodetype.title) {
 								def apply = NodeManager.add(Node(nodetype))

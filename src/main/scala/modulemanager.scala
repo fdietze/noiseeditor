@@ -1,16 +1,16 @@
 package noiseeditor
-
-case class Function(name:String, code:String, outtype:String, outname:String = " ")
-case class FunctionNodeType(category:String, title:String, intypes:Seq[String], sliders:Seq[AnyRef], functions:Function*)
-//TODO: import from XML file
-//TODO: All Scales exponential
+import utilities._
 //TODO: Compile check of all Nodes
 //TODO: More High Level nodes, like Surface, Layers, Fractal Noise, Turbulence
 //TODO: More Noise types, like cellular noise
-object FunctionNodeDatabase{
-	val functionnodetypes = Seq(
+//TODO: Tooltip with node description
 
-		FunctionNodeType("Noise", "Noise xyz", Seq("x:Double","y:Double","z:Double"),
+
+object ModuleManager{
+	println("Starting ModuleManager...")
+	val nodeCategories:Seq[NodeCategory] = Seq(
+
+		/*FunctionNodeType("Noise", "Noise xyz", Seq("x:Double","y:Double","z:Double"),
 			Seq(
 				("size", "pow(256,((0.5-s)*2))"),
 				("scale", "pow(256,((s-0.5)*2))"),
@@ -26,17 +26,72 @@ object FunctionNodeDatabase{
 			Function("richnoise3","""
 			val sumv = v.fold[Vec3](Vec3(0))( (a,b) => a+b ) + Vec3(x.sum,y.sum,z.sum)
 			(noise1(sumv*size)+offset)*scale/size + add.sum - sub.sum
-			""", "Double")),
+			""", "Double")),*/
 
-		FunctionNodeType("Noise", "Fast Rich Noise", Seq("v:Vec3","x:Double","y:Double","z:Double","add:Double","sub:Double"),
+
+
+
+
+		NodeCategory("Noise",
 			Seq(
-				("size", "pow(256,((0.5-s)*2))"),
-				("scale", "pow(256,((s-0.5)*2))"),
-				("offset", "(s-0.5)*2")),
-			Function("frichnoise3","""
-			val sumv = v + Vec3(x,y,z)
-			(noise1(sumv*size)+offset)*scale/size + add - sub
-			""", "Double")),
+				NodeType("Fast Rich Noise",
+					Seq(
+						NodeArgument("v","Vec3"),
+						NodeArgument("x","Double"),
+						NodeArgument("y","Double"),
+						NodeArgument("z","Double"),
+						NodeArgument("add","Double"),
+						NodeArgument("sub","Double")
+						),
+					Seq(
+						NodeSlider("size", "pow(256,((0.5-s)*2))"),
+						NodeSlider("scale", "pow(256,((s-0.5)*2))"),
+						NodeSlider("offset", "(s-0.5)*2")
+						),
+					Map(
+						"o" -> NodeFunction("frichnoise3", "Double",
+						"""(noise1((v + Vec3(x,y,z))*size)+offset)*scale/size + add - sub""")
+						)
+				)
+			)
+		),
+
+		NodeCategory("Sources",
+			Seq(
+				NodeType("Scalable World",
+					Nil,
+					Seq(
+						NodeSlider("scale","pow(256,((0.5-s)*2))")
+						),
+					Map(	
+						"v" -> NodeFunction("scalesrcv", "Vec3",   "world   * scale"),
+						"x" -> NodeFunction("scalesrcx", "Double", "world.x * scale"),
+						"y" -> NodeFunction("scalesrcy", "Double", "world.y * scale"),
+						"z" -> NodeFunction("scalesrcz", "Double", "world.z * scale")
+					)
+				)
+			)
+		)
+		
+/*		NodeCategory("Sources",
+			Seq(
+				NodeType("Scalable World",
+					Nil,
+					Seq(
+						NodeSlider("scale","pow(256,((0.5-s)*2))")
+						),
+					Map(	
+						"v" -> NodeFunction("scalesrcv", "Vec3",   "world   * scale"),
+						"x" -> NodeFunction("scalesrcx", "Double", "world.x * scale"),
+						"y" -> NodeFunction("scalesrcy", "Double", "world.y * scale"),
+						"z" -> NodeFunction("scalesrcz", "Double", "world.z * scale")
+					)
+				)
+			)
+		)*/
+	)
+	println("done")
+/*		
 
 		
 		FunctionNodeType("Noise", "Noise v", Seq("v:Vec3=Vec3(0)"),
@@ -116,17 +171,17 @@ object FunctionNodeDatabase{
 			Seq(("threshold","(s-0.5)*2")),
 			Function("matthreshold", "if(t > threshold) x else y", "Material")),
 		
-		FunctionNodeType("Source", "Scalable Source", Nil, Seq(("scale","pow(256,((0.5-s)*2))")),
-			Function("scalesrcv", "source * scale", "Vec3", "v"),
-			Function("scalesrcx", "source.x * scale", "Double", "x"),
-			Function("scalesrcy", "source.y * scale", "Double", "y"),
-			Function("scalesrcz", "source.z * scale", "Double", "z")),
+		FunctionNodeType("Sources", "Scalable World", Nil, Seq(("scale","pow(256,((0.5-s)*2))")),
+			Function("scalesrcv", "world * scale", "Vec3", "v"),
+			Function("scalesrcx", "world.x * scale", "Double", "x"),
+			Function("scalesrcy", "world.y * scale", "Double", "y"),
+			Function("scalesrcz", "world.z * scale", "Double", "z")),
 			
-		FunctionNodeType("Source", "Source", Nil, Nil,
-			Function("srcv", "source", "Vec3", "v"),
-			Function("srcxyzx", "source.x", "Double", "x"),
-			Function("srcxyzy", "source.y", "Double", "y"),
-			Function("srcxyzz", "source.z", "Double", "z")),
+		FunctionNodeType("Sources", "World", Nil, Nil,
+			Function("srcv", "world", "Vec3", "v"),
+			Function("srcxyzx", "world.x", "Double", "x"),
+			Function("srcxyzy", "world.y", "Double", "y"),
+			Function("srcxyzz", "world.z", "Double", "z")),
 
 		
 		// King Arthurs Gold
@@ -140,10 +195,6 @@ object FunctionNodeDatabase{
 		
 		
 	)
+*/
 
-//TODO: Tooltip mit nodebeschreibung
-
-
-//TODO: Threshold mit abschneiden und linearinterpolation
-	val categories = functionnodetypes.map(_.category).distinct
 }

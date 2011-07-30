@@ -33,20 +33,21 @@ object Node {
 		ids map (_ -> nextid) toMap
 	}
 
-	def apply(nodetype:FunctionNodeType, id:Int = nextid) = {
+	def apply(nodetype:NodeType, id:Int = nextid) = {
 		new PredefinedNode(nodetype.title, id, nodetype)
 	}
 	
 	def custom(id:Int = nextid) = {
 		//TODO: Export to file and load it everytime
 		new CustomNode("Custom", id,
-			slidernames = Seq("s1","s2","s3","s4"),
-			intypes = Seq("a:Double","b:Double","c:Double","d:Double"))
+			arguments = Seq(NodeArgument("a","Double"),NodeArgument("b","Double"),NodeArgument("c","Double"),NodeArgument("d","Double")),
+			customsliders = Seq(NodeSlider("s1"),NodeSlider("s2"),NodeSlider("s3"),NodeSlider("s4"))
+			)
 	}
 
-	def loadcustom( slidernames:Seq[String], intypes:Seq[String], function:String, id:Int = nextid ) = {
-		val node = new CustomNode("Custom", id, slidernames, intypes)
-		node.funcfield.text = function
+	def loadcustom( sliders:Seq[NodeSlider], arguments:Seq[NodeArgument], code:String, id:Int = nextid ) = {
+		val node = new CustomNode("Custom", id, arguments, sliders)
+		node.funcfield.text = code
 		node
 	}
 	
@@ -55,7 +56,7 @@ object Node {
 	}
 }
 
-class FunctionSlider(slidername:String, nodeid:Int, initvalue:Int = 50) extends Slider with ScrollableSlider {
+class FormulaSlider(slidername:String, nodeid:Int, initvalue:Int = 50) extends Slider with ScrollableSlider {
 	name = slidername
 	value = initvalue
 	val globalname = "n" + nodeid + "_" + name
@@ -64,18 +65,18 @@ class FunctionSlider(slidername:String, nodeid:Int, initvalue:Int = 50) extends 
 	var transform:Double => Double = s => s
 
 	def globalvalue = transform(value/100.0)
-	tooltip = globalvalue.toString
+	override def tooltip = globalvalue.toString
 
 	//TODO: variable slider size
 	preferredSize = Vec2i(100,preferredSize.height)
 }
 
 abstract class Node(val title:String, val id:Int = Node.nextid) extends BoxPanel(Vertical) with Movable {
-	def intypes:Seq[String] = Nil
-	def sliderdefinitions:Seq[AnyRef] = Nil
-	def functions:Seq[Function] = Nil
+	def arguments:Seq[NodeArgument] = Nil
+	def sliderdefinitions:Seq[NodeSlider] = Nil
+	def functions:Map[String, NodeFunction] = Map()
 
-	val sliders:Seq[FunctionSlider] = Nil
+	val sliders:Seq[FormulaSlider] = Nil
 	val inconnectors:Seq[InConnector] = Nil
 	val outconnectors:Seq[OutConnector] = Nil
 
@@ -87,13 +88,12 @@ trait NodeInit extends Node with DelayedInit {
 	val titledborder = new TitledBorder(new SoftBevelBorder(RAISED), title)
 	border = titledborder
 
-	override val inconnectors = for( intype <- intypes ) yield{
-		val RegexArg(argname, argtype, _, _) = intype
+	override val inconnectors = for( NodeArgument(argname,argtype,_) <- arguments ) yield{
 		new InConnector(argname, argtype, thisnode)
 	}
-	override val outconnectors = for( function <- functions ) yield{
-		new OutConnector(function, thisnode)
-	}
+	override val outconnectors = (for( (title, function) <- functions ) yield {
+		new OutConnector(title, function, thisnode)
+	}).toSeq
 	
 	val inconnectorpanel = new BoxPanel(Vertical) {
 		contents ++= inconnectors
@@ -104,22 +104,18 @@ trait NodeInit extends Node with DelayedInit {
 	}
 
 	override val sliders = 
-	for( slider <- sliderdefinitions ) yield {
-		slider match {
-			case name:String => new FunctionSlider(name, nodeid = id)
-			case (name:String, formula:String) =>
-				val compilation = InterpreterManager[Double => Double]("(s:Double) => " + formula)
-				new FunctionSlider(name, nodeid = id) {
-					compilation() match {
-						case Some(f) =>
-							transform = f
-							tformula = formula
-						case None =>
-					}
-					tooltip = globalvalue.toString
+		for( NodeSlider(name, formula, _) <- sliderdefinitions ) yield {
+			val compilation = InterpreterManager[Double => Double]("(s:Double) => " + formula)
+			new FormulaSlider(name, nodeid = id) {
+				compilation() match {
+					case Some(f) =>
+						transform = f
+						tformula = formula
+					case None =>
 				}
+				//tooltip = globalvalue.toString
+			}
 		}
-	}
 
 	val sliderpanel = new GridBagPanel {
 		val constraints = new Constraints
@@ -154,14 +150,14 @@ trait NodeInit extends Node with DelayedInit {
 		listenTo(slider)
 
 	reactions += {
-		case ValueChanged(slider:FunctionSlider) =>
+		case ValueChanged(slider:FormulaSlider) =>
 			publish(NodeValueChanged(
 				source = thisnode,
 				node = thisnode,
 				slider.globalname,
 				slider.globalvalue
 			))
-			slider.tooltip = slider.globalvalue.toString
+			//slider.tooltip = slider.globalvalue.toString
 	}
 
 	def delayedInit(constructor: => Unit) {
@@ -174,9 +170,9 @@ trait NodeInit extends Node with DelayedInit {
 	override def toString = "Node("+title+")"
 }
 
-class PredefinedNode(title:String, id:Int, nodetype:FunctionNodeType) extends Node(title, id) with NodeInit {
+class PredefinedNode(title:String, id:Int, nodetype:NodeType) extends Node(title, id) with NodeInit {
 	override def functions = nodetype.functions
-	override def intypes = nodetype.intypes
+	override def arguments = nodetype.arguments
 	override def sliderdefinitions = nodetype.sliders
 
 	contents +=	new BoxPanel(Horizontal){
@@ -187,14 +183,13 @@ class PredefinedNode(title:String, id:Int, nodetype:FunctionNodeType) extends No
 	contents += removebutton
 }
 
-class CustomNode(title:String, id:Int, slidernames:Seq[String], override val intypes:Seq[String]) extends Node(title, id) with NodeInit with Resizable {
-	//TODO compilefehler im Node anzeigen
-	println("CustomNode Constructor")
-	override def sliderdefinitions = slidernames
-	override def functions = Seq(Function(
+class CustomNode(title:String, id:Int, override val arguments:Seq[NodeArgument], customsliders:Seq[NodeSlider]) extends Node(title, id) with NodeInit with Resizable {
+	//TODO show compile errors in Custom Node?
+	override def sliderdefinitions = customsliders
+	override def functions = Map("o" -> NodeFunction(
 		name = "custom_f" + id,
-		code = if(funcfield != null) funcfield.text else "",
-		outtype = "Double"
+		returntype = "Double",
+		code = if(funcfield != null) funcfield.text else ""
 	))
 
 	val funcfield = new TextArea("0") {

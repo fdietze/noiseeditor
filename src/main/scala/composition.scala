@@ -17,14 +17,19 @@ class Composition extends Publisher{
 
 	def apply( v:Vec3 ):(Double, Material) = densityfunction(v)
 	
-	def functiontree(in:InConnector):FunctionTree = {
+/*	def functiontree(in:InConnector):FunctionTree = {
 		import ConnectionManager.connections
 
 		connections(in) match {
 			case Some(out) =>
-				val parameters = out.node.inconnectors.map(
-						nextin => nextin.title -> functiontree(nextin)
-					).toMap
+				val parameters = out.node.inconnectors.map( nextin => {
+						val tree = functiontree(nextin)
+						tree match {
+							case t:FunctionTree => nextin.title -> Some(t)
+							case null =>           nextin.title -> None
+						}
+						
+					})
 
 				FunctionTree(out.function, out.node, parameters)
 				
@@ -43,7 +48,18 @@ class Composition extends Publisher{
 		nexttrees += tree
 		while( nexttrees.nonEmpty ) {
 			val currenttree = nexttrees.dequeue
-			nodes +:= ((
+			println("parameters: " + currenttree.parameters.map(
+				p => p._2 match {
+					case Some(t) => t.node.id.toString
+					case None =>
+						val RegexArg(_, argtype, _, argdefault) = intype
+						if( argdefault == null )
+							TypeDefaults(argtype)
+						else
+							argdefault
+				}
+			))
+			/*nodes +:= ((
 				currenttree.function,
 				currenttree.node,
 				currenttree.parameters.values.map( t =>
@@ -53,10 +69,10 @@ class Composition extends Publisher{
 						case _ =>
 							"DEFAULT"
 					}
-					 ).toSeq))
+					 ).toSeq))*/
 	//		functions += currenttree.function
 			
-			nexttrees ++= currenttree.parameters.values.filter( x => x != null)
+			//nexttrees ++= currenttree.parameters.values.filter( x => x != null)
 		}
 		
 		for( (function, node, parameters) <- nodes ) {
@@ -69,7 +85,7 @@ class Composition extends Publisher{
 		}
 		
 		""
-	}
+	}*/
 
 	def generate (
 			densityconnector:InConnector,
@@ -112,7 +128,7 @@ class Composition extends Publisher{
 			val inconnections = inconnectors.map( c => connections(c) )
 			
 			val currentargs =
-			((for( (inconnection, intype) <- inconnections zip intypes ) yield {
+			((for( (inconnection, NodeArgument(_,intype,_)) <- inconnections zip arguments ) yield {
 				
 				inconnection match {
 					case Some(connector) =>
@@ -138,10 +154,10 @@ class Composition extends Publisher{
 	
 			)).mkString(", ")
 
-			for( Function(name, code, outtype, _) <- currentnode.functions ) {
+			for( (title, NodeFunction(name, returntype, code, _, _)) <- currentnode.functions ) {
 				funcdefs += "def %s(%s) = {%s}".format(
 					name,
-					(intypes ++ sliders.map( s => s.name + ":Double")).mkString(", "),
+					(arguments.map( a => "%s:%s".format(a.name,a.datatype) ) ++ sliders.map( s => s.name + ":Double")).mkString(", "),
 					code
 				)
 				var currentnodeval = "val vn%d_%s = %s(%s)".format(
@@ -155,7 +171,7 @@ class Composition extends Publisher{
 			}
 		}
 		
-		val composition = """(source:Vec3) => {
+		val composition = """(worldpos:Vec3) => {
 val noise1 = new Noise(ClassicalGradientNoise){
 	def apply(u:Vec3):Double = super.apply(u)
 }

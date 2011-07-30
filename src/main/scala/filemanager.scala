@@ -153,7 +153,7 @@ object FileManager extends Publisher {
 	def writeSession(path:String) { writeSession(new File(path)) }
 	
 	def readSession(file:File) {
-		println("SaveManager: reading " + file)
+/*		println("SaveManager: reading " + file)
 		val document = XML.loadFile(file)
 		
 		val ids = (document \ "nodes" \ "node") map ( n => (n \ "@id").text.toInt)
@@ -240,17 +240,17 @@ object FileManager extends Publisher {
 			val outconnector = nodeforid(newid(outnodeid)).outconnectors(outindex)
 			ConnectionManager.changeConnection(inconnector, outconnector)
 		}
-		ConnectionManager.commitconnection
+		ConnectionManager.commitconnection*/
 	}
 
 	def writeSession(file:File) {
-		println("writing " + file)
+/*		println("writing " + file)
 		implicit def intToString(x:Int) = x.toString
 		implicit def doubleToString(x:Double) = x.toString
 		implicit def booleanToString(x:Boolean) = x.toString
 		
-		//TODO: replace last suffix
-		val functionsuffix = "_t" + (System.currentTimeMillis/1000).toString
+		//TODO: replace last suffix, higher base
+		val functionsuffix = "_t" + (System.currentTimeMillis/1000).toHexString
 		
 		val document = 
 		<document>
@@ -293,15 +293,8 @@ object FileManager extends Publisher {
 					</node>
 				}
 			}</nodes>
-			<connections>{/*
-				for( connection <- ConnectionManager.connections.edges ) yield {
-					val (in,out) =
-					connection match {
-						case (in:InConnector, out:OutConnector) =>
-							(in,out)
-						case (out:OutConnector, in:InConnector) =>
-							(in, out)
-					}
+			<connections>{
+				for( (in,out) <- ConnectionManager.connections.edges ) yield {
 					// extract indizes of connectors in their nodes
 					val  inindex = in .node.inconnectors.indexWhere( _ eq in)
 					val outindex = out.node.outconnectors.indexWhere( _ eq out)
@@ -311,7 +304,7 @@ object FileManager extends Publisher {
 						<out nodeid={out.node.id} connector={outindex} />
 					</connection>
 				}
-			*/}</connections>
+			}</connections>
 		</document>
 		
 		XML.save(file.getPath, node = document, enc="UTF-8", xmlDecl=true)
@@ -319,7 +312,7 @@ object FileManager extends Publisher {
 		val out = new java.io.FileWriter(file)
 		out.write("<?xml version='1.0' encoding='UTF-8'?>\n")
 		out.write(prettyprinter.format(document))
-		out.close*/
+		out.close*/*/
 	}
 	
 	

@@ -39,5 +39,5 @@ package object config{
 		"Vec2" -> "Vec2(0)"
 	)
 	
-	
+	val SliderDataType = "Double"
 }

@@ -12,6 +12,9 @@ import simplex3d.math._
 import simplex3d.math.double._
 import simplex3d.math.double.functions._
 
+import config._
+
+
 package object utilities {
 
 def time[A](msg:String)(function: => A) = {
@@ -54,11 +57,37 @@ def mixcolors(a:Int, b:Int, t:Double=0.5) = {
 	)
 }
 
-case class FunctionTree(
-		function: Function,
-		node: Node,
-		parameters: Map[String,FunctionTree] ) {
+
+object NodeArgument {
+	def apply(name:String, datatype:String):NodeArgument = {
+		NodeArgument(name, datatype, TypeDefaults(datatype))
+	}
 }
+case class NodeArgument(name:String, datatype:String, default:String) {
+	
+}
+case class NodeSlider(name:String, formula:String = "s", datatype:String = SliderDataType)
+case class NodeFunction(name:String, returntype:String, code:String, arguments:Seq[NodeArgument] = Nil, sliders:Seq[NodeSlider] = Nil)
+
+
+case class NodeType(title:String, arguments:Seq[NodeArgument], sliders:Seq[NodeSlider], var functions:Map[String, NodeFunction] ) {
+	assert( functions.size > 0, "Nodes need at least one function." )
+	assert( functions.values.toSeq.distinct.size == 1, "Every function in a Node needs the same arguments" )
+	
+	// Add slider and arguments to every function
+	functions = for( (title, NodeFunction(name, returntype, code, _, _)) <- functions ) yield
+		title -> NodeFunction(name, returntype, code, arguments, sliders)
+}
+
+case class NodeCategory(title:String, nodetypes:Seq[NodeType])
+
+case class CompositionTree(
+		function: NodeFunction,
+		nodeid: Int,
+		arguments: Seq[(String, Option[CompositionTree])] )
+
+
+
 
 class ConnectionTree {
 	// Graph without cycles and out-degree = 1

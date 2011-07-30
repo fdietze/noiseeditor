@@ -32,10 +32,9 @@ case class InConnector(
 		override val node:Node ) extends Connector(title, datatype, node)
 
 case class OutConnector(
-		val function:Function,
-		override val node:Node) extends Connector(function.outname, function.outtype, node) {
-	
-	override def funcname = function.name
+		override val title:String,
+		val function:NodeFunction,
+		override val node:Node) extends Connector(title, function.returntype, node) {
 }
 
 
