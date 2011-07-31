@@ -72,23 +72,26 @@ trait NodeFunctionArgument {
 case class NodeArgument(name:String, datatype:String, default:String) extends NodeFunctionArgument
 case class NodeSlider(name:String, formula:String = "s", datatype:String = SliderDataType) extends NodeFunctionArgument
 
-case class NodeFunction(name:String, returntype:String, var code:String, arguments:Seq[NodeArgument] = Nil, sliders:Seq[NodeSlider] = Nil) {
-	override def toString = "NodeFunction(%s)".format(name)
+case class NodeFunctionFull(name:String, returntype:String, code:String, arguments:Seq[NodeArgument], sliders:Seq[NodeSlider])
+case class NodeFunction(name:String, returntype:String, code:String)
+
+object NodeType {
+	def apply(title:String, arguments:Seq[NodeArgument], sliders:Seq[NodeSlider], functions:Map[String, NodeFunction])(implicit e: DummyImplicit) = {
+		val newfunctions = for( (title, NodeFunction(name, returntype, code)) <- functions ) yield
+		title -> NodeFunctionFull(name, returntype, code, arguments, sliders)
+
+		new NodeType(title, arguments, sliders, newfunctions)
+	}
 }
 
-
-case class NodeType(title:String, arguments:Seq[NodeArgument], sliders:Seq[NodeSlider], var functions:Map[String, NodeFunction] ) {
+case class NodeType(title:String, arguments:Seq[NodeArgument], sliders:Seq[NodeSlider], functions:Map[String, NodeFunctionFull]) {
 	assert( functions.size > 0, "Nodes need at least one function." )
-	
-	// Add slider and arguments to every function
-	functions = for( (title, NodeFunction(name, returntype, code, _, _)) <- functions ) yield
-		title -> NodeFunction(name, returntype, code, arguments, sliders)
 }
 
 case class NodeCategory(title:String, nodetypes:Seq[NodeType])
 
 case class CompositionTree(
-		function: NodeFunction,
+		function: NodeFunctionFull,
 		nodeid: Int,
 		sliders: Seq[FormulaSlider],
 		arguments: Seq[Either[String, CompositionTree]] ) {
@@ -96,7 +99,7 @@ case class CompositionTree(
 	def varname = "vn%d_%s".format(nodeid, function.name)
 }
 
-case class Composition( functions:Set[NodeFunction], calltree:CompositionTree )
+case class Composition( functions:Set[NodeFunctionFull], calltree:CompositionTree )
 
 
 
@@ -110,7 +113,7 @@ class ConnectionTree {
 	type TO   = OutConnector
 	type NODE = Node
 	
-	import collection.mutable._
+	import collection.mutable.HashMap
 	var edges = new HashMap[FROM,TO]
 	
 	override def toString = "NodeTree(" + edges + ")"
@@ -165,10 +168,10 @@ class ConnectionTree {
 	
 	// Find parents of vertex
 	def apply(vertex:TO):Set[FROM] = {
-		var parents = Set[FROM]()
+		val parents = collection.mutable.Set[FROM]()
 		for( (from,to) <- edges if vertex eq to )
 			parents += from
-		parents
+		parents.toSet
 	}
 
 	// Child of vertex

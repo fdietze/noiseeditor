@@ -46,7 +46,7 @@ object ModuleManager{
 
 		NodeCategory("Noise",
 			Seq(
-				NodeType("Fast Rich Noise",
+				NodeType("Noise with Summed Inputs",
 					Seq(
 						NodeArgument("v","Vec3"),
 						NodeArgument("x","Double"),
@@ -61,7 +61,7 @@ object ModuleManager{
 						NodeSlider("offset", "(s-0.5)*2")
 						),
 					Map(
-						"o" -> NodeFunction("frichnoise3", "Double",
+						"o" -> NodeFunction("summedinputnoise3", "Double",
 						"""(noise3((v + Vec3(x,y,z))*size)+offset)*scale/size + add - sub""")
 						)
 				)

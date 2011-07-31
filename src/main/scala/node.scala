@@ -74,7 +74,7 @@ class FormulaSlider(slidername:String, nodeid:Int, initvalue:Int = 50) extends S
 abstract class Node(val title:String, val id:Int = Node.nextid) extends BoxPanel(Vertical) with Movable {
 	def arguments:Seq[NodeArgument] = Nil
 	def sliderdefinitions:Seq[NodeSlider] = Nil
-	def functions:Map[String, NodeFunction] = Map()
+	def functions:Map[String, NodeFunctionFull] = Map()
 
 	val sliders:Seq[FormulaSlider] = Nil
 	val inconnectors:Seq[InConnector] = Nil
@@ -187,11 +187,12 @@ class PredefinedNode(title:String, id:Int, nodetype:NodeType) extends Node(title
 class CustomNode(title:String, id:Int, override val arguments:Seq[NodeArgument], customsliders:Seq[NodeSlider]) extends Node(title, id) with NodeInit with Resizable {
 	//TODO show compile errors in Custom Node?
 	override def sliderdefinitions = customsliders
-	override def functions = Map("o" -> NodeFunction(
+	override def functions = Map("o" -> NodeFunctionFull(
 		name = "custom_f" + id,
 		returntype = "Double",
 		code = if(funcfield != null) funcfield.text else "0.0",
-		arguments = arguments
+		arguments = arguments,
+		customsliders
 	))
 	
 

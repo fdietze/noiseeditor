@@ -60,7 +60,7 @@ object CodeGenerator {
 		import composition._
 		
 		// Function Definitions
-		val functioncode = (for( NodeFunction(name,returntype, code, arguments, sliders) <- functions ) yield {
+		val functioncode = (for( NodeFunctionFull(name,returntype, code, arguments, sliders) <- functions ) yield {
 			"def %s(%s):%s = {%s}".format(
 				name,
 				(arguments ++ sliders).map(a => "%s:%s".format(a.name, a.datatype)).mkString(", "),
@@ -82,8 +82,8 @@ object CodeGenerator {
 				function.name,
 				(
 					arguments.map{
-						case Right(arg) => "vn%d_%s".format(arg.nodeid, arg.function.name)
-						case Left(default) => default	}
+						case Right(arg) => arg.varname
+						case Left(default) => default }
 					++
 					sliders.map(s => "%s.value".format(s.globalname))
 				).mkString(", ")

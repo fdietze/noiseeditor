@@ -19,6 +19,7 @@ import utilities._
 
 //TODO: folding nodes?
 //TODO: Metanodes?
+//TODO: Contextmenu for adding nodes
 
 case class Material(color:Int = MaterialDefaultColor)
 

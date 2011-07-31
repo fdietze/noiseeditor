@@ -25,7 +25,7 @@ import actors.Futures.future
 class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 	override def arguments = Seq(NodeArgument("d","Double"), NodeArgument("m","Material"))
 	override def functions = Map(
-		"result" -> NodeFunction("result", "(Double, Material)", "(d,m)", arguments, Nil)
+		"result" -> NodeFunctionFull("result", "(Double, Material)", "(d,m)", arguments, Nil)
 	)
 	
 	type Compositiontype = (Vec3) => (Double, Material)
