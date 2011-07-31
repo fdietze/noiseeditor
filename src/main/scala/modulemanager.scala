@@ -4,11 +4,22 @@ import utilities._
 //TODO: More High Level nodes, like Surface, Layers, Fractal Noise, Turbulence
 //TODO: More Noise types, like cellular noise
 //TODO: Tooltip with node description
+//TODO: Different Noise Dimensions
 
 
 object ModuleManager{
 	println("Starting ModuleManager...")
+	
+	val initcode = 
+"""val noise3 = new Noise(ClassicalGradientNoise){
+	def apply(u:Vec3):Double = super.apply(u)
+}"""
+	
+	def init {
+		InterpreterManager(initcode)
+	}
 
+	
 	val nodeCategories:Seq[NodeCategory] = Seq(
 
 		/*FunctionNodeType("Noise", "Noise xyz", Seq("x:Double","y:Double","z:Double"),
@@ -51,7 +62,7 @@ object ModuleManager{
 						),
 					Map(
 						"o" -> NodeFunction("frichnoise3", "Double",
-						"""(noise1((v + Vec3(x,y,z))*size)+offset)*scale/size + add - sub""")
+						"""(noise3((v + Vec3(x,y,z))*size)+offset)*scale/size + add - sub""")
 						)
 				)
 			)

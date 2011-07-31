@@ -20,8 +20,6 @@ import utilities._
 //TODO: folding nodes?
 //TODO: Metanodes?
 
-//TODO: Migrate to Double
-
 case class Material(color:Int = MaterialDefaultColor)
 
 object NoiseEditor extends SimpleSwingApplication {
@@ -43,6 +41,7 @@ object NoiseEditor extends SimpleSwingApplication {
 
 	def init {
 		InterpreterManager
+		ModuleManager.init
 		NodeManager.listenTo(top)
 		ConnectionManager.listenTo(top, NodeManager)
 
@@ -83,7 +82,7 @@ object NoiseEditor extends SimpleSwingApplication {
 				}				
 
 
-				contents += new MenuItem("Open") {
+				/*contents += new MenuItem("Open") {
 					mnemonic = Key.O
 					action = new Action("Open") {
 						def apply = FileManager.open
@@ -105,7 +104,7 @@ object NoiseEditor extends SimpleSwingApplication {
 						def apply = FileManager.saveAs
 						accelerator = Some(getKeyStroke("ctrl shift S"))
 					}
-				}				
+				}*/				
 
 				contents += new MenuItem("Quit") {
 					mnemonic = Key.Q
@@ -135,11 +134,11 @@ object NoiseEditor extends SimpleSwingApplication {
 						def apply = NodeManager.add(Node.preview())
 					}
 				}
-				contents += new MenuItem("Custom Node") {
+				/*contents += new MenuItem("Custom Node") {
 					action = new Action("Custom Node") {
 						def apply = NodeManager.add(Node.custom())
 					}
-				}
+				}*/
 			}
 		}
 	}

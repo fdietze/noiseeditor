@@ -23,18 +23,16 @@ import actors.Futures.future
 
 
 class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
-	println("hier")
-
+	override def arguments = Seq(NodeArgument("d","Double"), NodeArgument("m","Material"))
+	override def functions = Map(
+		"result" -> NodeFunction("result", "(Double, Material)", "(d,m)", arguments, Nil)
+	)
+	
+	type Compositiontype = (Vec3) => (Double, Material)
+	var interpretedcomposition:Compositiontype = (world:Vec3) => (0.0, Material())
+	var involvedsliders = Set[String]()
+	
 	override def resized = image.recalc
-	
-	
-	override def arguments = Seq(NodeArgument("d,","Double"), NodeArgument("m","Material"))
-	
-	val densityconnector = inconnectors(0)
-	val materialconnector = inconnectors(1)
-	
-	
-	val composition = new Composition
 	
 	val viewtypes = Seq(
 		"iso" -> "Iso surface",
@@ -93,7 +91,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y = i/width
-							val result = composition( perspectivecombobox.selected( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
+							val result = interpretedcomposition( perspective( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
 							if( result._1 >= 0 )
 								result._2.color
 							else
@@ -108,12 +106,12 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 
 							var counter = 0
 					
-							var result = composition( perspectivecombobox.selected( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
+							var result = interpretedcomposition( perspective( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
 							while( result._1 < 0 && counter < DepthMaxsteps ){
 								tmpz += DepthStepSize*zoom
 								counter += 1
-								result = composition( perspectivecombobox.selected( Vec3( transformZoomOffset(Vec2(x,y)) ,tmpz) ) )
-							} 
+								result = interpretedcomposition( perspective( Vec3( transformZoomOffset(Vec2(x,y)) ,tmpz) ) )
+							}
 					
 							counter = if(counter == 0) 0 else counter + 2
 							val factor = math.pow(DepthFadeOutFactor,counter)
@@ -134,7 +132,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y = i/width
-							val result = composition( perspectivecombobox.selected( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
+							val result = interpretedcomposition( perspective( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
 							val value = (clamp( (result._1+1)*0.5, 0, 1 )*255).toInt
 							graycolor(value)
 						}.toArray
@@ -149,7 +147,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 							 || abs(translated.y - round(translated.y)) < zoom*0.5 )
 								GridColor
 							else {
-								val result = composition( perspectivecombobox.selected( Vec3( translated ,z) ) )
+								val result = interpretedcomposition( perspective( Vec3( translated ,z) ) )
 								val value = (clamp( (result._1+1)*0.5, 0, 1 )*255).toInt
 								if( result._1 > 0 )
 									mixcolors(IsolineColor, graycolor(value), 0.3)
@@ -164,7 +162,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y = i/width
-							val result = composition( perspectivecombobox.selected( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
+							val result = interpretedcomposition( perspective( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
 							val value = (stretch( result._1)*255).toInt
 							graycolor(value)
 						}.toArray
@@ -175,7 +173,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y = i/width
-							val result = composition( perspectivecombobox.selected( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )._1
+							val result = interpretedcomposition( perspective( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )._1
 							if( result < minvalue ) minvalue = result
 							if( result > maxvalue ) maxvalue = result
 							result
@@ -214,11 +212,11 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		reactions += {
 			case e:MouseMoved =>
 				tooltip = transformZoomOffset(Vec3(e.point,z)) + " => " +
-					composition( transformZoomOffset(Vec3(e.point,z)) )
-					//BUG: Does not work for z != 0
+					interpretedcomposition( transformZoomOffset(Vec3(e.point,z)) )
+					//TODO: BUG: Does not work for z != 0
 			case e:MouseDragged =>
 				tooltip = transformZoomOffset(Vec3(e.point,z)) + " => " +
-					composition( transformZoomOffset(Vec3(e.point,z)) )
+					interpretedcomposition( transformZoomOffset(Vec3(e.point,z)) )
 		}
 	}
 	
@@ -253,10 +251,10 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		}
 	}
 
-	val perspectivecombobox = new ComboBox(perspectives) {
+	val perspective = new ComboBox(perspectives) {
 		renderer = Renderer(_._3)
 		maximumSize = preferredSize
-		def selected = selection.item._2
+		def apply(v:Vec3) = selection.item._2(v)
 		def selectedname = selection.item._1
 		def select(item:String) {
 			val index = perspectives.map(_._1).indexOf(item)
@@ -290,7 +288,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 				chooser.showSaveDialog match {
 					case Approve =>
 						val out = new java.io.FileWriter(chooser.selectedFile)
-						out.write(composition.generate(densityconnector, materialconnector, constantsliders = true))
+						out.write(CodeGenerator.generatecode(CodeGenerator.composition(outconnectors(0))))
 						out.close
 					case Cancel =>
 				}
@@ -310,7 +308,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 			contents += depthslider
 			contents += new BoxPanel(Horizontal) {
 				contents += viewcombobox
-				contents += perspectivecombobox
+				contents += perspective
 				contents += resetbutton
 			}
 			contents += new BoxPanel(Horizontal) {
@@ -322,26 +320,25 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 	
 	def recompile {
 		println("Preview("+id+"): starting compiler in background...")
-		future{
-			/*val functiontree = composition.functiontree(densityconnector)
-			println("### Tree:\n" + functiontree)
-			if( functiontree != null ) {
-				println("### Code:")
-				composition.generatecode(functiontree)
-			}*/
-			
-			
-			composition.generate(densityconnector, materialconnector)
-			composition.compile
-			speedlabel.value = 0.0
-			image.recalc
+		future {
+			val composition = CodeGenerator.composition(outconnectors(0))
+			val code = CodeGenerator.generatecode(composition)
+			val compilation = InterpreterManager[Compositiontype](code) // Future
+			compilation() match {
+				case Some(interpretedcode) =>
+					interpretedcomposition = interpretedcode
+					involvedsliders = CodeGenerator.involvedsliders(composition)
+					speedlabel.value = 0.0
+					image.recalc
+				case None =>
+			}
 		}
 	}
 	
-	listenTo(ConnectionManager, NodeManager, viewcombobox.selection, perspectivecombobox.selection)
+	listenTo(ConnectionManager, NodeManager, viewcombobox.selection, perspective.selection)
 	reactions += {
 		case NodeValueChanged(source, node, slider, value) =>
-			if( composition.involvedsliders contains slider )
+			if( involvedsliders contains slider )
 				image.recalc
 		
 		case e:NodeConnected =>
@@ -354,7 +351,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 			speedlabel.value = 0.0
 			image.recalc
 
-		case SelectionChanged(`perspectivecombobox`) =>
+		case SelectionChanged(`perspective`) =>
 			speedlabel.value = 0.0
 			image.recalc
 	}	

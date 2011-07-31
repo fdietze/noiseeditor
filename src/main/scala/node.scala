@@ -40,7 +40,7 @@ object Node {
 	def custom(id:Int = nextid) = {
 		//TODO: Export to file and load it everytime
 		new CustomNode("Custom", id,
-			arguments = Seq(NodeArgument("a","Double"),NodeArgument("b","Double"),NodeArgument("c","Double"),NodeArgument("d","Double")),
+			arguments = Seq(NodeArgument("v","Vec3"),NodeArgument("a","Double"),NodeArgument("b","Double"),NodeArgument("c","Double"),NodeArgument("d","Double")),
 			customsliders = Seq(NodeSlider("s1"),NodeSlider("s2"),NodeSlider("s3"),NodeSlider("s4"))
 			)
 	}
@@ -91,6 +91,7 @@ trait NodeInit extends Node with DelayedInit {
 	override val inconnectors = for( NodeArgument(argname,argtype,_) <- arguments ) yield{
 		new InConnector(argname, argtype, thisnode)
 	}
+	
 	override val outconnectors = (for( (title, function) <- functions ) yield {
 		new OutConnector(title, function, thisnode)
 	}).toSeq
@@ -189,8 +190,10 @@ class CustomNode(title:String, id:Int, override val arguments:Seq[NodeArgument],
 	override def functions = Map("o" -> NodeFunction(
 		name = "custom_f" + id,
 		returntype = "Double",
-		code = if(funcfield != null) funcfield.text else ""
+		code = if(funcfield != null) funcfield.text else "0.0",
+		arguments = arguments
 	))
+	
 
 	val funcfield = new TextArea("0.0") {
 		font = new Font("Monospaced", java.awt.Font.PLAIN, 11)
@@ -205,8 +208,6 @@ class CustomNode(title:String, id:Int, override val arguments:Seq[NodeArgument],
 	reactions += {
 		case ButtonClicked(`compilebutton`) =>
 			publish(NodeChanged(source = thisnode, node = thisnode))
-		case UIElementResized(`funcfield`) =>
-			//TODO: resize node
 	}
 	
 	val controlpanel = new BoxPanel(Horizontal) {

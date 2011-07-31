@@ -58,16 +58,23 @@ def mixcolors(a:Int, b:Int, t:Double=0.5) = {
 }
 
 
+
 object NodeArgument {
 	def apply(name:String, datatype:String):NodeArgument = {
 		NodeArgument(name, datatype, TypeDefaults(datatype))
 	}
 }
-case class NodeArgument(name:String, datatype:String, default:String) {
-	
+trait NodeFunctionArgument {
+	val name:String
+	val datatype:String
 }
-case class NodeSlider(name:String, formula:String = "s", datatype:String = SliderDataType)
-case class NodeFunction(name:String, returntype:String, code:String, arguments:Seq[NodeArgument] = Nil, sliders:Seq[NodeSlider] = Nil)
+
+case class NodeArgument(name:String, datatype:String, default:String) extends NodeFunctionArgument
+case class NodeSlider(name:String, formula:String = "s", datatype:String = SliderDataType) extends NodeFunctionArgument
+
+case class NodeFunction(name:String, returntype:String, var code:String, arguments:Seq[NodeArgument] = Nil, sliders:Seq[NodeSlider] = Nil) {
+	override def toString = "NodeFunction(%s)".format(name)
+}
 
 
 case class NodeType(title:String, arguments:Seq[NodeArgument], sliders:Seq[NodeSlider], var functions:Map[String, NodeFunction] ) {
@@ -83,13 +90,22 @@ case class NodeCategory(title:String, nodetypes:Seq[NodeType])
 case class CompositionTree(
 		function: NodeFunction,
 		nodeid: Int,
-		arguments: Seq[(String, Option[CompositionTree])] )
+		sliders: Seq[FormulaSlider],
+		arguments: Seq[Either[String, CompositionTree]] ) {
+		
+	def varname = "vn%d_%s".format(nodeid, function.name)
+}
+
+case class Composition( functions:Set[NodeFunction], calltree:CompositionTree )
 
 
 
 
 class ConnectionTree {
-	// Graph without cycles and out-degree = 1
+	// Bipartite directed Graph G(FROM,TO)
+	// from FROM to TO
+	// without cycles over nodes
+	// out-degree = 1
 	type FROM = InConnector
 	type TO   = OutConnector
 	type NODE = Node
@@ -129,7 +145,7 @@ class ConnectionTree {
 	
 	// Remove vertices
 	def -=[T1]   (vertex:FROM) { edges -= vertex }
-	def -=[T1,T2](vertex:TO  ) { edges = edges.filter( x => x._2 ne vertex ) }
+	def -=[T1,T2](vertex:TO  ) { edges = edges.filter{ case (_,x) => x ne vertex } }
 	
 	// Remove all connections to a node
 	def -=[T1,T2,T3](node:NODE) {
@@ -216,10 +232,6 @@ class NullPanel(name:String, components:Component*) extends Panel with LayoutCon
 		repaint
 	}
 	
-	/*def drawFirst(component:Component){
-		peer.setComponentZOrder(component.peer,peer.getComponentCount-1)
-	}*/
-
 	override def toString = name
 }
 
@@ -308,11 +320,11 @@ trait ScrollableZoomOffset extends Component {
 			lastpoint = mousepos
 		case e:MouseWheelMoved =>
 			val mousepos = Vec2(e.point)
-			if( e.rotation == 1 ){
+			if( e.rotation == 1 ) {
 				zoom *= zoomFactor
 				offset += mousepos*zoom/zoomFactor - mousepos*zoom
 			}
-			else{
+			else {
 				zoom /= zoomFactor
 				offset += mousepos*zoom*zoomFactor - mousepos*zoom
 			}
@@ -348,7 +360,7 @@ class JobQueue extends DaemonActor {
 }
 
 object Box{	def apply[T](value:T) = new Box[T](value) }
-class Box[T](var value:T){ override def toString = value.toString }
+class Box[T](var value:T) { override def toString = value.toString }
 
 class InterpreterQueue extends tools.nsc.interpreter.IMain {
 	import javax.script.ScriptException

@@ -49,9 +49,7 @@ object NodeManager extends NullPanel("NodeManager") {
 		removeComponent(node)
 		nodes -= node
 		if( publishChange )
-		{
 			publish(NodeConnected(this))
-		}
 	}
 	
 	def reset {

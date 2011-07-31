@@ -11,3 +11,8 @@ libraryDependencies ++= Seq(
 
 defaultExcludes ~= (filter => filter || "*~")
 
+//fork in run := true
+
+scalacOptions += "-deprecation"
+
+scalacOptions += "-unchecked"
