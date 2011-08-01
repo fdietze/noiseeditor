@@ -31,6 +31,8 @@ object NoiseEditor extends SimpleSwingApplication {
 		ConnectionManager.reset
 		InterpreterManager.reset
 		Node.reset
+		FileManager.setFileunchanged
+		top.menuBar = rebuildmenu
 	}
 	
 	def setTitle(window:MainFrame, subtitle:String = ""){
@@ -41,8 +43,7 @@ object NoiseEditor extends SimpleSwingApplication {
 	}
 
 	def init {
-		InterpreterManager
-		ModuleManager.init
+		reset
 		NodeManager.listenTo(top)
 		ConnectionManager.listenTo(top, NodeManager)
 
@@ -70,81 +71,91 @@ object NoiseEditor extends SimpleSwingApplication {
 		}
 		
 		contents = new NullPanel("MainWindow", NodeManager, ConnectionManager)
+	}
 
-		menuBar = new MenuBar {
-			contents += new Menu("File"){
+	init
 
-				contents += new MenuItem("New") {
-					mnemonic = Key.O
-					action = new Action("New") {
-						def apply = FileManager.newSession
-						accelerator = Some(getKeyStroke("ctrl N"))
+	def rebuildmenu = new MenuBar {
+		contents += new Menu("File"){
+
+			contents += new MenuItem("New") {
+				mnemonic = Key.O
+				action = new Action("New") {
+					def apply = FileManager.newSession
+					accelerator = Some(getKeyStroke("ctrl N"))
+				}
+			}				
+
+			contents += new Menu("Load Module") {
+				mnemonic = Key.M
+				for( module <- ModuleManager.available )
+					contents += new MenuItem(module.title) {
+						action = new Action(module.title) {
+							def apply = { ModuleManager.load(module) }
+						}
 					}
-				}				
+			}				
 
 
-				/*contents += new MenuItem("Open") {
-					mnemonic = Key.O
-					action = new Action("Open") {
-						def apply = FileManager.open
-						accelerator = Some(getKeyStroke("ctrl O"))
-					}
-				}				
-				
-				contents += new MenuItem("Save") {
-					mnemonic = Key.S
-					action = new Action("save") {
-						def apply = FileManager.save
-						accelerator = Some(getKeyStroke("ctrl S"))
-					}
-				}				
+			/*contents += new MenuItem("Open") {
+				mnemonic = Key.O
+				action = new Action("Open") {
+					def apply = FileManager.open
+					accelerator = Some(getKeyStroke("ctrl O"))
+				}
+			}				
+			
+			contents += new MenuItem("Save") {
+				mnemonic = Key.S
+				action = new Action("save") {
+					def apply = FileManager.save
+					accelerator = Some(getKeyStroke("ctrl S"))
+				}
+			}				
 
-				contents += new MenuItem("Save As") {
-					mnemonic = Key.S
-					action = new Action("save As") {
-						def apply = FileManager.saveAs
-						accelerator = Some(getKeyStroke("ctrl shift S"))
-					}
-				}*/				
+			contents += new MenuItem("Save As") {
+				mnemonic = Key.S
+				action = new Action("save As") {
+					def apply = FileManager.saveAs
+					accelerator = Some(getKeyStroke("ctrl shift S"))
+				}
+			}*/				
 
-				contents += new MenuItem("Quit") {
-					mnemonic = Key.Q
-					action = new Action("quit") {
-						def apply() = closeOperation
-						//TODO: Escape to quit program
-						accelerator = Some(getKeyStroke("alt Q"))
-					}
+			contents += new MenuItem("Quit") {
+				mnemonic = Key.Q
+				action = new Action("Quit") {
+					def apply() = top.closeOperation
+					//TODO: Escape to quit program
+					accelerator = Some(getKeyStroke("alt Q"))
 				}
 			}
-			
-			for( NodeCategory(title, nodetypes) <- ModuleManager.nodeCategories ) {
-				contents += new Menu(title){
-					for( nodetype <- nodetypes ) {
-						contents += new MenuItem(nodetype.title) {
-							action = new Action(nodetype.title) {
-								def apply = NodeManager.add(Node(nodetype))
-							}
+		}
+		
+		for( NodeCategory(title, nodetypes) <- ModuleManager.nodeCategories ) {
+			contents += new Menu(title){
+				for( nodetype <- nodetypes ) {
+					contents += new MenuItem(nodetype.title) {
+						action = new Action(nodetype.title) {
+							def apply = NodeManager.add(Node(nodetype))
 						}
 					}
 				}
 			}
-			
-			contents += new Menu("Other"){
-				contents += new MenuItem("Preview") {
-					action = new Action("Preview") {
-						def apply = NodeManager.add(Node.preview())
-					}
+		}
+		
+		contents += new Menu("Other"){
+			contents += new MenuItem("Preview") {
+				action = new Action("Preview") {
+					def apply = NodeManager.add(Node.preview())
 				}
-				/*contents += new MenuItem("Custom Node") {
-					action = new Action("Custom Node") {
-						def apply = NodeManager.add(Node.custom())
-					}
-				}*/
+			}
+			contents += new MenuItem("Custom Node") {
+				action = new Action("Custom Node") {
+					def apply = NodeManager.add(Node.custom())
+				}
 			}
 		}
 	}
-
-	init
 }
 
 

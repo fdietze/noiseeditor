@@ -21,8 +21,6 @@ object InterpreterManager extends InterpreterQueue {
 	    "lib/simplex3d-algorithm-noise.jar").
 			foreach (settings.classpath.append _)
 	
-	init
-	
 	def init {
 		val imports =
 			"import simplex3d.math._\n" + 

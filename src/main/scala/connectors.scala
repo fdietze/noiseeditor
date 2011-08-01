@@ -32,7 +32,7 @@ case class InConnector(
 
 case class OutConnector(
 		override val title:String,
-		val function:NodeFunctionFull,
+		var function:NodeFunctionFull,
 		override val node:Node) extends Connector(title, function.returntype, node) {
 }
 

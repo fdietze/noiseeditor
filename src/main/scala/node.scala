@@ -187,14 +187,15 @@ class PredefinedNode(title:String, id:Int, nodetype:NodeType) extends Node(title
 class CustomNode(title:String, id:Int, override val arguments:Seq[NodeArgument], customsliders:Seq[NodeSlider]) extends Node(title, id) with NodeInit with Resizable {
 	//TODO show compile errors in Custom Node?
 	override def sliderdefinitions = customsliders
-	override def functions = Map("o" -> NodeFunctionFull(
+	override def functions = Map("o" -> customfunction)
+	
+	def customfunction = NodeFunctionFull(
 		name = "custom_f" + id,
 		returntype = "Double",
 		code = if(funcfield != null) funcfield.text else "0.0",
 		arguments = arguments,
 		customsliders
-	))
-	
+	)
 
 	val funcfield = new TextArea("0.0") {
 		font = new Font("Monospaced", java.awt.Font.PLAIN, 11)
@@ -208,6 +209,7 @@ class CustomNode(title:String, id:Int, override val arguments:Seq[NodeArgument],
 	listenTo(funcfield, compilebutton)
 	reactions += {
 		case ButtonClicked(`compilebutton`) =>
+			outconnectors(0).function = customfunction
 			publish(NodeChanged(source = thisnode, node = thisnode))
 	}
 	
