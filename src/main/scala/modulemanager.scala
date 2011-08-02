@@ -8,15 +8,17 @@ import utilities._
 
 trait Module {
 	val title:String = getClass.getName.split('.').last.dropRight(1)
+	val languages:Seq[String]
 	val scalainitcode:String
 	val nodeCategories:Seq[NodeCategory]
-	val languages:Seq[String]
+	val typedefaults:LanguageMap[Map[String,String]]
 }
 
 object DummyModule extends Module {
 	val scalainitcode = "null"
 	val nodeCategories = Nil
 	val languages = Nil
+	val typedefaults = LanguageMap()
 }
 
 object ModuleManager{
@@ -37,5 +39,7 @@ object ModuleManager{
 	}
 	
 	def scalainitcode = currentmodule.scalainitcode
-	def nodeCategories = currentmodule.nodeCategories
+	def nodecategories = currentmodule.nodeCategories
+	def typedefaults = currentmodule.typedefaults
+	def languages = currentmodule.languages
 }

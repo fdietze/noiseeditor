@@ -4,14 +4,30 @@ import noiseeditor.{ModuleManager, Module}
 
 object GameEngine extends Module {
 	
-	val languages = Seq("scala")
+	val languages = Seq("scala", "glsl", "prediction")
 
 	val scalainitcode = 
-"""val noise3 = new Noise(ClassicalGradientNoise){
-	def apply(u:Vec3):Double = super.apply(u)
-}"""
-
-	val nodeCategories:Seq[NodeCategory] = Seq(
+"""
+	import noise.Noise.noise3
+"""
+	val typedefaults = LanguageMap(
+		"scala" -> 	Map(
+			"Int" -> "0",
+			"Double" -> "0.0",
+			"Seq" -> "Nil",
+			"Vec3" -> "Vec3(0)",
+			"Vec2" -> "Vec2(0)",
+			"Material" -> "Material(0x000000)"
+		),
+		"glsl" -> 	Map(
+			"int" -> "0",
+			"double" -> "0.0",
+			"vec3" -> "vec3(0)",
+			"vec2" -> "vec2(0)",
+			"Material" -> "Material(0x000000)"
+		)
+	)
+	lazy val nodeCategories:Seq[NodeCategory] = Seq(
 
 		/*FunctionNodeType("Noise", "Noise xyz", Seq("x:Double","y:Double","z:Double"),
 			Seq(
@@ -38,23 +54,39 @@ object GameEngine extends Module {
 		NodeCategory("Noise",
 			Seq(
 				NodeType("Noise with Summed Inputs",
-					Seq(
-						NodeArgument("v","Vec3"),
-						NodeArgument("x","Double"),
-						NodeArgument("y","Double"),
-						NodeArgument("z","Double"),
-						NodeArgument("add","Double"),
-						NodeArgument("sub","Double")
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec3"),
+							NodeArgument("x","Double"),
+							NodeArgument("y","Double"),
+							NodeArgument("z","Double"),
+							NodeArgument("add","Double"),
+							NodeArgument("sub","Double")
 						),
+						"glsl" -> Seq(
+							NodeArgument("v","vec3"),
+							NodeArgument("x","double"),
+							NodeArgument("y","double"),
+							NodeArgument("z","double"),
+							NodeArgument("add","double"),
+							NodeArgument("sub","double")
+						)
+					),
 					Seq(
 						NodeSlider("size", "pow(256,((0.5-s)*2))"),
 						NodeSlider("scale", "pow(256,((s-0.5)*2))"),
 						NodeSlider("offset", "(s-0.5)*2")
+					),
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("summedinputnoise3", "Double",
+							"""(noise3((v + Vec3(x,y,z))*size)+offset)*scale/size + add - sub""")
 						),
-					Map(
-						"o" -> NodeFunction("summedinputnoise3", "Double",
-						"""(noise3((v + Vec3(x,y,z))*size)+offset)*scale/size + add - sub""")
+						"glsl" -> Map(
+							"o" -> NodeFunction("summedinputnoise3", "double",
+							"""(noise3((v + vec3(x,y,z))*size)+offset)*scale/size + add - sub""")
 						)
+					)
 				)
 			)
 		),
@@ -62,19 +94,53 @@ object GameEngine extends Module {
 		NodeCategory("Sources",
 			Seq(
 				NodeType("Scalable World",
-					Nil,
+					LanguageMap(
+						"scala" -> Nil,
+						"glsl" -> Nil
+					),
 					Seq(
 						NodeSlider("scale","pow(256,((0.5-s)*2))")
+					),
+					LanguageMap(
+						"scala" -> Map(	
+							"v" -> NodeFunction("scalesrcv", "Vec3",   "world   * scale"),
+							"x" -> NodeFunction("scalesrcx", "Double", "world.x * scale"),
+							"y" -> NodeFunction("scalesrcy", "Double", "world.y * scale"),
+							"z" -> NodeFunction("scalesrcz", "Double", "world.z * scale")
 						),
-					Map(	
-						"v" -> NodeFunction("scalesrcv", "Vec3",   "world   * scale"),
-						"x" -> NodeFunction("scalesrcx", "Double", "world.x * scale"),
-						"y" -> NodeFunction("scalesrcy", "Double", "world.y * scale"),
-						"z" -> NodeFunction("scalesrcz", "Double", "world.z * scale")
+						"glsl" -> Map(	
+							"v" -> NodeFunction("scalesrcv", "vec3",   "world   * scale"),
+							"x" -> NodeFunction("scalesrcx", "double", "world.x * scale"),
+							"y" -> NodeFunction("scalesrcy", "double", "world.y * scale"),
+							"z" -> NodeFunction("scalesrcz", "double", "world.z * scale")
+						)
+					)
+				)
+			)
+		),
+
+		NodeCategory("Materials",
+			Seq(
+				NodeType("Gold",
+					LanguageMap(
+						"scala" -> Nil,
+						"glsl" -> Nil
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(	
+							"m" -> NodeFunction("matgold", "Material", "Material(0xfab614)")
+						),
+						"glsl" -> Map(	
+							"m" -> NodeFunction("matgold", "Material", "Material(0xfab614)")
+						)
 					)
 				)
 			)
 		)
+
+
+	)
 		
 /*		NodeCategory("Sources",
 			Seq(
@@ -92,7 +158,6 @@ object GameEngine extends Module {
 				)
 			)
 		)*/
-	)
 
 /*		
 

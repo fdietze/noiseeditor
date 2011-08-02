@@ -17,25 +17,29 @@ object CodeGenerator {
 	def composition(out:OutConnector):Composition = {
 		import ConnectionManager.connections
 
-		val resultfunction = out.node.functions("result")
-		val functions = collection.mutable.Set(resultfunction)
+		val resultfunction = out.node.functions("scala")("result")
+		val functions = ModuleManager.languages.map( _ -> collection.mutable.Set[NodeFunctionFull]() ).toMap
+		functions("scala") += resultfunction
 		
 		def tree( out: OutConnector ):CompositionTree = {
 			// for each connection create a new tree
 			// for no connection give the argument's default
-			val arguments = out.node.inconnectors.map( connections(_) ).zip(out.node.arguments).map{
+			val arguments = (out.node.inconnectors.map( connections(_) )
+			     zip out.node.arguments.mapseqtranspose).map{
 				case (connection, argument) =>
 					connection match {
 						case Some(outconnector) => Right(tree(outconnector)) // recursion
-						case None => Left(argument.default)
+						case None => Left(argument.mapValues(_.default))
 					}
 			}
-			functions += out.function
+			for( (language,function) <- out.function ) {
+				functions(language) += function
+			}
 			return CompositionTree(out.function, out.node.id, out.node.sliders, arguments)
 		}
 		
 		val compositiontree = tree(out)
-		Composition(functions.toSet, compositiontree)
+		Composition(functions.mapValues(_.toSet), compositiontree)
 	}
 
 	
@@ -56,11 +60,11 @@ object CodeGenerator {
 
 
 	// Generates Scala Code
-	def generatecode(composition:Composition):String = {
+	def generatescalacode(composition:Composition):String = {
 		import composition._
 		
 		// Function Definitions
-		val functioncode = (for( NodeFunctionFull(name,returntype, code, arguments, sliders) <- functions ) yield {
+		val functioncode = (for( NodeFunctionFull(name,returntype, code, arguments, sliders) <- functions("scala") ) yield {
 			"def %s(%s):%s = {%s}".format(
 				name,
 				(arguments ++ sliders).map(a => "%s:%s".format(a.name, a.datatype)).mkString(", "),
@@ -79,11 +83,11 @@ object CodeGenerator {
 			import currenttree._
 			functioncalls +:= "val %s = %s(%s)".format(
 				varname,
-				function.name,
+				function("scala").name,
 				(
 					arguments.map{
 						case Right(arg) => arg.varname
-						case Left(default) => default }
+						case Left(default) => default("scala") }
 					++
 					sliders.map(s => "%s.value".format(s.globalname))
 				).mkString(", ")

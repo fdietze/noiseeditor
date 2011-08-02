@@ -40,12 +40,12 @@ object Node {
 	def custom(id:Int = nextid) = {
 		//TODO: Export to file and load it everytime
 		new CustomNode("Custom", id,
-			arguments = Seq(NodeArgument("v","Vec3"),NodeArgument("a","Double"),NodeArgument("b","Double"),NodeArgument("c","Double"),NodeArgument("d","Double")),
+			arguments = LanguageMap("scala" -> Seq(NodeArgument("v","Vec3","Vec3(0)"),NodeArgument("a","Double","0.0"),NodeArgument("b","Double","0.0"),NodeArgument("c","Double","0.0"),NodeArgument("d","Double","0.0"))),
 			customsliders = Seq(NodeSlider("s1"),NodeSlider("s2"),NodeSlider("s3"),NodeSlider("s4"))
 			)
 	}
 
-	def loadcustom( sliders:Seq[NodeSlider], arguments:Seq[NodeArgument], code:String, id:Int = nextid ) = {
+	def loadcustom( sliders:Seq[NodeSlider], arguments:LanguageMap[Seq[NodeArgument]], code:String, id:Int = nextid ) = {
 		val node = new CustomNode("Custom", id, arguments, sliders)
 		node.funcfield.text = code
 		node
@@ -72,9 +72,9 @@ class FormulaSlider(slidername:String, nodeid:Int, initvalue:Int = 50) extends S
 }
 
 abstract class Node(val title:String, val id:Int = Node.nextid) extends BoxPanel(Vertical) with Movable {
-	def arguments:Seq[NodeArgument] = Nil
+	def arguments:LanguageMap[Seq[NodeArgument]] = LanguageMap()
 	def sliderdefinitions:Seq[NodeSlider] = Nil
-	def functions:Map[String, NodeFunctionFull] = Map()
+	def functions:LanguageMap[Map[String, NodeFunctionFull]] = LanguageMap()
 
 	val sliders:Seq[FormulaSlider] = Nil
 	val inconnectors:Seq[InConnector] = Nil
@@ -88,11 +88,11 @@ trait NodeInit extends Node with DelayedInit {
 	val titledborder = new TitledBorder(new SoftBevelBorder(RAISED), title)
 	border = titledborder
 
-	override val inconnectors = for( NodeArgument(argname,argtype,_) <- arguments ) yield{
+	override val inconnectors = for( NodeArgument(argname,argtype,_) <- arguments("scala") ) yield{
 		new InConnector(argname, argtype, thisnode)
 	}
 	
-	override val outconnectors = (for( (title, function) <- functions ) yield {
+	override val outconnectors = (for( (title, function) <- functions.mapmaptranspose ) yield {
 		new OutConnector(title, function, thisnode)
 	}).toSeq
 	
@@ -184,16 +184,16 @@ class PredefinedNode(title:String, id:Int, nodetype:NodeType) extends Node(title
 	contents += removebutton
 }
 
-class CustomNode(title:String, id:Int, override val arguments:Seq[NodeArgument], customsliders:Seq[NodeSlider]) extends Node(title, id) with NodeInit with Resizable {
+class CustomNode(title:String, id:Int, override val arguments:LanguageMap[Seq[NodeArgument]], customsliders:Seq[NodeSlider]) extends Node(title, id) with NodeInit with Resizable {
 	//TODO show compile errors in Custom Node?
 	override def sliderdefinitions = customsliders
-	override def functions = Map("o" -> customfunction)
+	override def functions = LanguageMap("scala" -> Map("o" -> customfunction))
 	
 	def customfunction = NodeFunctionFull(
 		name = "custom_f" + id,
 		returntype = "Double",
 		code = if(funcfield != null) funcfield.text else "0.0",
-		arguments = arguments,
+		arguments = arguments("scala"),
 		customsliders
 	)
 
@@ -209,7 +209,7 @@ class CustomNode(title:String, id:Int, override val arguments:Seq[NodeArgument],
 	listenTo(funcfield, compilebutton)
 	reactions += {
 		case ButtonClicked(`compilebutton`) =>
-			outconnectors(0).function = customfunction
+			outconnectors(0).function = LanguageMap("scala" -> customfunction)
 			publish(NodeChanged(source = thisnode, node = thisnode))
 	}
 	

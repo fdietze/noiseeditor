@@ -31,14 +31,5 @@ package object config {
 		tooltip = "Remove"
 	}
 	
-	val TypeDefaults = Map(
-		"Int" -> "0",
-		"Double" -> "0.0",
-		"Seq" -> "Nil",
-		"Vec3" -> "Vec3(0)",
-		"Vec2" -> "Vec2(0)",
-		"Material" -> "Material(0x000000)"
-	)
-	
 	val SliderDataType = "Double"
 }

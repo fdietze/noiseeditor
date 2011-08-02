@@ -10,7 +10,7 @@ import config._
 import swing.ListView._
 
 import java.awt.Graphics2D
-import java.awt.Color._
+import java.awt.Color.BLACK
 import java.awt.image.BufferedImage
 
 import simplex3d.math._
@@ -23,10 +23,10 @@ import actors.Futures.future
 
 
 class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
-	override def arguments = Seq(NodeArgument("d","Double"), NodeArgument("m","Material"))
-	override def functions = Map(
-		"result" -> NodeFunctionFull("result", "(Double, Material)", "(d,m)", arguments, Nil)
-	)
+	override def arguments = LanguageMap("scala" -> Seq(NodeArgument("d","Double", "0.0"), NodeArgument("m","Material", "Material(0x000000)")))
+	override def functions = LanguageMap("scala" -> Map(
+		"result" -> NodeFunctionFull("result", "(Double, Material)", "(d,m)", arguments("scala"), Nil)
+	))
 	
 	type Compositiontype = (Vec3) => (Double, Material)
 	var interpretedcomposition:Compositiontype = (world:Vec3) => (0.0, Material())
@@ -44,8 +44,8 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		)
 	
 	val perspectives = Seq(
-		("topview", ((v:Vec3) => v), "Side view"),
-		("sideview", ((v:Vec3) => Vec3(v.x,v.z,-v.y)), "Top view")
+		("sideview", ((v:Vec3) => Vec3(v.x,-v.y,v.z)), "Side view"),
+		("topview", ((v:Vec3) => Vec3(v.x,v.z,-v.y)), "Top view")
 		)
 		
 	val timer = new Timer
@@ -66,7 +66,12 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 			recalc
 		}
 		zoom = GridIndicatorScale
-
+		
+		def transformcoords(x:Double, y:Double, z:Double) =
+			perspective(Vec3(transformZoomOffset(Vec2(x,y)),z) )
+		def valueat(x:Double, y:Double, z:Double) =
+			interpretedcomposition(transformcoords(x,y,z))
+		
 		override def paint(g:Graphics2D) {
 			import g._
 			val width = size.width
@@ -79,9 +84,6 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 			}
 			
 			if( needsrecalc ) {
-				//TODO: Ursprung links unten, koordinaten swizzeling
-				//TODO: Tooltip-raytrace
-				
 				timer.reset
 				timer.start
 
@@ -91,7 +93,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y = i/width
-							val result = interpretedcomposition( perspective( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
+							val result = valueat(x,y,z)
 							if( result._1 >= 0 )
 								result._2.color
 							else
@@ -101,38 +103,34 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 					case "isodepth" =>
 						(0 until width*height).par.map{i =>
 							val x = i%width
-							val y = i/width
+							val y =i/width
 							var tmpz = z
 
 							var counter = 0
 					
-							var result = interpretedcomposition( perspective( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
+							var result = valueat(x,y,z)
 							while( result._1 < 0 && counter < DepthMaxsteps ){
 								tmpz += DepthStepSize*zoom
 								counter += 1
-								result = interpretedcomposition( perspective( Vec3( transformZoomOffset(Vec2(x,y)) ,tmpz) ) )
+								result = valueat(x,y,tmpz)
 							}
-					
+							
+							val color = result._2.color
 							counter = if(counter == 0) 0 else counter + 2
 							val factor = math.pow(DepthFadeOutFactor,counter)
 					
-							val color = result._2.color
-							val r = (color & 0xff0000) >> 16
-							val g = (color & 0x00f00) >> 8
-							val b =  color & 0x0000f
-						
-							val nr = 255 - ((255-r) * factor).toInt
-							val ng = 255 - ((255-g) * factor).toInt
-							val nb = 255 - ((255-b) * factor).toInt
+							val nr = 255 - ((255-red(color)) * factor).toInt
+							val ng = 255 - ((255-green(color)) * factor).toInt
+							val nb = 255 - ((255-blue(color)) * factor).toInt
 					
-							(nr << 16 | ng << 8 | nb)
+							rgbcolor(nr,ng,nb)
 						}.toArray
 
 					case "valuesclamped" =>
 						(0 until width*height).par.map{i =>
 							val x = i%width
-							val y = i/width
-							val result = interpretedcomposition( perspective( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
+							val y =i/width
+							val result = valueat(x,y,z)
 							val value = (clamp( (result._1+1)*0.5, 0, 1 )*255).toInt
 							graycolor(value)
 						}.toArray
@@ -140,14 +138,14 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 					case "valuesclampedgrid" =>
 						(0 until width*height).par.map{i =>
 							val x = i%width
-							val y = i/width
-							val translated = transformZoomOffset(Vec2(x,y))
+							val y =i/width
+							val translated = transformcoords(x,y,z)
 
 							if( abs(translated.x - round(translated.x)) < zoom*0.5
 							 || abs(translated.y - round(translated.y)) < zoom*0.5 )
 								GridColor
 							else {
-								val result = interpretedcomposition( perspective( Vec3( translated ,z) ) )
+								val result = valueat(x,y,z)
 								val value = (clamp( (result._1+1)*0.5, 0, 1 )*255).toInt
 								if( result._1 > 0 )
 									mixcolors(IsolineColor, graycolor(value), 0.3)
@@ -162,7 +160,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y = i/width
-							val result = interpretedcomposition( perspective( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )
+							val result = valueat(x,y,z)
 							val value = (stretch( result._1)*255).toInt
 							graycolor(value)
 						}.toArray
@@ -173,7 +171,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y = i/width
-							val result = interpretedcomposition( perspective( Vec3( transformZoomOffset(Vec2(x,y)) ,z) ) )._1
+							val result = valueat(x,y,z)._1
 							if( result < minvalue ) minvalue = result
 							if( result > maxvalue ) maxvalue = result
 							result
@@ -211,12 +209,11 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		listenTo(mouse.moves, mouse.clicks)
 		reactions += {
 			case e:MouseMoved =>
-				tooltip = transformZoomOffset(Vec3(e.point,z)) + " => " +
-					interpretedcomposition( transformZoomOffset(Vec3(e.point,z)) )
-					//TODO: BUG: Does not work for z != 0
+				tooltip = transformcoords(e.point.x,e.point.y,z) + " => " +
+					valueat(e.point.x,e.point.y,z)
 			case e:MouseDragged =>
-				tooltip = transformZoomOffset(Vec3(e.point,z)) + " => " +
-					interpretedcomposition( transformZoomOffset(Vec3(e.point,z)) )
+				tooltip = transformcoords(e.point.x,e.point.y,z) + " => " +
+					valueat(e.point.x,e.point.y,z)
 		}
 	}
 	
@@ -288,7 +285,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 				chooser.showSaveDialog match {
 					case Approve =>
 						val out = new java.io.FileWriter(chooser.selectedFile)
-						out.write(CodeGenerator.generatecode(CodeGenerator.composition(outconnectors(0))))
+						out.write(CodeGenerator.generatescalacode(CodeGenerator.composition(outconnectors(0))))
 						out.close
 					case Cancel =>
 				}
@@ -322,7 +319,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		println("Preview("+id+"): starting compiler in background...")
 		future {
 			val composition = CodeGenerator.composition(outconnectors(0))
-			val code = CodeGenerator.generatecode(composition)
+			val code = CodeGenerator.generatescalacode(composition)
 			val compilation = InterpreterManager[Compositiontype](code) // Future
 			compilation() match {
 				case Some(interpretedcode) =>

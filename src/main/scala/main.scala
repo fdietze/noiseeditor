@@ -33,6 +33,7 @@ object NoiseEditor extends SimpleSwingApplication {
 		Node.reset
 		FileManager.setFileunchanged
 		top.menuBar = rebuildmenu
+		//TODO: BUG: repaint does not work
 	}
 	
 	def setTitle(window:MainFrame, subtitle:String = ""){
@@ -49,7 +50,8 @@ object NoiseEditor extends SimpleSwingApplication {
 
 		NodeManager.peer.setSize(top.preferredSize)
 		ConnectionManager.peer.setSize(top.preferredSize)
-	
+		
+		ModuleManager.load(modules.GameEngine)
 		// Load some preconnected nodes
 		//TODO: Different Resourcepath on Mac OSX?
 		//FileManager.readSession(getClass.getClassLoader.getResource("default.xml").getPath)
@@ -131,7 +133,7 @@ object NoiseEditor extends SimpleSwingApplication {
 			}
 		}
 		
-		for( NodeCategory(title, nodetypes) <- ModuleManager.nodeCategories ) {
+		for( NodeCategory(title, nodetypes) <- ModuleManager.nodecategories ) {
 			contents += new Menu(title){
 				for( nodetype <- nodetypes ) {
 					contents += new MenuItem(nodetype.title) {

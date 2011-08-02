@@ -32,8 +32,8 @@ case class InConnector(
 
 case class OutConnector(
 		override val title:String,
-		var function:NodeFunctionFull,
-		override val node:Node) extends Connector(title, function.returntype, node) {
+		var function:LanguageMap[NodeFunctionFull],
+		override val node:Node) extends Connector(title, function("scala").returntype, node) {
 }
 
 
