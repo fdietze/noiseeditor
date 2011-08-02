@@ -27,13 +27,13 @@ object NoiseEditor extends SimpleSwingApplication {
 	UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName())
 	
 	def reset {
+		//TODO: BUG: repaint does not work
+		top.menuBar = rebuildmenu
 		NodeManager.reset
 		ConnectionManager.reset
 		InterpreterManager.reset
 		Node.reset
 		FileManager.setFileunchanged
-		top.menuBar = rebuildmenu
-		//TODO: BUG: repaint does not work
 	}
 	
 	def setTitle(window:MainFrame, subtitle:String = ""){
@@ -52,6 +52,7 @@ object NoiseEditor extends SimpleSwingApplication {
 		ConnectionManager.peer.setSize(top.preferredSize)
 		
 		ModuleManager.load(modules.GameEngine)
+		NodeManager.add(Node.preview())
 		// Load some preconnected nodes
 		//TODO: Different Resourcepath on Mac OSX?
 		//FileManager.readSession(getClass.getClassLoader.getResource("default.xml").getPath)

@@ -59,7 +59,7 @@ object CodeGenerator {
 	}
 
 
-	// Generates Scala Code
+	// Generates Scala Code for preview
 	def generatescalacode(composition:Composition):String = {
 		import composition._
 		

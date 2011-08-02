@@ -84,7 +84,7 @@ object GameEngine extends Module {
 						),
 						"glsl" -> Map(
 							"o" -> NodeFunction("summedinputnoise3", "double",
-							"""(noise3((v + vec3(x,y,z))*size)+offset)*scale/size + add - sub""")
+							"""return (noise3((v + vec3(x,y,z))*size)+offset)*scale/size + add - sub;""")
 						)
 					)
 				)
@@ -109,10 +109,10 @@ object GameEngine extends Module {
 							"z" -> NodeFunction("scalesrcz", "Double", "world.z * scale")
 						),
 						"glsl" -> Map(	
-							"v" -> NodeFunction("scalesrcv", "vec3",   "world   * scale"),
-							"x" -> NodeFunction("scalesrcx", "double", "world.x * scale"),
-							"y" -> NodeFunction("scalesrcy", "double", "world.y * scale"),
-							"z" -> NodeFunction("scalesrcz", "double", "world.z * scale")
+							"v" -> NodeFunction("scalesrcv", "vec3",   "return world   * scale;"),
+							"x" -> NodeFunction("scalesrcx", "double", "return world.x * scale;"),
+							"y" -> NodeFunction("scalesrcy", "double", "return world.y * scale;"),
+							"z" -> NodeFunction("scalesrcz", "double", "return world.z * scale;")
 						)
 					)
 				)
@@ -129,10 +129,10 @@ object GameEngine extends Module {
 					Nil,
 					LanguageMap(
 						"scala" -> Map(	
-							"m" -> NodeFunction("matgold", "Material", "Material(0xfab614)")
+							"m" -> NodeFunction("matgold", "Material", "return Material(0xfab614);")
 						),
 						"glsl" -> Map(	
-							"m" -> NodeFunction("matgold", "Material", "Material(0xfab614)")
+							"m" -> NodeFunction("matgold", "Material", "return Material(0xfab614);")
 						)
 					)
 				)
@@ -264,5 +264,109 @@ object GameEngine extends Module {
 		
 	)
 */
+	def export(composition:Composition, language:String):String = {
+		language match {
+			case "scala" =>
+				import composition._
+		
+				// Function Definitions
+				val functioncode = (for( NodeFunctionFull(name,returntype, code, arguments, sliders) <- functions("scala") ) yield {
+					"def %s(%s):%s = {%s}".format(
+						name,
+						(arguments ++ sliders).map(a => "%s:%s".format(a.name, a.datatype)).mkString(", "),
+						returntype,
+						code
+					)
+				}).mkString("\n")
+		
+		
+				// Function Calls via BFS
+				var functioncalls:Seq[String] = Nil
+				val nexttrees = new collection.mutable.Queue[CompositionTree]
+				nexttrees += calltree
+				while( nexttrees.nonEmpty ) {
+					val currenttree = nexttrees.dequeue
+					import currenttree._
+					functioncalls +:= "val %s = %s(%s)".format(
+						varname,
+						function("scala").name,
+						(
+							arguments.map{
+								case Right(arg) => arg.varname
+								case Left(default) => default("scala") }
+							++
+							sliders.map(_.globalvalue)
+						).mkString(", ")
+					)
+					// Move on with all arguments referring to other functions
+					nexttrees ++= currenttree.arguments.collect{case Right(x) => x}.distinct
+				}
+				val functioncallcode = functioncalls.distinct.mkString("\n")
+		
+		
+				// Final Value
+				val returnvalue = calltree.varname
+		
+				"(world:Vec3) => {\n%s\n\n%s\n\n%s\n}\n".format(
+					functioncode, functioncallcode, returnvalue
+				)
+
+
+			case "glsl" =>
+				import composition._
+		
+				// Function Definitions
+				val functioncode = (for( NodeFunctionFull(name,returntype, code, arguments, sliders) <- functions("glsl") ) yield {
+					"%s %s(%s) {%s}".format(
+						returntype,
+						name,
+						(arguments ++ sliders).map(a => "%s %s".format(a.datatype, a.name)).mkString(", "),
+						code
+					)
+				}).mkString("\n")
+		
+		
+				// Function Calls via BFS
+				var functioncalls:Seq[String] = Nil
+				val nexttrees = new collection.mutable.Queue[CompositionTree]
+				nexttrees += calltree
+				while( nexttrees.nonEmpty ) {
+					val currenttree = nexttrees.dequeue
+					import currenttree._
+					functioncalls +:= "%s %s = %s(%s);".format(
+						function("glsl").returntype,
+						varname,
+						function("glsl").name,
+						(
+							arguments.map{
+								case Right(arg) => arg.varname
+								case Left(default) => default("glsl") }
+							++
+							sliders.map(_.globalvalue)
+						).mkString(", ")
+					)
+					// Move on with all arguments referring to other functions
+					nexttrees ++= currenttree.arguments.collect{case Right(x) => x}.distinct
+				}
+				val functioncallcode = functioncalls.distinct.mkString("\n")
+		
+		
+				// Final Value
+				val returnvalue = calltree.varname
+		
+"""varying vec4 world;
+
+%s
+
+void main() {
+%s
+
+gl_FragColor = %s;
+}
+""".format(
+					functioncode, functioncallcode, returnvalue
+				)
+		}
+	}
 
 }

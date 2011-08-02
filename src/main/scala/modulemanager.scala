@@ -12,6 +12,7 @@ trait Module {
 	val scalainitcode:String
 	val nodeCategories:Seq[NodeCategory]
 	val typedefaults:LanguageMap[Map[String,String]]
+	def export(composition:Composition, language:String):String
 }
 
 object DummyModule extends Module {
@@ -19,6 +20,7 @@ object DummyModule extends Module {
 	val nodeCategories = Nil
 	val languages = Nil
 	val typedefaults = LanguageMap()
+	def export(composition:Composition, language:String) = ""
 }
 
 object ModuleManager{
@@ -42,4 +44,5 @@ object ModuleManager{
 	def nodecategories = currentmodule.nodeCategories
 	def typedefaults = currentmodule.typedefaults
 	def languages = currentmodule.languages
+	def export = currentmodule.export _
 }

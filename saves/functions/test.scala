@@ -1,40 +1,14 @@
-(source:Vec3) => {
+(world:Vec3) => {
+def result(d:Double, m:Material):(Double, Material) = {(d,m)}
+def scalesrcv(scale:Double):Vec3 = {world   * scale}
+def scalesrcy(scale:Double):Double = {world.y * scale}
+def summedinputnoise3(v:Vec3, x:Double, y:Double, z:Double, add:Double, sub:Double, size:Double, scale:Double, offset:Double):Double = {(noise3((v + Vec3(x,y,z))*size)+offset)*scale/size + add - sub}
 
-val noise1 = new Noise(ClassicalGradientNoise) {
-	def apply(u:Vec3):Double = super.apply(u)
-}
+val vn2_scalesrcv = scalesrcv(1.0)
+val vn2_scalesrcy = scalesrcy(1.0)
+val vn4_summedinputnoise3 = summedinputnoise3(vn2_scalesrcv, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5140569133280329, 4.228072162245522, 0.0)
+val vn3_summedinputnoise3 = summedinputnoise3(vn2_scalesrcv, vn4_summedinputnoise3, vn4_summedinputnoise3, vn4_summedinputnoise3, 0.0, vn2_scalesrcy, 0.32987697769322366, 1.0, 0.0)
+val vn1_result = result(vn3_summedinputnoise3, Material(0x000000))
 
-def srcxyzz() = {source.z}
-def srcxyzy() = {source.y}
-
-def frichnoise3(v:Vec3, x:Double, y:Double, z:Double, add:Double, sub:Double, size:Double, scale:Double, offset:Double) = {
-			val sumv = v + Vec3(x,y,z)
-			(noise1(sumv*size)+offset)*scale/size + add - sub
-}
-
-def srcv() = {source}
-def srcxyzx() = {source.x}
-
-val vn1_srcxyzz = srcxyzz()
-val vn1_srcxyzy = srcxyzy()
-val vn1_srcxyzx = srcxyzx()
-val vn1_srcv = srcv()
-val vn2_frichnoise3 = frichnoise3(vn1_srcv, 0.0, 0.0, 0.0, vn1_srcxyzy, 0.0, 1.0, 1.0, 0.0)
-
-(vn2_frichnoise3, Material())
-
-}
-
-#####################################
-
-Shader-Syntax:
-
-[returntype name([ parametertype parametername ],[ slidertype slidername ]) {
-	code
-}]
-
-double result() {
-	double vn nodeid funcname = funcname( vn nodeid funcname, funcparamdefault, slidername slidervalue )
-	
-	return vn nodeid funcname
+vn1_result
 }

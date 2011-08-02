@@ -53,6 +53,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 	val image = new PreviewImage
 	class PreviewImage extends Component with ScrollableZoomOffset {
 		preferredSize = Vec2i(250, 250)
+		peer.setSize(preferredSize)
 		background = BLACK
 		
 		var bufferedimage:BufferedImage = null
@@ -60,12 +61,22 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		def recalc {needsrecalc = true; repaint}
 
 		var z = 0.0
-
+		
+		reset
+		
+		
+		
 		override def scrolledorzoomed = {
 			depthslider.value = (100*GridIndicatorScale*z/(32*zoom))+50
 			recalc
 		}
-		zoom = GridIndicatorScale
+		
+		def reset {
+			zoom = GridIndicatorScale
+			offset = -size / 2 * zoom
+			if( depthslider != null ) depthslider.value = 50
+			recalc
+		}
 		
 		def transformcoords(x:Double, y:Double, z:Double) =
 			perspective(Vec3(transformZoomOffset(Vec2(x,y)),z) )
@@ -264,32 +275,36 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		margin = new Insets(1,1,1,1)
 		reactions += {
 			case e:ButtonClicked =>
-				image.zoom = GridIndicatorScale
-				image.offset = Vec2(0)
-				depthslider.value = 50
-				image.recalc
+				image.reset
 		}
 	}
 
-	val exportbutton = new Button("export") {
-		margin = new Insets(1,1,1,1)
-		reactions += {
-			case e:ButtonClicked =>
-				import FileChooser.Result._
-				import FileManager.chooser
-				val oldselectedfile = chooser.selectedFile
+	val exportcontrols = new BoxPanel(Horizontal) {
+		val exportcombobox = new ComboBox(ModuleManager.languages) {
+			maximumSize = preferredSize
+			def selected = selection.item
+		}
+		contents += exportcombobox
+		contents += new Button("export") {
+			margin = new Insets(1,1,1,1)
+			reactions += {
+				case e:ButtonClicked =>
+					import FileChooser.Result._
+					import FileManager.chooser
+					val oldselectedfile = chooser.selectedFile
 				
-				chooser.title = "Export generated code"
-				chooser.setExtensionFilter("Scala function", "scala")
-				chooser.selectedFile = null
-				chooser.showSaveDialog match {
-					case Approve =>
-						val out = new java.io.FileWriter(chooser.selectedFile)
-						out.write(CodeGenerator.generatescalacode(CodeGenerator.composition(outconnectors(0))))
-						out.close
-					case Cancel =>
-				}
-				chooser.selectedFile = oldselectedfile
+					chooser.title = "Export: " + exportcombobox.selected
+					//chooser.setExtensionFilter("Scala function", "scala")
+					chooser.selectedFile = null
+					chooser.showSaveDialog match {
+						case Approve =>
+							val out = new java.io.FileWriter(chooser.selectedFile)
+							out.write(ModuleManager.export(CodeGenerator.composition(outconnectors(0)), exportcombobox.selected))
+							out.close
+						case Cancel =>
+					}
+					chooser.selectedFile = oldselectedfile
+			}
 		}
 	}
 	
@@ -309,7 +324,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 				contents += resetbutton
 			}
 			contents += new BoxPanel(Horizontal) {
-				contents += exportbutton
+				contents += exportcontrols
 				contents += removebutton
 			}
 		}

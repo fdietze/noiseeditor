@@ -92,7 +92,7 @@ object FileManager extends Publisher {
 
 	def unsavedQuestion:Boolean = {
 		import Dialog.Result._
-		if( filechanged && NodeManager.nodes.size > 0 ) {
+		/*if( filechanged && NodeManager.nodes.size > 0 ) {
 			Dialog.showConfirmation(
 				parent = NoiseEditor.top.contents.head,
 				message = "Leaving unsaved Session. Save it now?",
@@ -108,7 +108,7 @@ object FileManager extends Publisher {
 					false
 			}
 		}
-		else
+		else*/
 			true
 	}
 
