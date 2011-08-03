@@ -3,6 +3,7 @@ package noiseeditor
 import swing._
 import config._
 import utilities._
+import datastructures._
 
 import simplex3d.math._
 import simplex3d.math.double._
@@ -17,13 +18,13 @@ object CodeGenerator {
 	def composition(out:OutConnector):Composition = {
 		import ConnectionManager.connections
 
-		val resultfunction = out.node.functions("scala")("result")
-		val functions = ModuleManager.languages.map( _ -> collection.mutable.Set[NodeFunctionFull]() ).toMap
-		functions("scala") += resultfunction
+		val functions = ModuleManager.languages.map( language =>
+			language -> collection.mutable.Set(ModuleManager.resultfunctions(language)) ).toMap
 		
 		def tree( out: OutConnector ):CompositionTree = {
 			// for each connection create a new tree
 			// for no connection give the argument's default
+			println(out.node.arguments)
 			val arguments = (out.node.inconnectors.map( connections(_) )
 			     zip out.node.arguments.mapseqtranspose).map{
 				case (connection, argument) =>
@@ -42,7 +43,7 @@ object CodeGenerator {
 		Composition(functions.mapValues(_.toSet), compositiontree)
 	}
 
-	
+	// Gives a set of sliders which are involved in this composition
 	def involvedsliders(composition:Composition):Set[String] = {
 		import composition._
 		val involved = collection.mutable.Set[String]()

@@ -1,13 +1,24 @@
 package noiseeditor.modules
+
 import noiseeditor.utilities._
+import noiseeditor.datastructures._
+
 import noiseeditor.{ModuleManager, Module}
+
+//TODO: More High Level nodes, like Surface, Layers, Fractal Noise, Turbulence
+//TODO: More Noise types, like cellular noise
+//TODO: Tooltip with node description
+//TODO: Different Noise Dimensions
 
 object GameEngine extends Module {
 	
-	val languages = Seq("scala", "glsl", "prediction")
+	val languages = Seq("scala", "glsl")
 
 	val scalainitcode = 
 """
+	import simplex3d.math._
+	import simplex3d.math.double._
+	import simplex3d.math.double.functions._
 	import noise.Noise.noise3
 """
 	val typedefaults = LanguageMap(
@@ -27,6 +38,30 @@ object GameEngine extends Module {
 			"Material" -> "Material(0x000000)"
 		)
 	)
+	
+	val sliderdatatypes = LanguageMap(
+		"scala" -> "Double",
+		"glsl" -> "double"
+	)
+
+	val resultfunctions = LanguageMap(
+		"scala" -> NodeFunctionFull("result", "(Double, Material)", "(d,m)",
+			Seq(
+				NodeArgument("d","Double", "0.0"),
+				NodeArgument("m","Material", "Material(0x000000)")
+			),
+			Nil
+		),
+		"glsl" -> NodeFunctionFull("result", "Material", "return m;",
+			Seq(
+				NodeArgument("d","double", "0.0"),
+				NodeArgument("m","Material", "Material(0x000000)")
+			),
+			Nil
+		)
+	)
+	
+
 	lazy val nodeCategories:Seq[NodeCategory] = Seq(
 
 		/*FunctionNodeType("Noise", "Noise xyz", Seq("x:Double","y:Double","z:Double"),
@@ -333,6 +368,7 @@ object GameEngine extends Module {
 				while( nexttrees.nonEmpty ) {
 					val currenttree = nexttrees.dequeue
 					import currenttree._
+					println(function)
 					functioncalls +:= "%s %s = %s(%s);".format(
 						function("glsl").returntype,
 						varname,

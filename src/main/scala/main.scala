@@ -1,5 +1,10 @@
 package noiseeditor
 
+import config._
+import utilities._
+import swingextensions._
+import datastructures._
+
 import swing._
 import event._
 import javax.swing.UIManager
@@ -14,14 +19,9 @@ import simplex3d.math._
 import simplex3d.math.double._
 import simplex3d.math.double.functions._
 
-import config._
-import utilities._
-
 //TODO: folding nodes?
 //TODO: Metanodes?
 //TODO: Contextmenu for adding nodes
-
-case class Material(color:Int = MaterialDefaultColor)
 
 object NoiseEditor extends SimpleSwingApplication {
 	UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName())
@@ -51,7 +51,7 @@ object NoiseEditor extends SimpleSwingApplication {
 		NodeManager.peer.setSize(top.preferredSize)
 		ConnectionManager.peer.setSize(top.preferredSize)
 		
-		ModuleManager.load(modules.GameEngine)
+		//ModuleManager.load(modules.GameEngine)
 		NodeManager.add(Node.preview())
 		// Load some preconnected nodes
 		//TODO: Different Resourcepath on Mac OSX?

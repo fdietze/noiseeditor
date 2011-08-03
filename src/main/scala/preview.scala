@@ -1,12 +1,15 @@
 package noiseeditor
 
+import utilities._
+import config._
+import swingextensions._
+import datastructures._
+
 import swing._
 import event._
 import Orientation._
 import javax.swing.border._
 import javax.swing.border.BevelBorder._
-import utilities._
-import config._
 import swing.ListView._
 
 import java.awt.Graphics2D
@@ -19,20 +22,26 @@ import simplex3d.math.double.functions._
 
 import actors.Futures.future
 
-//TODO: png export
-
+case class Material(color:Int = MaterialDefaultColor)
 
 class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
-	override def arguments = LanguageMap("scala" -> Seq(NodeArgument("d","Double", "0.0"), NodeArgument("m","Material", "Material(0x000000)")))
-	override def functions = LanguageMap("scala" -> Map(
-		"result" -> NodeFunctionFull("result", "(Double, Material)", "(d,m)", arguments("scala"), Nil)
-	))
+	override def functions = ModuleManager.resultfunctions.map{ case (language,function) =>
+		(language -> Map("result" -> function))
+	}
+	override def arguments = ModuleManager.resultfunctions.map{ case (language,function) =>
+		(language -> function.arguments)
+	}
 	
 	type Compositiontype = (Vec3) => (Double, Material)
 	var interpretedcomposition:Compositiontype = (world:Vec3) => (0.0, Material())
 	var involvedsliders = Set[String]()
 	
-	override def resized = image.recalc
+	minimumSize = Vec2i(100,100)
+	
+	override def resized(delta:Vec2i) = {
+		image.recalc
+		image.offset -= delta / 2.0 * image.zoom
+	}
 	
 	val viewtypes = Seq(
 		"iso" -> "Iso surface",

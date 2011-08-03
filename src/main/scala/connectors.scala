@@ -1,9 +1,11 @@
 package noiseeditor
 
-import swing._
-import event._
 import utilities._
 import config._
+import datastructures._
+
+import swing._
+import event._
 import javax.swing.SwingUtilities._
 import Orientation._
 import java.awt.Color._
@@ -11,6 +13,7 @@ import java.awt.Color._
 import simplex3d.math._
 import simplex3d.math.double._
 import simplex3d.math.double.functions._
+
 
 abstract class Connector(val title:String, val datatype:String, val node:Node) extends Button(title) {
 	margin = new Insets(0,0,0,0)

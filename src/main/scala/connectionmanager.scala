@@ -1,9 +1,12 @@
 package noiseeditor
 
-import swing._
-import event._
 import utilities._
 import config._
+import datastructures._
+import swingextensions._
+
+import swing._
+import event._
 import javax.swing.SwingUtilities._
 import Orientation._
 import java.awt.Color._
@@ -23,7 +26,7 @@ object ConnectionManager extends Component {
 		commitconnection
 	}
 	
-	// remove all connections to a node
+	// removes all connections to a node
 	def removeNode(node:Node) {
 		connections -= node
 		resetconnstart

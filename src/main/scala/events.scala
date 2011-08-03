@@ -2,6 +2,8 @@ package noiseeditor
 
 import swing._
 import event._
+
+
 abstract class NoiseEditorEvent(source:Publisher) extends Event {
 	//println("Event: " + getClass.getName + ", source: " + source)
 	//println("Event: " + this)

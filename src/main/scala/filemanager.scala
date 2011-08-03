@@ -1,16 +1,18 @@
 package noiseeditor
-import xml._
-import java.io.File
+
+import utilities._
 
 import swing._
 import event._
 import Orientation._
 
+import xml._
+import java.io.File
+
 import simplex3d.math._
 import simplex3d.math.double._
 import simplex3d.math.double.functions._
 
-import utilities._
 
 object FileManager extends Publisher {
 	println("Starting SaveManager")

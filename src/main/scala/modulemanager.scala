@@ -1,10 +1,10 @@
 package noiseeditor
+
 import utilities._
+import datastructures._
+
 //TODO: Compile check of all Nodes
-//TODO: More High Level nodes, like Surface, Layers, Fractal Noise, Turbulence
-//TODO: More Noise types, like cellular noise
-//TODO: Tooltip with node description
-//TODO: Different Noise Dimensions
+//TODO: png export
 
 trait Module {
 	val title:String = getClass.getName.split('.').last.dropRight(1)
@@ -13,22 +13,20 @@ trait Module {
 	val nodeCategories:Seq[NodeCategory]
 	val typedefaults:LanguageMap[Map[String,String]]
 	def export(composition:Composition, language:String):String
+	val resultfunctions:LanguageMap[NodeFunctionFull]
+	val sliderdatatypes:LanguageMap[String]
 }
 
-object DummyModule extends Module {
-	val scalainitcode = "null"
-	val nodeCategories = Nil
-	val languages = Nil
-	val typedefaults = LanguageMap()
-	def export(composition:Composition, language:String) = ""
-}
 
 object ModuleManager{
 	println("Starting ModuleManager...")
 	
 	val available = Seq(modules.GameEngine)
 	
-	var currentmodule:Module = DummyModule
+	
+	assert(available.size >= 1)
+	var currentmodule:Module = null
+	load(available(0))
 	
 	def load(module:Module) {
 		import actors.Futures.future
@@ -45,4 +43,6 @@ object ModuleManager{
 	def typedefaults = currentmodule.typedefaults
 	def languages = currentmodule.languages
 	def export = currentmodule.export _
+	def resultfunctions = currentmodule.resultfunctions
+	def sliderdatatypes = currentmodule.sliderdatatypes
 }
