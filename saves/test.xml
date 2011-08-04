@@ -1,53 +1,65 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <document>
-			<nodes><node type="preview" title="Preview" id="1">
-						<pos x="470" y="56"></pos>
-						<size width="282" height="318"></size><image offsety="-11.364496" offsetx="-8.778087" zoom="0.099999994"></image><depth checked="true"></depth><zslider value="50"></zslider>
+			<module name="GameEngine"></module>
+			<nodes><node type="custom" title="Custom" id="7">
+						<location x="542" y="331"></location>
+						<size width="366" height="438"></size>
+						<arguments><language name="scala"><argument name="v" datatype="Vec3"></argument><argument name="a" datatype="Double"></argument><argument name="b" datatype="Double"></argument><argument name="c" datatype="Double"></argument></language></arguments>
+
+						<sliders>
+							<slider name="lin1" formula="s" value="52"></slider><slider name="lin2" formula="s" value="41"></slider><slider name="exp1" formula="pow(256,((0.5-s)*2))" value="71"></slider><slider name="exp2" formula="pow(256,((0.5-s)*2))" value="0"></slider>
+						</sliders>
+		
+						<functions><language name="scala"><function name="custom_f7" returntype="Double" outname="o">noise3(Vec3(a,Vec2(exp1+exp2)))</function></language></functions>
+					</node><node type="preview" title="Preview" id="8">
+						<location x="994" y="213"></location>
+						<size width="591" height="556"></size><image offsety="5.894536428734108" offsetx="30.714629300205097" zoom="0.017985878990921342"></image><view mode="isodepth" perspective="sideview_zup"></view><depthslider value="37.00000000000001"></depthslider>
+						<arguments><language name="scala"><argument name="d" datatype="Double"></argument><argument name="m" datatype="Material"></argument></language><language name="glsl"><argument name="d" datatype="float"></argument><argument name="m" datatype="vec4"></argument></language></arguments>
+
 						<sliders>
 							
 						</sliders>
 		
-						<intypes>
-							<intype type="d:Float"></intype><intype type="m:Material"></intype>
-						</intypes>
-		
-						<functions>
-							
-						</functions>
-					</node><node type="predefined" title="Source" id="3">
-						<pos x="24" y="117"></pos>
+						<functions><language name="scala"><function name="result" returntype="(Double, Material)" outname="result">(d,m)</function></language><language name="glsl"><function name="result" returntype="vec4" outname="result">return m;</function></language></functions>
+					</node><node type="predefined" title="3D Perlin Noise" id="4">
+						<location x="279" y="279"></location>
 						
+						<arguments><language name="scala"><argument name="v" datatype="Vec3"></argument><argument name="x" datatype="Double"></argument><argument name="y" datatype="Double"></argument><argument name="z" datatype="Double"></argument><argument name="add" datatype="Double"></argument><argument name="sub" datatype="Double"></argument></language><language name="glsl"><argument name="v" datatype="vec3"></argument><argument name="x" datatype="float"></argument><argument name="y" datatype="float"></argument><argument name="z" datatype="float"></argument><argument name="add" datatype="float"></argument><argument name="sub" datatype="float"></argument></language></arguments>
+
 						<sliders>
-							
+							<slider name="size" formula="pow(256,((0.5-s)*2))" value="50"></slider><slider name="scale" formula="pow(256,((s-0.5)*2))" value="43"></slider><slider name="offset" formula="(s-0.5)*2" value="50"></slider>
 						</sliders>
 		
-						<intypes>
-							
-						</intypes>
-		
-						<functions>
-							<function name="sourcev" outtype="Vec3">source</function><function name="sourcex" outtype="Float">source.x</function><function name="sourcey" outtype="Float">source.y</function><function name="sourcez" outtype="Float">source.z</function>
-						</functions>
-					</node><node type="predefined" title="NoiseV" id="5">
-						<pos x="144" y="121"></pos>
+						<functions><language name="scala"><function name="summedinputnoise3" returntype="Double" outname="o">(noise3((v + Vec3(x,y,z))*size)+offset)*scale/size + add - sub</function></language><language name="glsl"><function name="summedinputnoise3" returntype="float" outname="o">return (noise3((v + vec3(x,y,z))*size)+offset)*scale/size + add - sub;</function></language></functions>
+					</node><node type="predefined" title="World coordinates" id="5">
+						<location x="68" y="281"></location>
 						
+						<arguments><language name="scala"></language><language name="glsl"></language></arguments>
+
 						<sliders>
-							<slider name="inscale" value="50"></slider><slider name="outscale" value="50"></slider>
+							<slider name="scale" formula="pow(256,((0.5-s)*2))" value="48"></slider>
 						</sliders>
 		
-						<intypes>
-							<intype type="v:Vec3=Vec3(0)"></intype>
-						</intypes>
+						<functions><language name="scala"><function name="scalesrcv" returntype="Vec3" outname="v">world   * scale</function><function name="scalesrcx" returntype="Double" outname="x">world.x * scale</function><function name="scalesrcy" returntype="Double" outname="y">world.y * scale</function><function name="scalesrcz" returntype="Double" outname="z">world.z * scale</function></language><language name="glsl"><function name="scalesrcv" returntype="vec3" outname="v">return world.xyz * scale;</function><function name="scalesrcx" returntype="float" outname="x">return world.x * scale;</function><function name="scalesrcy" returntype="float" outname="y">return world.y * scale;</function><function name="scalesrcz" returntype="float" outname="z">return world.z * scale;</function></language></functions>
+					</node><node type="predefined" title="Gravel" id="6">
+						<location x="682" y="153"></location>
+						
+						<arguments><language name="scala"></language><language name="glsl"></language></arguments>
+
+						<sliders>
+							
+						</sliders>
 		
-						<functions>
-							<function name="noise3v" outtype="Float">noise1(v*pow(10f,2f*inscale-2.5f))*outscale</function>
-						</functions>
+						<functions><language name="scala"><function name="matgravel" returntype="Material" outname="m">Material(0x4f4f4f);</function></language><language name="glsl"><function name="matgravel" returntype="vec4" outname="m">return vec4(0.31, 0.31, 0.31, 0.0);</function></language></functions>
 					</node></nodes>
 			<connections><connection>
-						<in nodeid="1" connector="0"></in>
-						<out nodeid="5" connector="0"></out>
+						<in nodeid="7" connector="1"></in>
+						<out nodeid="4" connector="0"></out>
 					</connection><connection>
-						<in nodeid="5" connector="0"></in>
-						<out nodeid="3" connector="0"></out>
+						<in nodeid="8" connector="0"></in>
+						<out nodeid="7" connector="0"></out>
+					</connection><connection>
+						<in nodeid="4" connector="0"></in>
+						<out nodeid="5" connector="0"></out>
 					</connection></connections>
 		</document>

@@ -27,16 +27,26 @@ object ModuleManager{
 	assert(available.size >= 1)
 	var currentmodule:Module = available(0)
 	
-	def load(module:Module) {
+	def load(moduletitle:String):Boolean = {
 		import actors.Futures.future
 		if( FileManager.unsavedQuestion ) {
-			println("ModuleManager: Loading Module " + module.title)
-			currentmodule = module
-			NoiseEditor.reset
-			InterpreterManager(scalainitcode)
+			println("ModuleManager: Loading Module " + moduletitle)
+			available.find(_.title == moduletitle) match {
+				case Some(module) =>
+					currentmodule = module
+					NoiseEditor.reset
+					InterpreterManager(scalainitcode)
+					true
+				case None =>
+					println("Module " + moduletitle + " does not exist.")
+					false
+			}
 		}
+		else
+			false
 	}
 	
+	def title = currentmodule.title
 	def scalainitcode = currentmodule.scalainitcode
 	def nodecategories = currentmodule.nodeCategories
 	def typedefaults = currentmodule.typedefaults

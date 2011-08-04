@@ -51,11 +51,9 @@ object NoiseEditor extends SimpleSwingApplication {
 		NodeManager.peer.setSize(top.preferredSize)
 		ConnectionManager.peer.setSize(top.preferredSize)
 		
-		ModuleManager.load(modules.GameEngine)
-		NodeManager.add(Node.preview())
 		// Load some preconnected nodes
 		//TODO: Different Resourcepath on Mac OSX?
-		//FileManager.readSession(getClass.getClassLoader.getResource("default.xml").getPath)
+		FileManager.readSession(getClass.getClassLoader.getResource("default.xml").getPath)
 		FileManager.setFileunchanged
 	}
 
@@ -81,6 +79,7 @@ object NoiseEditor extends SimpleSwingApplication {
 	def rebuildmenu = new MenuBar {
 		contents += new Menu("File"){
 
+			//TODO: BUG: noise3 wird nicht mehr gefunden
 			contents += new MenuItem("New") {
 				mnemonic = Key.O
 				action = new Action("New") {
@@ -91,16 +90,16 @@ object NoiseEditor extends SimpleSwingApplication {
 
 			contents += new Menu("Load Module") {
 				mnemonic = Key.M
-				for( module <- ModuleManager.available )
-					contents += new MenuItem(module.title) {
-						action = new Action(module.title) {
+				for( module <- ModuleManager.available.map(_.title) )
+					contents += new MenuItem(module) {
+						action = new Action(module) {
 							def apply = { ModuleManager.load(module) }
 						}
 					}
 			}				
 
 
-			/*contents += new MenuItem("Open") {
+			contents += new MenuItem("Open") {
 				mnemonic = Key.O
 				action = new Action("Open") {
 					def apply = FileManager.open
@@ -122,7 +121,7 @@ object NoiseEditor extends SimpleSwingApplication {
 					def apply = FileManager.saveAs
 					accelerator = Some(getKeyStroke("ctrl shift S"))
 				}
-			}*/				
+			}				
 
 			contents += new MenuItem("Quit") {
 				mnemonic = Key.Q

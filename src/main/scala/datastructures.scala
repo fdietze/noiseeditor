@@ -17,7 +17,7 @@ trait NodeFunctionArgument {
 }
 
 case class NodeArgument(name:String, datatype:String, default:String = "") extends NodeFunctionArgument
-case class NodeSlider(name:String, formula:String = "s", datatype:String = "") extends NodeFunctionArgument
+case class NodeSlider(name:String, formula:String = "s", initvalue:Int = 50, datatype:String = "") extends NodeFunctionArgument
 
 case class NodeFunctionFull(name:String, returntype:String, code:String, arguments:Seq[NodeArgument], sliders:Seq[NodeSlider])
 case class NodeFunction(name:String, returntype:String, code:String)
@@ -28,7 +28,9 @@ object NodeType {
 		val newfunctions = for( (language, functionmap) <- functions ) yield {
 			language -> (for( (title, NodeFunction(name, returntype, code)) <- functionmap ) yield {
 				title -> NodeFunctionFull(name, returntype, code, arguments(language), sliders.map {
-					case NodeSlider(sname, formula, "") => NodeSlider(sname, formula, ModuleManager.sliderdatatypes(language))
+					// for every slider add datatype for this language
+					case NodeSlider(sname, formula, initvalue, "") => 
+					NodeSlider(sname, formula, initvalue, ModuleManager.sliderdatatypes(language))
 				})
 			})
 		}

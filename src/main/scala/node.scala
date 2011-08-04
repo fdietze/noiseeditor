@@ -42,8 +42,18 @@ object Node {
 	def custom(id:Int = nextid) = {
 		//TODO: Export to file and load it everytime
 		new CustomNode("Custom", id,
-			arguments = LanguageMap("scala" -> Seq(NodeArgument("v","Vec3","Vec3(0)"),NodeArgument("a","Double","0.0"),NodeArgument("b","Double","0.0"),NodeArgument("c","Double","0.0"),NodeArgument("d","Double","0.0"))),
-			customsliders = Seq(NodeSlider("s1"),NodeSlider("s2"),NodeSlider("s3"),NodeSlider("s4"))
+			arguments = LanguageMap("scala" -> Seq(
+				NodeArgument("v","Vec3","Vec3(0)"),
+				NodeArgument("a","Double","0.0"),
+				NodeArgument("b","Double","0.0"),
+				NodeArgument("c","Double","0.0")
+			)),
+			customsliders = Seq(
+					NodeSlider("lin1", "s", 50, "Double"),
+					NodeSlider("lin2", "s", 50, "Double"),
+					NodeSlider("exp1", "pow(256,((s-0.5)*2))", 50, "Double"),
+					NodeSlider("exp2", "pow(256,((s-0.5)*2))", 50, "Double")
+				)
 			)
 	}
 
@@ -63,7 +73,7 @@ class FormulaSlider(slidername:String, nodeid:Int, initvalue:Int = 50) extends S
 	value = initvalue
 	val globalname = "n" + nodeid + "_" + name
 
-	var tformula = "s"
+	var formula = "s"
 	var transform:Double => Double = s => s
 
 	def globalvalue = transform(value/100.0)
@@ -107,13 +117,13 @@ trait NodeInit extends Node with DelayedInit {
 	}
 
 	override val sliders = 
-		for( NodeSlider(name, formula, _) <- sliderdefinitions ) yield {
-			val compilation = InterpreterManager[Double => Double]("(s:Double) => " + formula)
-			new FormulaSlider(name, nodeid = id) {
+		for( NodeSlider(name, sformula, initvalue,  _) <- sliderdefinitions ) yield {
+			val compilation = InterpreterManager[Double => Double]("(s:Double) => " + sformula)
+			new FormulaSlider(name, nodeid = id, initvalue) {
 				compilation() match {
 					case Some(f) =>
 						transform = f
-						tformula = formula
+						formula = sformula
 					case None =>
 				}
 				tooltip = globalvalue.toString
@@ -208,11 +218,14 @@ class CustomNode(title:String, id:Int, override val arguments:LanguageMap[Seq[No
 	
 	val compilebutton = new Button("compile")
 
+	def compile {
+		outconnectors(0).function = LanguageMap("scala" -> customfunction)
+		publish(NodeChanged(source = thisnode, node = thisnode))
+	}
+	
 	listenTo(funcfield, compilebutton)
 	reactions += {
-		case ButtonClicked(`compilebutton`) =>
-			outconnectors(0).function = LanguageMap("scala" -> customfunction)
-			publish(NodeChanged(source = thisnode, node = thisnode))
+		case ButtonClicked(`compilebutton`) => compile
 	}
 	
 	val controlpanel = new BoxPanel(Horizontal) {

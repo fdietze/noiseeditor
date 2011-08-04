@@ -1,6 +1,8 @@
 package noiseeditor
 
 import utilities._
+import datastructures._
+import swingextensions._
 
 import swing._
 import event._
@@ -94,7 +96,7 @@ object FileManager extends Publisher {
 
 	def unsavedQuestion:Boolean = {
 		import Dialog.Result._
-		/*if( filechanged && NodeManager.nodes.size > 0 ) {
+		if( filechanged && NodeManager.nodes.size > 0 ) {
 			Dialog.showConfirmation(
 				parent = NoiseEditor.top.contents.head,
 				message = "Leaving unsaved Session. Save it now?",
@@ -110,7 +112,7 @@ object FileManager extends Publisher {
 					false
 			}
 		}
-		else*/
+		else
 			true
 	}
 
@@ -155,9 +157,13 @@ object FileManager extends Publisher {
 	def writeSession(path:String) { writeSession(new File(path)) }
 	
 	def readSession(file:File) {
-/*		println("SaveManager: reading " + file)
+		println("SaveManager: reading " + file)
 		val document = XML.loadFile(file)
 		
+		val modulename = (document \ "module" \ "@name").text
+		if( !ModuleManager.load(modulename) )
+			return
+
 		val ids = (document \ "nodes" \ "node") map ( n => (n \ "@id").text.toInt)
 		val newid = Node.getIdMapping(ids)
 		val nodeforid = new collection.mutable.HashMap[Int,Node]
@@ -166,70 +172,98 @@ object FileManager extends Publisher {
 			val title = (node \ "@title").text
 			val nodetype = (node \ "@type").text
 			val id = (node \ "@id").text.toInt
-			val x = (node \ "pos" \ "@x").text.toInt
-			val y = (node \ "pos" \ "@y").text.toInt
+			val x = (node \ "location" \ "@x").text.toInt
+			val y = (node \ "location" \ "@y").text.toInt
 			val location = Vec2i(x,y)
-
-			val slidernames = ( node \ "sliders" \ "slider" ) map ( _ \ "@name" text)
-			val slidervalues = ( node \ "sliders" \ "slider" ) map ( s => (s \ "@value").text.toInt)
-			val sliderformulas = ( node \ "sliders" \ "slider" ) map ( s => (s \ "@formula").text) map ( f => if( f.isEmpty ) "s" else f)
-			val intypes = ( node \ "intypes" \ "intype" ) map ( _  \ "@type" text )
+			
+			val arguments =
+				(for( language <- node \ "arguments" \ "language" ) yield {
+					(language \ "@name" text) -> 
+					(for( argument <- language \ "argument" ) yield {
+						NodeArgument(
+							argument \ "@name" text,
+							argument \ "@datatype" text
+						)
+					})
+				}).toMap
+			
+			val sliders =
+				for( slider <- node \ "sliders" \ "slider" ) yield {
+					NodeSlider(
+						slider \ "@name" text,
+						slider \ "@formula" text,
+						(slider \ "@value" text).toInt
+					)
+				}
 			
 			val functions =
-				for( function <- node \ "functions" \ "function" ) yield {
-					val name =    (function \ "@name"   ).text
-					val code =    function.text
-					val outtype = (function \ "@outtype").text
-					var outname = (function \ "@outname").text
-
-					new Function(name,code,outtype,outname)
-				}
+				(for( language <- node \ "functions" \ "language" ) yield {
+					(language \ "@name" text) -> 
+					(for( function <- language \ "function" ) yield {
+						(function \ "@outname" text) ->
+						NodeFunction(
+							function \ "@name" text,
+							function \ "@returntype" text,
+							function text
+						)
+					}).toMap
+				}).toMap
 			
 
 			
 			nodetype match {
 			case "predefined" =>
-				val nodetype = FunctionNodeType("", title, intypes, slidernames zip sliderformulas, functions:_*)
-				val predefined = Node(nodetype, newid(id))
+				val predefined = Node(NodeType(title, arguments, sliders, functions), newid(id))
 				nodeforid(predefined.id) = predefined
 				NodeManager.add(predefined)
-				for( (slider, value) <- predefined.sliders zip slidervalues )
-					slider.value = value
+
 				predefined.peer.setLocation(location)
-			case "custom" =>
-				val width = (node \ "size" \ "@width").text.toInt
-				val height = (node \ "size" \ "@height").text.toInt
-				val size = Vec2i(width,height)
-				val custom = Node.loadcustom( slidernames, intypes, functions.head.code, newid(id) )
-				nodeforid(custom.id) = custom
-				NodeManager.add(custom)
-				for( (slider, value) <- custom.sliders zip slidervalues )
-					slider.value = value
-				custom.peer.setLocation(location)
-				custom.peer.setSize(size)
 			case "preview" =>
 				val width = (node \ "size" \ "@width").text.toInt
 				val height = (node \ "size" \ "@height").text.toInt
 				val size = Vec2i(width,height)
+				
 				val offsetx = (node \ "image" \ "@offsetx").text.toDouble
 				val offsety = (node \ "image" \ "@offsety").text.toDouble
 				val offset = Vec2(offsetx, offsety)
+				
 				val zoom = (node \ "image" \ "@zoom").text.toDouble
-				val selectedview = (node \ "view" \ "@selected").text
-				val selectedperspective = (node \ "perspective" \ "@selected").text
+				val view = (node \ "view" \ "@mode").text
+				val perspective = (node \ "view" \ "@perspective").text
 				val depthslider = (node \ "depthslider" \ "@value").text.toDouble
-				val preview = Node.preview(newid(id))
 
+				val preview = Node.preview(newid(id))
 				nodeforid(preview.id) = preview
 				NodeManager.add(preview)
+
 				preview.peer.setLocation(location)
 				preview.peer.setSize(size)
 				preview.image.offset = offset
 				preview.image.zoom = zoom
 				
-				preview.viewcombobox.select(selectedview)
-				preview.perspectivecombobox.select(selectedperspective)				
+				preview.viewcombobox.select(view)
+				preview.perspective.select(perspective)				
 				preview.depthslider.value = depthslider
+			case "custom" =>
+				val width = (node \ "size" \ "@width").text.toInt
+				val height = (node \ "size" \ "@height").text.toInt
+				val size = Vec2i(width,height)
+				
+				// add datatypes to sliders
+				val newsliders = sliders.map{
+					case NodeSlider(name, formula, value, "") => NodeSlider(name, formula, value, ModuleManager.sliderdatatypes("scala"))}
+				
+				// add default values to arguments
+				val newarguments = arguments.map{ case (language,args) => (language -> args.map{
+					case NodeArgument(name,datatype,"") => NodeArgument(name,datatype,ModuleManager.typedefaults("scala")(datatype)) }) }
+				
+				val custom = Node.loadcustom( newsliders, newarguments, functions("scala").values.head.code, newid(id) )
+				nodeforid(custom.id) = custom
+				NodeManager.add(custom)
+				
+				custom.peer.setLocation(location)
+				custom.peer.setSize(size)
+				custom.compile
 			}
 		}
 
@@ -242,20 +276,25 @@ object FileManager extends Publisher {
 			val outconnector = nodeforid(newid(outnodeid)).outconnectors(outindex)
 			ConnectionManager.changeConnection(inconnector, outconnector)
 		}
-		ConnectionManager.commitconnection*/
+		ConnectionManager.commitconnection
+		NoiseEditor.top.repaint
 	}
 
 	def writeSession(file:File) {
-/*		println("writing " + file)
+		println("writing " + file)
 		implicit def intToString(x:Int) = x.toString
 		implicit def doubleToString(x:Double) = x.toString
 		implicit def booleanToString(x:Boolean) = x.toString
 		
 		//TODO: replace last suffix, higher base
-		val functionsuffix = "_t" + (System.currentTimeMillis/1000).toHexString
+		def uidsuffix(name:String) = {
+			val suffix = "_uid" + (System.currentTimeMillis/1000).toHexString
+			name.split("_uid").head + suffix
+		}
 		
 		val document = 
 		<document>
+			<module name={ModuleManager.title} />
 			<nodes>{
 				for(node <- NodeManager.nodes) yield {
 					import node._
@@ -267,42 +306,54 @@ object FileManager extends Publisher {
 				
 	
 					<node title={title} type={nodetype} id={id}>
-						<pos x={location.x} y={location.y}/>
-						{if(nodetype == "preview") {
-							val preview = node.asInstanceOf[Preview]
-							import preview._
-							<size width={size.width} height={size.height} />
-							<image offsetx={image.offset.x} offsety={image.offset.y} zoom={image.zoom} />
-							<view selected={viewcombobox.selected} />
-							<perspective selected={perspectivecombobox.selectedname} />
-							<depthslider value={depthslider.value} />
+						<location x={location.x} y={location.y}/>
+						{
+							if(nodetype == "preview") {
+								val preview = node.asInstanceOf[Preview]
+								import preview._
+								<size width={size.width} height={size.height} />
+								<image offsetx={image.offset.x} offsety={image.offset.y} zoom={image.zoom} />
+								<view mode={viewcombobox.selected} perspective={perspective.selectedname} />
+								<depthslider value={depthslider.value} />
+							}
+							else if( nodetype == "custom") {
+								<size width={size.width} height={size.height} />
+							}
 						}
-						else if( nodetype == "custom") {
-							<size width={size.width} height={size.height} />
-						}
-						}
+						<arguments>{
+							for( (language, nodearguments) <- arguments ) yield {
+								<language name={language}>{
+									for( NodeArgument(name, datatype, _) <- nodearguments ) yield {
+										<argument name={name} datatype={datatype} />
+									}
+								}</language>
+							}
+						}</arguments>
+
 						<sliders>
-							{sliders.map( slider => <slider name={slider.name} value={slider.value} formula={slider.tformula} /> )}
+							{sliders.map( slider => <slider name={slider.name} formula={slider.formula} value={slider.value} /> )}
 						</sliders>
 		
-						<intypes>
-							{intypes.map( intype => <intype type={intype} /> )}
-						</intypes>
-		
-						<functions>
-							{functions.map( f => <function name={f.name + functionsuffix} outtype={f.outtype} outname={f.outname}>{f.code}</function> )}
-						</functions>
+						<functions>{
+							for( (language, nodefunctions) <- functions ) yield {
+								<language name={language}>{
+									for( (outname, NodeFunctionFull(name, returntype, code, _, _)) <- nodefunctions ) yield {
+										<function outname={outname} name={name} returntype={returntype}>{code}</function>
+									}
+								}</language>
+							}
+						}</functions>
 					</node>
 				}
 			}</nodes>
 			<connections>{
 				for( (in,out) <- ConnectionManager.connections.edges ) yield {
 					// extract indizes of connectors in their nodes
-					val  inindex = in .node.inconnectors.indexWhere( _ eq in)
+					val  inindex = in .node.inconnectors .indexWhere( _ eq in )
 					val outindex = out.node.outconnectors.indexWhere( _ eq out)
 					
 					<connection>
-						<in  nodeid={ in.node.id} connector={inindex } />
+						<in  nodeid={in .node.id} connector={inindex } />
 						<out nodeid={out.node.id} connector={outindex} />
 					</connection>
 				}
@@ -314,7 +365,7 @@ object FileManager extends Publisher {
 		val out = new java.io.FileWriter(file)
 		out.write("<?xml version='1.0' encoding='UTF-8'?>\n")
 		out.write(prettyprinter.format(document))
-		out.close*/*/
+		out.close*/
 	}
 	
 	

@@ -318,6 +318,27 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 			}
 		}
 	}
+
+	val engineexport = new Button("engine export") {
+		margin = new Insets(1,1,1,1)
+		reactions += {
+			case e:ButtonClicked =>
+				print("exporting to engine...")
+				var path = "/data1/home2/dietze/Desktop/gameengine"
+				val composition = CodeGenerator.composition(outconnectors(0))
+				var out = new java.io.FileWriter(path + "/src/main/scala/worldfunction.scala")
+				out.write(ModuleManager.export(composition, "scala"))
+				out.close
+
+				out = new java.io.FileWriter(path + "/src/main/resources/shaders/screen.frag")
+				out.write(ModuleManager.export(composition, "glsl"))
+				out.close
+				
+				Runtime.getRuntime.exec("rm " + path + "/worldoctree")
+				println("done")
+		}
+	}
+
 	
 	val speedlabel = new Label(""){
 		var value:Double = 0.0
@@ -335,6 +356,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 				contents += resetbutton
 			}
 			contents += new BoxPanel(Horizontal) {
+				contents += engineexport
 				contents += exportcontrols
 				contents += removebutton
 			}

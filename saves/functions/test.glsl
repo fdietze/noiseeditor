@@ -70,25 +70,32 @@ float noise3(vec3 v) {return noise3(v.x, v.y, v.z);}
 /////////////////////////////////////////////////////
 
 vec4 result(float d, vec4 m) {return m;}
-vec4 matthreshold(vec4 m1, float t, vec4 m2) {return t > 0 ? m1 : m2;}
-float scalesrcx(float scale) {return world.x * scale;}
-vec4 matgold() {return vec4(0.98, 0.71, 0.08, 0.0);}
-vec4 matstone() {return vec4(0.56, 0.56, 0.56, 0.0);}
+vec3 scalesrcv(float scale) {return world.xyz * scale;}
+float summedinputnoise3(vec3 v, float x, float y, float z, float add, float sub, float size, float scale, float offset) {return (noise3((v + vec3(x,y,z))*size)+offset)*scale/size + add - sub;}
+vec4 matrgb(float r, float g, float b) {return vec4(r, g, b, 0.0);}
+vec4 matthreshold(vec4 m1, float t, vec4 m2) {return t >= 0 ? m1 : m2;}
 
 
 
 void main(){
-vec4 vn2_matgold = matgold();
-float vn5_scalesrcx = scalesrcx(1.0);
-vec4 vn3_matstone = matstone();
-vec4 vn4_matthreshold = matthreshold(vn3_matstone, vn5_scalesrcx, vn2_matgold);
-vec4 vn1_result = result(0.0, vn4_matthreshold);
+
+vec3 vn3_scalesrcv = scalesrcv(1.0);
+float vn2_summedinputnoise3 = summedinputnoise3(vn3_scalesrcv, 0.0, 0.0, 0.0, 0.0, 0.0, 0.10881882041201557, 1.9453098948245722, 0.3799999999999999);
+vec4 vn5_matrgb = matrgb(0.05, 0.41, 0.36);
+float vn9_summedinputnoise3 = summedinputnoise3(vn3_scalesrcv, vn2_summedinputnoise3, vn2_summedinputnoise3, vn2_summedinputnoise3, 0.0, 0.0, 0.21168632809063176, 11.471641984126617, 0.17999999999999994);
+vec4 vn6_matrgb = matrgb(0.35, 0.78, 0.0);
+vec3 vn7_scalesrcv = scalesrcv(1.0);
+vec4 vn4_matthreshold = matthreshold(vn6_matrgb, vn9_summedinputnoise3, vn5_matrgb);
+float vn1_summedinputnoise3 = summedinputnoise3(vn7_scalesrcv, 0.0, 0.0, 0.0, 0.0, 0.0, 0.09739557245756253, 1.0, 0.19999999999999996);
+vec4 vn8_result = result(vn1_summedinputnoise3, vn4_matthreshold);
 
 
-	vec4 materialcolor = vn1_result;
+	vec4 materialcolor = vn8_result;
 	
 	vec3 L = normalize(gl_LightSource[0].position.xyz - vertex);   
 	vec4 Idiff = clamp(gl_FrontLightProduct[0].diffuse * max(dot(normal,L), 0.0), 0.0, 1.0);  
 
 	gl_FragColor = materialcolor * Idiff;
 }
+
+

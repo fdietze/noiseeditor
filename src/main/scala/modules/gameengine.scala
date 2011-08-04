@@ -64,28 +64,6 @@ object GameEngine extends Module {
 
 	lazy val nodeCategories:Seq[NodeCategory] = Seq(
 
-		/*FunctionNodeType("Noise", "Noise xyz", Seq("x:Double","y:Double","z:Double"),
-			Seq(
-				("size", "pow(256,((0.5-s)*2))"),
-				("scale", "pow(256,((s-0.5)*2))"),
-				("offset", "(s-0.5)*2")),
-			Function("noise3xyz" ,"""(noise1(Vec3(x,y,z)*size)+offset)*scale/size""", "Double")),
-
-
-		FunctionNodeType("Noise", "Rich Noise", Seq("v:Seq[Vec3]","x:Seq[Double]","y:Seq[Double]","z:Seq[Double]","add:Seq[Double]","sub:Seq[Double]"),
-			Seq(
-				("size", "pow(256,((0.5-s)*2))"),
-				("scale", "pow(256,((s-0.5)*2))"),
-				("offset", "(s-0.5)*2")),
-			Function("richnoise3","""
-			val sumv = v.fold[Vec3](Vec3(0))( (a,b) => a+b ) + Vec3(x.sum,y.sum,z.sum)
-			(noise1(sumv*size)+offset)*scale/size + add.sum - sub.sum
-			""", "Double")),*/
-
-
-
-
-
 		NodeCategory("Noise",
 			Seq(
 				NodeType("3D Perlin Noise",
@@ -112,6 +90,7 @@ object GameEngine extends Module {
 						NodeSlider("scale", "pow(256,((s-0.5)*2))"),
 						NodeSlider("offset", "(s-0.5)*2")
 					),
+					//TODO: transpose language and function map to reduce errors when writing definitions?
 					LanguageMap(
 						"scala" -> Map(
 							"o" -> NodeFunction("summedinputnoise3", "Double",
@@ -120,6 +99,195 @@ object GameEngine extends Module {
 						"glsl" -> Map(
 							"o" -> NodeFunction("summedinputnoise3", "float",
 							"""return (noise3((v + vec3(x,y,z))*size)+offset)*scale/size + add - sub;""")
+						)
+					)
+				)
+			)
+		),
+
+		NodeCategory("Math",
+			Seq(
+				NodeType("Min2",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double"),
+							NodeArgument("b","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float"),
+							NodeArgument("b","float")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("min2", "Double",
+							"""min(a,b)""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("min2", "float",
+							"""return min(a,b);""")
+						)
+					)
+				),
+				NodeType("Max2",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double"),
+							NodeArgument("b","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float"),
+							NodeArgument("b","float")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("max2", "Double",
+							"""max(a,b)""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("max2", "float",
+							"""return max(a,b);""")
+						)
+					)
+				),
+				NodeType("Sum2",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double"),
+							NodeArgument("b","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float"),
+							NodeArgument("b","float")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("sum2", "Double",
+							"""a+b""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("sum2", "float",
+							"""return a+b;""")
+						)
+					)
+				),
+				NodeType("Sum3",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double"),
+							NodeArgument("b","Double"),
+							NodeArgument("c","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float"),
+							NodeArgument("b","float"),
+							NodeArgument("c","float")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("sum3", "Double",
+							"""a+b+c""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("sum3", "float",
+							"""return a+b+c;""")
+						)
+					)
+				),
+				NodeType("Product2",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double"),
+							NodeArgument("b","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float"),
+							NodeArgument("b","float")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("product2", "Double",
+							"""a*b""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("product2", "float",
+							"""return a*b;""")
+						)
+					)
+				),
+				NodeType("Product3",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double"),
+							NodeArgument("b","Double"),
+							NodeArgument("c","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float"),
+							NodeArgument("b","float"),
+							NodeArgument("c","float")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("product3", "Double",
+							"""a*b*c""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("product3", "float",
+							"""return a*b*c;""")
+						)
+					)
+				),
+				NodeType("Diff2",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double"),
+							NodeArgument("b","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float"),
+							NodeArgument("b","float")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("diff2", "Double",
+							"""a-b""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("diff2", "float",
+							"""return a-b;""")
+						)
+					)
+				),
+				NodeType("Constant Exp",
+					LanguageMap(
+						"scala" -> Nil,
+						"glsl" -> Nil
+					),
+					Seq(
+						NodeSlider("value", "pow(256,((s-0.5)*2))")
+					),
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("constantexp", "Double",
+							"""value""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("constantexp", "float",
+							"""return value;""")
 						)
 					)
 				)
@@ -153,16 +321,16 @@ object GameEngine extends Module {
 				)
 			)
 		),
-		// King Arthurs Gold
-	/*	FunctionNodeType("Material", "Earth", Nil, Nil, Function("matearth", "Material(0x5a3910)", "Material")),
-		FunctionNodeType("Material", "Cave",  Nil, Nil, Function("matcave",  "Material(0x10000)", "Material")),
-		FunctionNodeType("Material", "Gravel",Nil, Nil, Function("matgravel","Material(0x282828)", "Material")),
-		FunctionNodeType("Material", "Stone", Nil, Nil, Function("matstone", "Material(0x373737)", "Material")),
-		FunctionNodeType("Material", "Gold",  Nil, Nil, Function("matgold",  "Material(0xfab614)", "Material")),
-		FunctionNodeType("Material", "Solid", Nil, Nil, Function("matsolid", "Material(0x1e321e)", "Material")),
-		FunctionNodeType("Material", "Wood", Nil, Nil, Function("matwood",  "Material(0x097b11)", "Material"))*/
+
 		NodeCategory("Materials",
 			Seq(
+				NodeType("RGB",
+					LanguageMap("scala" -> Nil, "glsl" -> Nil),
+					Seq(NodeSlider("r"), NodeSlider("g"), NodeSlider("b")),
+					LanguageMap("scala" -> Map( "m" -> NodeFunction("matrgb", "Material", "Material((r*255).toInt << 16 | (g*255).toInt << 8 | (b*255).toInt);") ),
+						"glsl" -> Map("m" -> NodeFunction("matrgb", "vec4", "return vec4(r, g, b, 0.0);")	)
+					)
+				),
 				NodeType("Gold",
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
 					LanguageMap("scala" -> Map( "m" -> NodeFunction("matgold", "Material", "Material(0xfab614);") ),
@@ -357,6 +525,7 @@ object GameEngine extends Module {
 				// Function Calls via BFS
 				var functioncalls:Seq[String] = Nil
 				val nexttrees = new collection.mutable.Queue[CompositionTree]
+				//TODO: take only density tree
 				nexttrees += calltree
 				while( nexttrees.nonEmpty ) {
 					val currenttree = nexttrees.dequeue
@@ -381,7 +550,25 @@ object GameEngine extends Module {
 				// Final Value
 				val returnvalue = calltree.varname
 		
-				"(world:Vec3) => {\n%s\n\n%s\n\n%s\n}\n".format(
+"""package xöpäx
+package object gen {
+
+import noise.Noise.noise3
+
+import simplex3d.math._
+import simplex3d.math.double._
+import simplex3d.math.double.functions._
+
+case class Material(color:Int = 0x000000)
+def proceduralworld(world:Vec3) = {
+%s
+
+%s
+
+%s
+}
+
+}""".format(
 					functioncode, functioncallcode, returnvalue
 				)
 
@@ -403,6 +590,7 @@ object GameEngine extends Module {
 				// Function Calls via BFS
 				var functioncalls:Seq[String] = Nil
 				val nexttrees = new collection.mutable.Queue[CompositionTree]
+				//TODO: take only material tree
 				nexttrees += calltree
 				while( nexttrees.nonEmpty ) {
 					val currenttree = nexttrees.dequeue
@@ -453,10 +641,12 @@ void main () {
 }
 */
 
-int seed = 0;
+/*int seed = 0;
 int a = (seed ^ int(0xB5C18E6A)) | ((1 << 16) + 1);
 int c = seed ^ int(0xF292D0B2);
-int hash(int x){ return (a*(x ^ c)) >> 16; }
+int hash(int x){ return (a*(x ^ c)) >> 16; }*/
+
+int hash(int k) { return ((k*int(0x12345678)) >> (k*int(0x87754351))) & 0x7FFFFFFF; }
 
 int fastfloor(float x) { return int( x > 0 ? x : x-1); }
 float fade(float t) { return t * t * t * (t * (t * 6 - 15) + 10); }
