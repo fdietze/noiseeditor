@@ -24,7 +24,6 @@ object CodeGenerator {
 		def tree( out: OutConnector ):CompositionTree = {
 			// for each connection create a new tree
 			// for no connection give the argument's default
-			println(out.node.arguments)
 			val arguments = (out.node.inconnectors.map( connections(_) )
 			     zip out.node.arguments.mapseqtranspose).map{
 				case (connection, argument) =>

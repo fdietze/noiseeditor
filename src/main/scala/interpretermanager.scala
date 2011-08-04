@@ -14,11 +14,11 @@ object InterpreterManager extends InterpreterQueue {
 	
 	def init {
 		val imports =
-			"import simplex3d.math._" +
-			"import simplex3d.math.double._" +
-			"import simplex3d.math.double.functions._" +
-			"import noiseeditor.Material\n" +
-			"import noiseeditor.Box\n"
+			"""import simplex3d.math._
+			import simplex3d.math.double._
+			import simplex3d.math.double.functions._
+			import noiseeditor.Material
+			import noiseeditor.Box"""
 
 		apply(imports)
 	}
@@ -26,6 +26,7 @@ object InterpreterManager extends InterpreterQueue {
 	override def reset {
 		super.reset
 		init
+		println("InterpreterManager: reset")
 	}
 }
 

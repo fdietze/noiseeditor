@@ -51,7 +51,7 @@ object NoiseEditor extends SimpleSwingApplication {
 		NodeManager.peer.setSize(top.preferredSize)
 		ConnectionManager.peer.setSize(top.preferredSize)
 		
-		//ModuleManager.load(modules.GameEngine)
+		ModuleManager.load(modules.GameEngine)
 		NodeManager.add(Node.preview())
 		// Load some preconnected nodes
 		//TODO: Different Resourcepath on Mac OSX?

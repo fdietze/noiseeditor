@@ -25,8 +25,7 @@ object ModuleManager{
 	
 	
 	assert(available.size >= 1)
-	var currentmodule:Module = null
-	load(available(0))
+	var currentmodule:Module = available(0)
 	
 	def load(module:Module) {
 		import actors.Futures.future

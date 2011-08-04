@@ -14,13 +14,12 @@ object GameEngine extends Module {
 	
 	val languages = Seq("scala", "glsl")
 
-	val scalainitcode = 
-"""
-	import simplex3d.math._
-	import simplex3d.math.double._
-	import simplex3d.math.double.functions._
-	import noise.Noise.noise3
-"""
+	val scalainitcode = """
+		import simplex3d.math._
+		import simplex3d.math.double._
+		import simplex3d.math.double.functions._
+		import noise.Noise.noise3
+	"""
 	val typedefaults = LanguageMap(
 		"scala" -> 	Map(
 			"Int" -> "0",
@@ -144,7 +143,7 @@ object GameEngine extends Module {
 							"z" -> NodeFunction("scalesrcz", "Double", "world.z * scale")
 						),
 						"glsl" -> Map(	
-							"v" -> NodeFunction("scalesrcv", "vec3",   "return world   * scale;"),
+							"v" -> NodeFunction("scalesrcv", "vec3",   "return vec3(world) * scale;"),
 							"x" -> NodeFunction("scalesrcx", "double", "return world.x * scale;"),
 							"y" -> NodeFunction("scalesrcy", "double", "return world.y * scale;"),
 							"z" -> NodeFunction("scalesrcz", "double", "return world.z * scale;")
