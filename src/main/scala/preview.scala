@@ -53,8 +53,10 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		)
 	
 	val perspectives = Seq(
-		("sideview", ((v:Vec3) => Vec3(v.x,-v.y,v.z)), "Side view"),
-		("topview", ((v:Vec3) => Vec3(v.x,v.z,-v.y)), "Top view")
+		("sideview_yup", ((v:Vec3) => Vec3(v.x,-v.y,v.z)), "Side view (y up)"),
+		("topview_yup", ((v:Vec3) => Vec3(v.x,v.z,-v.y)), "Top view (y up)"),
+		("sideview_zup", ((v:Vec3) => Vec3(v.x,v.z,-v.y)), "Side view (z up)"),
+		("topview_zup", ((v:Vec3) => Vec3(v.x,v.y,-v.z)), "Top view (z up)")
 		)
 		
 	val timer = new Timer

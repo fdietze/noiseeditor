@@ -25,22 +25,23 @@ object GameEngine extends Module {
 			"Int" -> "0",
 			"Double" -> "0.0",
 			"Seq" -> "Nil",
-			"Vec3" -> "Vec3(0)",
 			"Vec2" -> "Vec2(0)",
+			"Vec3" -> "Vec3(0)",
 			"Material" -> "Material(0x000000)"
 		),
 		"glsl" -> 	Map(
 			"int" -> "0",
-			"double" -> "0.0",
-			"vec3" -> "vec3(0)",
+			"float" -> "0.0",
 			"vec2" -> "vec2(0)",
+			"vec3" -> "vec3(0)",
+			"vec4" -> "vec4(0)",
 			"Material" -> "Material(0x000000)"
 		)
 	)
 	
 	val sliderdatatypes = LanguageMap(
 		"scala" -> "Double",
-		"glsl" -> "double"
+		"glsl" -> "float"
 	)
 
 	val resultfunctions = LanguageMap(
@@ -51,10 +52,10 @@ object GameEngine extends Module {
 			),
 			Nil
 		),
-		"glsl" -> NodeFunctionFull("result", "Material", "return m;",
+		"glsl" -> NodeFunctionFull("result", "vec4", "return m;",
 			Seq(
-				NodeArgument("d","double", "0.0"),
-				NodeArgument("m","Material", "Material(0x000000)")
+				NodeArgument("d","float", "0.0"),
+				NodeArgument("m","vec4", "vec4(0)")
 			),
 			Nil
 		)
@@ -87,7 +88,7 @@ object GameEngine extends Module {
 
 		NodeCategory("Noise",
 			Seq(
-				NodeType("Noise with Summed Inputs",
+				NodeType("3D Perlin Noise",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("v","Vec3"),
@@ -99,11 +100,11 @@ object GameEngine extends Module {
 						),
 						"glsl" -> Seq(
 							NodeArgument("v","vec3"),
-							NodeArgument("x","double"),
-							NodeArgument("y","double"),
-							NodeArgument("z","double"),
-							NodeArgument("add","double"),
-							NodeArgument("sub","double")
+							NodeArgument("x","float"),
+							NodeArgument("y","float"),
+							NodeArgument("z","float"),
+							NodeArgument("add","float"),
+							NodeArgument("sub","float")
 						)
 					),
 					Seq(
@@ -117,7 +118,7 @@ object GameEngine extends Module {
 							"""(noise3((v + Vec3(x,y,z))*size)+offset)*scale/size + add - sub""")
 						),
 						"glsl" -> Map(
-							"o" -> NodeFunction("summedinputnoise3", "double",
+							"o" -> NodeFunction("summedinputnoise3", "float",
 							"""return (noise3((v + vec3(x,y,z))*size)+offset)*scale/size + add - sub;""")
 						)
 					)
@@ -127,7 +128,7 @@ object GameEngine extends Module {
 
 		NodeCategory("Sources",
 			Seq(
-				NodeType("Scalable World",
+				NodeType("World coordinates",
 					LanguageMap(
 						"scala" -> Nil,
 						"glsl" -> Nil
@@ -143,30 +144,69 @@ object GameEngine extends Module {
 							"z" -> NodeFunction("scalesrcz", "Double", "world.z * scale")
 						),
 						"glsl" -> Map(	
-							"v" -> NodeFunction("scalesrcv", "vec3",   "return vec3(world) * scale;"),
-							"x" -> NodeFunction("scalesrcx", "double", "return world.x * scale;"),
-							"y" -> NodeFunction("scalesrcy", "double", "return world.y * scale;"),
-							"z" -> NodeFunction("scalesrcz", "double", "return world.z * scale;")
+							"v" -> NodeFunction("scalesrcv", "vec3",   "return world.xyz * scale;"),
+							"x" -> NodeFunction("scalesrcx", "float", "return world.x * scale;"),
+							"y" -> NodeFunction("scalesrcy", "float", "return world.y * scale;"),
+							"z" -> NodeFunction("scalesrcz", "float", "return world.z * scale;")
 						)
 					)
 				)
 			)
 		),
-
+		// King Arthurs Gold
+	/*	FunctionNodeType("Material", "Earth", Nil, Nil, Function("matearth", "Material(0x5a3910)", "Material")),
+		FunctionNodeType("Material", "Cave",  Nil, Nil, Function("matcave",  "Material(0x10000)", "Material")),
+		FunctionNodeType("Material", "Gravel",Nil, Nil, Function("matgravel","Material(0x282828)", "Material")),
+		FunctionNodeType("Material", "Stone", Nil, Nil, Function("matstone", "Material(0x373737)", "Material")),
+		FunctionNodeType("Material", "Gold",  Nil, Nil, Function("matgold",  "Material(0xfab614)", "Material")),
+		FunctionNodeType("Material", "Solid", Nil, Nil, Function("matsolid", "Material(0x1e321e)", "Material")),
+		FunctionNodeType("Material", "Wood", Nil, Nil, Function("matwood",  "Material(0x097b11)", "Material"))*/
 		NodeCategory("Materials",
 			Seq(
 				NodeType("Gold",
+					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
+					LanguageMap("scala" -> Map( "m" -> NodeFunction("matgold", "Material", "Material(0xfab614);") ),
+						"glsl" -> Map("m" -> NodeFunction("matgold", "vec4", "return vec4(0.98, 0.71, 0.08, 0.0);")	)
+					)
+				),
+				NodeType("Stone",
+					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
+					LanguageMap("scala" -> Map( "m" -> NodeFunction("matstone", "Material", "Material(0x8e8e8e);") ),
+						"glsl" -> Map("m" -> NodeFunction("matstone", "vec4", "return vec4(0.56, 0.56, 0.56, 0.0);")	)
+					)
+				),
+				NodeType("Gravel",
+					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
+					LanguageMap("scala" -> Map( "m" -> NodeFunction("matgravel", "Material", "Material(0x4f4f4f);") ),
+						"glsl" -> Map("m" -> NodeFunction("matgravel", "vec4", "return vec4(0.31, 0.31, 0.31, 0.0);")	)
+					)
+				),
+				NodeType("Earth",
+					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
+					LanguageMap("scala" -> Map( "m" -> NodeFunction("matearth", "Material", "Material(0x5a3910);") ),
+						"glsl" -> Map("m" -> NodeFunction("matearth", "vec4", "return vec4(0.35, 0.22, 0.06, 0.0);")	)
+					)
+				),
+				NodeType("Mix Materials",
 					LanguageMap(
-						"scala" -> Nil,
-						"glsl" -> Nil
+						"scala" -> Seq(
+							NodeArgument("m1","Material"),
+							NodeArgument("t","Double"),
+							NodeArgument("m2","Material")
+						),
+						"glsl" -> Seq(
+							NodeArgument("m1","vec4"),
+							NodeArgument("t","float"),
+							NodeArgument("m2","vec4")
+						)
 					),
 					Nil,
 					LanguageMap(
-						"scala" -> Map(	
-							"m" -> NodeFunction("matgold", "Material", "return Material(0xfab614);")
+						"scala" -> Map(
+							"m" -> NodeFunction("matthreshold", "Material", "if(t >= 0) m1 else m2;")
 						),
-						"glsl" -> Map(	
-							"m" -> NodeFunction("matgold", "Material", "return Material(0xfab614);")
+						"glsl" -> Map(
+							"m" -> NodeFunction("matthreshold", "vec4", "return t >= 0 ? m1 : m2;")
 						)
 					)
 				)
@@ -367,7 +407,6 @@ object GameEngine extends Module {
 				while( nexttrees.nonEmpty ) {
 					val currenttree = nexttrees.dequeue
 					import currenttree._
-					println(function)
 					functioncalls +:= "%s %s = %s(%s);".format(
 						function("glsl").returntype,
 						varname,
@@ -388,16 +427,96 @@ object GameEngine extends Module {
 		
 				// Final Value
 				val returnvalue = calltree.varname
-		
-"""varying vec4 world;
 
-%s
+"""#version 120
+#extension GL_EXT_gpu_shader4 : enable
+//#extension GL_ARB_gpu_shader_fp64 : enable
 
-void main() {
-%s
+varying vec3 vertex;
+varying vec3 normal;
+varying vec4 world;
 
-gl_FragColor = %s;
+/*
+possible vertex shader:
+#version 120
+
+varying vec3 vertex;
+varying vec3 normal;
+varying vec4 world;
+
+void main () {
+    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+
+	vertex = vec3(gl_ModelViewMatrix * gl_Vertex);       
+	normal = normalize(gl_NormalMatrix * gl_Normal);
+    world  = gl_Vertex;
 }
+*/
+
+int seed = 0;
+int a = (seed ^ int(0xB5C18E6A)) | ((1 << 16) + 1);
+int c = seed ^ int(0xF292D0B2);
+int hash(int x){ return (a*(x ^ c)) >> 16; }
+
+int fastfloor(float x) { return int( x > 0 ? x : x-1); }
+float fade(float t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+float lerp(float t, float a, float b) { return a + t * (b - a); }
+
+float grad(int hash, float x, float y, float z) {
+      int h = hash & 0xF;
+      float u = h<8 ? x : y,
+             v = h<4 ? y : h==12||h==14 ? x : z;
+      return ((h&1) == 0 ? u : -u) + ((h&2) == 0 ? v : -v);
+}
+
+float noise3(float x, float y, float z) {
+	int X = fastfloor(x);
+	int Y = fastfloor(y);
+	int Z = fastfloor(z);
+
+	float relx = x - float(X);
+	float rely = y - float(Y);
+	float relz = z - float(Z);
+
+	float u = fade(relx);
+	float v = fade(rely);
+	float w = fade(relz);
+	
+	int A = hash(X  )+Y; int AA = hash(A)+Z; int AB = hash(A+1)+Z;
+	int	B = hash(X+1)+Y; int BA = hash(B)+Z; int BB = hash(B+1)+Z;
+
+	return lerp(w,	lerp(v,	lerp(u, grad(hash(AA  ), relx  , rely  , relz	),
+									grad(hash(BA  ), relx-1, rely  , relz	)),
+							lerp(u, grad(hash(AB  ), relx  , rely-1, relz	),
+									grad(hash(BB  ), relx-1, rely-1, relz	))),
+					lerp(v, lerp(u, grad(hash(AA+1), relx  , rely  , relz-1 ),
+									grad(hash(BA+1), relx-1, rely  , relz-1 )),
+							lerp(u, grad(hash(AB+1), relx  , rely-1, relz-1 ),
+									grad(hash(BB+1), relx-1, rely-1, relz-1 ))));
+}
+
+float noise3(vec3 v) {return noise3(v.x, v.y, v.z);}
+
+/////////////////////////////////////////////////////
+
+%s
+
+
+
+void main(){
+
+%s
+
+
+	vec4 materialcolor = %s;
+	
+	vec3 L = normalize(gl_LightSource[0].position.xyz - vertex);   
+	vec4 Idiff = clamp(gl_FrontLightProduct[0].diffuse * max(dot(normal,L), 0.0), 0.0, 1.0);  
+
+	gl_FragColor = materialcolor * Idiff;
+}
+
+
 """.format(
 					functioncode, functioncallcode, returnvalue
 				)
