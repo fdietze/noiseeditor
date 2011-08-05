@@ -26,6 +26,7 @@ import simplex3d.math.double.functions._
 object NoiseEditor extends SimpleSwingApplication {
 	UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName())
 	
+	//TODO: reorganize resets
 	def reset {
 		//TODO: BUG: repaint does not work
 		top.menuBar = rebuildmenu
@@ -79,7 +80,6 @@ object NoiseEditor extends SimpleSwingApplication {
 	def rebuildmenu = new MenuBar {
 		contents += new Menu("File"){
 
-			//TODO: BUG: noise3 wird nicht mehr gefunden
 			contents += new MenuItem("New") {
 				mnemonic = Key.O
 				action = new Action("New") {

@@ -204,12 +204,12 @@ object GameEngine extends Module {
 				NodeType("Product2",
 					LanguageMap(
 						"scala" -> Seq(
-							NodeArgument("a","Double"),
-							NodeArgument("b","Double")
+							NodeArgument("a","Double", "1.0"),
+							NodeArgument("b","Double", "1.0")
 						),
 						"glsl" -> Seq(
-							NodeArgument("a","float"),
-							NodeArgument("b","float")
+							NodeArgument("a","float", "1.0"),
+							NodeArgument("b","float", "1.0")
 						)
 					),
 					Nil,
@@ -227,14 +227,14 @@ object GameEngine extends Module {
 				NodeType("Product3",
 					LanguageMap(
 						"scala" -> Seq(
-							NodeArgument("a","Double"),
-							NodeArgument("b","Double"),
-							NodeArgument("c","Double")
+							NodeArgument("a","Double", "1.0"),
+							NodeArgument("b","Double", "1.0"),
+							NodeArgument("c","Double", "1.0")
 						),
 						"glsl" -> Seq(
-							NodeArgument("a","float"),
-							NodeArgument("b","float"),
-							NodeArgument("c","float")
+							NodeArgument("a","float", "1.0"),
+							NodeArgument("b","float", "1.0"),
+							NodeArgument("c","float", "1.0")
 						)
 					),
 					Nil,
@@ -288,6 +288,52 @@ object GameEngine extends Module {
 						"glsl" -> Map(
 							"o" -> NodeFunction("constantexp", "float",
 							"""return value;""")
+						)
+					)
+				),
+				NodeType("Add Exp Constant",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float")
+						)
+					),
+					Seq(
+						NodeSlider("value", "pow(256,((s-0.5)*2))")
+					),
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("addconstantexp", "Double",
+							"""a+value""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("addconstantexp", "float",
+							"""return a+value;""")
+						)
+					)
+				),
+				NodeType("Multiply Exp Constant",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float")
+						)
+					),
+					Seq(
+						NodeSlider("value", "pow(256,((s-0.5)*2))")
+					),
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("multiplyconstantexp", "Double",
+							"""a*value""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("multiplyconstantexp", "float",
+							"""return a*value;""")
 						)
 					)
 				)

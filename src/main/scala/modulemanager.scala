@@ -3,7 +3,6 @@ package noiseeditor
 import utilities._
 import datastructures._
 
-//TODO: Compile check of all Nodes
 //TODO: png export
 
 trait Module {
@@ -27,14 +26,20 @@ object ModuleManager{
 	assert(available.size >= 1)
 	var currentmodule:Module = available(0)
 	
+	def reset {
+		NoiseEditor.reset
+		InterpreterManager.reset
+		InterpreterManager(scalainitcode)
+	}
+	
 	def load(moduletitle:String):Boolean = {
-		import actors.Futures.future
 		if( FileManager.unsavedQuestion ) {
 			println("ModuleManager: Loading Module " + moduletitle)
 			available.find(_.title == moduletitle) match {
 				case Some(module) =>
 					currentmodule = module
 					NoiseEditor.reset
+					InterpreterManager.reset
 					InterpreterManager(scalainitcode)
 					true
 				case None =>

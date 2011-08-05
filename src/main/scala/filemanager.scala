@@ -40,7 +40,7 @@ object FileManager extends Publisher {
 	
 	def newSession {
 		if( unsavedQuestion ) {
-			NoiseEditor.reset
+			ModuleManager.reset
 			currentFile = None
 			setFileunchanged
 		}
