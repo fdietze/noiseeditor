@@ -12,13 +12,15 @@ import noiseeditor.{ModuleManager, Module}
 
 object GameEngine extends Module {
 	
-	val languages = Seq("scala", "glsl")
+	val languages = Seq("scala", "glsl", "prediction")
 
 	val scalainitcode = """
 		import simplex3d.math._
 		import simplex3d.math.double._
 		import simplex3d.math.double.functions._
 		import noise.Noise.noise3
+		import noise.Noise.noise3_prediction
+		import noise.intervals._
 	"""
 	val typedefaults = LanguageMap(
 		"scala" -> 	Map(
@@ -36,12 +38,16 @@ object GameEngine extends Module {
 			"vec3" -> "vec3(0)",
 			"vec4" -> "vec4(0)",
 			"Material" -> "Material(0x000000)"
+		),
+		"prediction" -> 	Map(
+			"Interval" -> "Interval()"
 		)
 	)
 	
 	val sliderdatatypes = LanguageMap(
-		"scala" -> "Double",
-		"glsl" -> "float"
+		"scala"      -> "Double",
+		"glsl"       -> "float",
+		"prediction" -> "Double"
 	)
 
 	val resultfunctions = LanguageMap(
@@ -58,11 +64,18 @@ object GameEngine extends Module {
 				NodeArgument("m","vec4", "vec4(0)")
 			),
 			Nil
+		),
+		"prediction" -> NodeFunctionFull("result", "Interval", "return d;",
+			Seq(
+				NodeArgument("d","Interval", "Interval()"),
+				NodeArgument("m","Material", "Material(0x000000)")
+			),
+			Nil
 		)
 	)
 	
 
-	lazy val nodeCategories:Seq[NodeCategory] = Seq(
+	lazy val nodecategories:Seq[NodeCategory] = Seq(
 
 		NodeCategory("Noise",
 			Seq(
@@ -83,6 +96,14 @@ object GameEngine extends Module {
 							NodeArgument("z","float"),
 							NodeArgument("add","float"),
 							NodeArgument("sub","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume"),
+							NodeArgument("x","Interval"),
+							NodeArgument("y","Interval"),
+							NodeArgument("z","Interval"),
+							NodeArgument("add","Interval"),
+							NodeArgument("sub","Interval")
 						)
 					),
 					Seq(
@@ -99,6 +120,10 @@ object GameEngine extends Module {
 						"glsl" -> Map(
 							"o" -> NodeFunction("summedinputnoise3", "float",
 							"""return (noise3((v + vec3(x,y,z))*size)+offset)*scale/size + add - sub;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("summedinputnoise3", "Interval",
+							"""(noise3_prediction((v + Volume(x,y,z))*size)+offset)*scale/size + add - sub""")
 						)
 					)
 				)
@@ -116,6 +141,10 @@ object GameEngine extends Module {
 						"glsl" -> Seq(
 							NodeArgument("a","float"),
 							NodeArgument("b","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval"),
+							NodeArgument("b","Interval")
 						)
 					),
 					Nil,
@@ -127,6 +156,10 @@ object GameEngine extends Module {
 						"glsl" -> Map(
 							"o" -> NodeFunction("min2", "float",
 							"""return min(a,b);""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("min2", "Interval",
+							"""intervalmin(a,b)""")
 						)
 					)
 				),
@@ -139,6 +172,10 @@ object GameEngine extends Module {
 						"glsl" -> Seq(
 							NodeArgument("a","float"),
 							NodeArgument("b","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval"),
+							NodeArgument("b","Interval")
 						)
 					),
 					Nil,
@@ -150,6 +187,10 @@ object GameEngine extends Module {
 						"glsl" -> Map(
 							"o" -> NodeFunction("max2", "float",
 							"""return max(a,b);""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("max2", "Interval",
+							"""intervalmax(a,b)""")
 						)
 					)
 				),
@@ -162,6 +203,10 @@ object GameEngine extends Module {
 						"glsl" -> Seq(
 							NodeArgument("a","float"),
 							NodeArgument("b","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval"),
+							NodeArgument("b","Interval")
 						)
 					),
 					Nil,
@@ -301,7 +346,7 @@ object GameEngine extends Module {
 						)
 					),
 					Seq(
-						NodeSlider("value", "pow(256,((s-0.5)*2))")
+						NodeSlider("value", "pow(256,((s-0.5)*2))",0)
 					),
 					LanguageMap(
 						"scala" -> Map(
@@ -334,6 +379,54 @@ object GameEngine extends Module {
 						"glsl" -> Map(
 							"o" -> NodeFunction("multiplyconstantexp", "float",
 							"""return a*value;""")
+						)
+					)
+				),
+				NodeType("Sphere",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec3")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v","vec3")
+						)
+					),
+					Seq(
+						NodeSlider("radius", "pow(256,((s-0.5)*2))")
+					),
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("sphere", "Double",
+							"""radius-sqrt(dot(v,v))""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("sphere", "float",
+							"""return radius-sqrt(dot(v,v));""")
+						)
+					)
+				),
+				NodeType("Vec3",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("x","Double"),
+							NodeArgument("y","Double"),
+							NodeArgument("z","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("x","float"),
+							NodeArgument("y","float"),
+							NodeArgument("z","float")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"v" -> NodeFunction("createvec3", "Vec3",
+							"""Vec3(x,y,z)""")
+						),
+						"glsl" -> Map(
+							"v" -> NodeFunction("createvec3", "vec3",
+							"""return vec3(x,y,z);""")
 						)
 					)
 				)

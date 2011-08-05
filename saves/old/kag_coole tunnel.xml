@@ -1,0 +1,85 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<document>
+			<nodes><node type="predefined" title="Feature Noise" id="2">
+						<pos x="120" y="265"></pos>
+						
+						<sliders>
+							<slider name="size" formula="s" value="69"></slider><slider name="outscale" formula="s" value="49"></slider><slider name="outoffset" formula="s" value="49"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="v:Seq[Vec3]=Seq(Vec3(0))"></intype><intype type="x:Seq[Float]=Nil"></intype><intype type="y:Seq[Float]=Nil"></intype><intype type="z:Seq[Float]=Nil"></intype><intype type="plus:Seq[Float]=Nil"></intype><intype type="minus:Seq[Float]=Nil"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="fnoise_t1311698407" outname=" " outtype="Float">
+          val invexpsize = pow(256,((0.5f-size)*2f))
+		val expoutscale = pow(256,((outscale-0.5f)*2f))
+		val linearoutoffset = (outoffset-0.5f)*2f
+		val sumv = v.reduce( (x,y) =&gt; x+y ) + Vec3(x.sum,y.sum,z.sum);
+		(noise1(sumv*invexpsize)+linearoutoffset)*expoutscale + plus.sum - minus.sum
+        </function>
+						</functions>
+					</node><node type="predefined" title="Feature Noise" id="4">
+						<pos x="118" y="77"></pos>
+						
+						<sliders>
+							<slider name="size" formula="s" value="71"></slider><slider name="outscale" formula="s" value="70"></slider><slider name="outoffset" formula="s" value="51"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="v:Seq[Vec3]=Seq(Vec3(0))"></intype><intype type="x:Seq[Float]=Nil"></intype><intype type="y:Seq[Float]=Nil"></intype><intype type="z:Seq[Float]=Nil"></intype><intype type="plus:Seq[Float]=Nil"></intype><intype type="minus:Seq[Float]=Nil"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="fnoise_t1311698407" outname=" " outtype="Float">
+          val invexpsize = pow(256,((0.5f-size)*2f))
+		val expoutscale = pow(256,((outscale-0.5f)*2f))
+		val linearoutoffset = (outoffset-0.5f)*2f
+		val sumv = v.reduce( (x,y) =&gt; x+y ) + Vec3(x.sum,y.sum,z.sum);
+		(noise1(sumv*invexpsize)+linearoutoffset)*expoutscale + plus.sum - minus.sum
+        </function>
+						</functions>
+					</node><node type="predefined" title="Source" id="3">
+						<pos x="40" y="78"></pos>
+						
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							
+						</intypes>
+		
+						<functions>
+							<function name="sourcev_t1311698407" outname=" " outtype="Vec3">source</function><function name="sourcex_t1311698407" outname=" " outtype="Float">source.x</function><function name="sourcey_t1311698407" outname=" " outtype="Float">source.y</function><function name="sourcez_t1311698407" outname=" " outtype="Float">source.z</function>
+						</functions>
+					</node><node type="preview" title="Preview" id="1">
+						<pos x="383" y="57"></pos>
+						<size width="507" height="328"></size><image offsety="129.6482" offsetx="416.42133" zoom="0.21435893"></image><view selected="iso"></view><perspective selected="sideview"></perspective><zslider value="70.89998"></zslider>
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							<intype type="d:Float"></intype><intype type="m:Material"></intype>
+						</intypes>
+		
+						<functions>
+							
+						</functions>
+					</node></nodes>
+			<connections><connection>
+						<in nodeid="4" connector="0"></in>
+						<out nodeid="3" connector="0"></out>
+					</connection><connection>
+						<in nodeid="1" connector="0"></in>
+						<out nodeid="2" connector="0"></out>
+					</connection><connection>
+						<in nodeid="2" connector="2"></in>
+						<out nodeid="4" connector="0"></out>
+					</connection><connection>
+						<in nodeid="2" connector="2"></in>
+						<out nodeid="3" connector="2"></out>
+					</connection></connections>
+		</document>

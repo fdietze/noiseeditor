@@ -37,7 +37,9 @@ object NodeType {
 		
 		// add default values to arguments depending on language
 		val newarguments = arguments.map{ case (language,args) => (language -> args.map{
-			case NodeArgument(name,datatype,"") => NodeArgument(name,datatype,ModuleManager.typedefaults(language)(datatype)) }) }
+			case NodeArgument(name,datatype,"") => NodeArgument(name,datatype,ModuleManager.typedefaults(language)(datatype))
+			case argument => argument
+		}) }
 		
 		new NodeType(title,
 		newarguments,

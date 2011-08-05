@@ -1,0 +1,128 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<document>
+			<nodes><node type="predefined" title="Feature Noise" id="4">
+						<pos x="171" y="153"></pos>
+						
+						<sliders>
+							<slider name="size" value="27"></slider><slider name="scale" value="51"></slider><slider name="offset" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="v:Seq[Vec3]=Seq(Vec3(0))"></intype><intype type="x:Seq[Float]=Nil"></intype><intype type="y:Seq[Float]=Nil"></intype><intype type="z:Seq[Float]=Nil"></intype><intype type="add:Seq[Float]=Nil"></intype><intype type="sub:Seq[Float]=Nil"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="fnoise_1308827412" outname=" " outtype="Float">
+			val invexpsize = pow(256,((0.5f-size)*2f))
+			val expoutscale = pow(256,((scale-0.5f)*2f))/invexpsize
+			val linearoutoffset = (offset-0.5f)*2f
+			val sumv = v.reduce( (x,y) =&gt; x+y ) + Vec3(x.sum,y.sum,z.sum);
+			(noise1(sumv*invexpsize)+linearoutoffset)*expoutscale + add.sum - sub.sum
+			</function>
+						</functions>
+					</node><node type="predefined" title="Feature Noise" id="5">
+						<pos x="172" y="344"></pos>
+						
+						<sliders>
+							<slider name="size" value="81"></slider><slider name="scale" value="53"></slider><slider name="offset" value="65"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="v:Seq[Vec3]=Seq(Vec3(0))"></intype><intype type="x:Seq[Float]=Nil"></intype><intype type="y:Seq[Float]=Nil"></intype><intype type="z:Seq[Float]=Nil"></intype><intype type="add:Seq[Float]=Nil"></intype><intype type="sub:Seq[Float]=Nil"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="fnoise_1308827412" outname=" " outtype="Float">
+			val invexpsize = pow(256,((0.5f-size)*2f))
+			val expoutscale = pow(256,((scale-0.5f)*2f))/invexpsize
+			val linearoutoffset = (offset-0.5f)*2f
+			val sumv = v.reduce( (x,y) =&gt; x+y ) + Vec3(x.sum,y.sum,z.sum);
+			(noise1(sumv*invexpsize)+linearoutoffset)*expoutscale + add.sum - sub.sum
+			</function>
+						</functions>
+					</node><node type="predefined" title="Feature Noise" id="3">
+						<pos x="489" y="8"></pos>
+						
+						<sliders>
+							<slider name="size" value="63"></slider><slider name="scale" value="50"></slider><slider name="offset" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="v:Seq[Vec3]=Seq(Vec3(0))"></intype><intype type="x:Seq[Float]=Nil"></intype><intype type="y:Seq[Float]=Nil"></intype><intype type="z:Seq[Float]=Nil"></intype><intype type="add:Seq[Float]=Nil"></intype><intype type="sub:Seq[Float]=Nil"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="fnoise_1308700798_1308827412" outname=" " outtype="Float">
+			val invexpsize = pow(256,((0.5f-size)*2f))
+			val expoutscale = pow(256,((scale-0.5f)*2f))/invexpsize
+			val linearoutoffset = (offset-0.5f)*2f
+			val sumv = v.reduce( (x,y) =&gt; x+y ) + Vec3(x.sum,y.sum,z.sum);
+			(noise1(sumv*invexpsize)+linearoutoffset)*expoutscale + add.sum - sub.sum
+			</function>
+						</functions>
+					</node><node type="predefined" title="Product" id="6">
+						<pos x="385" y="224"></pos>
+						
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							<intype type="xs:Seq[Float]=Nil"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="product_1308827412" outname=" " outtype="Float">xs.product</function>
+						</functions>
+					</node><node type="predefined" title="Feature Source" id="1">
+						<pos x="3" y="237"></pos>
+						
+						<sliders>
+							<slider name="scale" value="60"></slider><slider name="x" value="47"></slider><slider name="y" value="45"></slider><slider name="z" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							
+						</intypes>
+		
+						<functions>
+							<function name="srcv1308700001_1308700798_1308827412" outname="v" outtype="Vec3">(source + (Vec3(x,y,z)-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="srcx1308700001_1308700798_1308827412" outname="x" outtype="Float">(source.x + (x-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="srcy1308700001_1308700798_1308827412" outname="y" outtype="Float">(source.y + (y-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="srcz1308700001_1308700798_1308827412" outname="z" outtype="Float">(source.z + (z-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function>
+						</functions>
+					</node><node type="preview" title="Preview" id="2">
+						<pos x="485" y="207"></pos>
+						<size width="282" height="318"></size><image offsety="-45.65575" offsetx="-9.998126" zoom="0.28531173"></image><depth checked="false"></depth><zslider value="50"></zslider>
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							<intype type="d:Float"></intype><intype type="m:Material"></intype>
+						</intypes>
+		
+						<functions>
+							
+						</functions>
+					</node></nodes>
+			<connections><connection>
+						<in nodeid="3" connector="0"></in>
+						<out nodeid="1" connector="0"></out>
+					</connection><connection>
+						<in nodeid="6" connector="0"></in>
+						<out nodeid="4" connector="0"></out>
+					</connection><connection>
+						<in nodeid="4" connector="0"></in>
+						<out nodeid="1" connector="0"></out>
+					</connection><connection>
+						<in nodeid="5" connector="0"></in>
+						<out nodeid="1" connector="0"></out>
+					</connection><connection>
+						<in nodeid="6" connector="0"></in>
+						<out nodeid="5" connector="0"></out>
+					</connection><connection>
+						<in nodeid="3" connector="4"></in>
+						<out nodeid="6" connector="0"></out>
+					</connection><connection>
+						<in nodeid="2" connector="0"></in>
+						<out nodeid="3" connector="0"></out>
+					</connection></connections>
+		</document>

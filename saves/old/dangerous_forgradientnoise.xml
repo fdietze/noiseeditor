@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<document>
+			<nodes><node type="predefined" title="Feature Noise" id="4">
+						<pos x="152" y="267"></pos>
+						
+						<sliders>
+							<slider name="size" value="73"></slider><slider name="outscale" value="87"></slider><slider name="outoffset" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="v:Seq[Vec3]=Seq(Vec3(0))"></intype><intype type="x:Seq[Float]=Nil"></intype><intype type="y:Seq[Float]=Nil"></intype><intype type="z:Seq[Float]=Nil"></intype><intype type="plus:Seq[Float]=Nil"></intype><intype type="minus:Seq[Float]=Nil"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="fnoise_1308761766_1308765501" outname=" " outtype="Float">
+		val invexpsize = pow(256,((0.5f-size)*2f))
+		val expoutscale = pow(256,((outscale-0.5f)*2f))
+		val linearoutoffset = (outoffset-0.5f)*2f
+		val sumv = v.reduce( (x,y) =&gt; x+y ) + Vec3(x.sum,y.sum,z.sum);
+		(noise1(sumv*invexpsize)+linearoutoffset)*expoutscale + plus.sum - minus.sum
+		</function>
+						</functions>
+					</node><node type="preview" title="Preview" id="1">
+						<pos x="531" y="92"></pos>
+						<size width="603" height="382"></size><image offsety="0.0" offsetx="0.0" zoom="0.1"></image><depth checked="false"></depth><zslider value="50"></zslider>
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							<intype type="d:Float"></intype><intype type="m:Material"></intype>
+						</intypes>
+		
+						<functions>
+							
+						</functions>
+					</node><node type="predefined" title="Feature Source" id="5">
+						<pos x="41" y="95"></pos>
+						
+						<sliders>
+							<slider name="scale" value="59"></slider><slider name="x" value="50"></slider><slider name="y" value="33"></slider><slider name="z" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							
+						</intypes>
+		
+						<functions>
+							<function name="fsrcv_1308765501" outname="v" outtype="Vec3">(source + (Vec3(x,y,z)-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="fsrcx_1308765501" outname="x" outtype="Float">(source.x + (x-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="fsrcy_1308765501" outname="y" outtype="Float">(source.y + (y-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="fsrcz_1308765501" outname="z" outtype="Float">(source.z + (z-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function>
+						</functions>
+					</node><node type="predefined" title="Feature Noise" id="3">
+						<pos x="260" y="55"></pos>
+						
+						<sliders>
+							<slider name="size" value="77"></slider><slider name="outscale" value="77"></slider><slider name="outoffset" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="v:Seq[Vec3]=Seq(Vec3(0))"></intype><intype type="x:Seq[Float]=Nil"></intype><intype type="y:Seq[Float]=Nil"></intype><intype type="z:Seq[Float]=Nil"></intype><intype type="plus:Seq[Float]=Nil"></intype><intype type="minus:Seq[Float]=Nil"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="fnoise_1308761766_1308765501" outname=" " outtype="Float">
+		val invexpsize = pow(256,((0.5f-size)*2f))
+		val expoutscale = pow(256,((outscale-0.5f)*2f))
+		val linearoutoffset = (outoffset-0.5f)*2f
+		val sumv = v.reduce( (x,y) =&gt; x+y ) + Vec3(x.sum,y.sum,z.sum);
+		(noise1(sumv*invexpsize)+linearoutoffset)*expoutscale + plus.sum - minus.sum
+		</function>
+						</functions>
+					</node></nodes>
+			<connections><connection>
+						<in nodeid="4" connector="0"></in>
+						<out nodeid="5" connector="0"></out>
+					</connection><connection>
+						<in nodeid="3" connector="4"></in>
+						<out nodeid="5" connector="2"></out>
+					</connection><connection>
+						<in nodeid="1" connector="0"></in>
+						<out nodeid="3" connector="0"></out>
+					</connection><connection>
+						<in nodeid="3" connector="2"></in>
+						<out nodeid="4" connector="0"></out>
+					</connection><connection>
+						<in nodeid="3" connector="0"></in>
+						<out nodeid="5" connector="0"></out>
+					</connection></connections>
+		</document>

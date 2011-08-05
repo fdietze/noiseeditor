@@ -161,8 +161,7 @@ object FileManager extends Publisher {
 		val document = XML.loadFile(file)
 		
 		val modulename = (document \ "module" \ "@name").text
-		if( !ModuleManager.load(modulename) )
-			return
+		ModuleManager.load(modulename)
 
 		val ids = (document \ "nodes" \ "node") map ( n => (n \ "@id").text.toInt)
 		val newid = Node.getIdMapping(ids)

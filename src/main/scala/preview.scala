@@ -324,7 +324,9 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		reactions += {
 			case e:ButtonClicked =>
 				print("exporting to engine...")
-				var path = "/data1/home2/dietze/Desktop/gameengine"
+				var path = "../gameengine" //"/data1/home2/dietze/Desktop/gameengine"
+				Runtime.getRuntime.exec("rm " + path + "/worldoctree")
+
 				val composition = CodeGenerator.composition(outconnectors(0))
 				var out = new java.io.FileWriter(path + "/src/main/scala/worldfunction.scala")
 				out.write(ModuleManager.export(composition, "scala"))
@@ -334,7 +336,6 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 				out.write(ModuleManager.export(composition, "glsl"))
 				out.close
 				
-				Runtime.getRuntime.exec("rm " + path + "/worldoctree")
 				println("done")
 		}
 	}
