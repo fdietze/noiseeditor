@@ -37,15 +37,15 @@ object ModuleManager{
 			println("ModuleManager: Loading Module " + moduletitle)
 			available.find(_.title == moduletitle) match {
 				case Some(module) =>
-					if( check(module) ) {
+					//if( check(module) ) {
 						currentmodule = module
 						NoiseEditor.reset
 						InterpreterManager.reset
 						InterpreterManager(scalainitcode)
-					}
+/*					}
 					else {
 						throw new Exception("Error in Module definitions.")
-					}
+					}*/
 				case None =>
 					throw new Exception("Module " + moduletitle + " does not exist.")
 			}
@@ -71,6 +71,8 @@ object ModuleManager{
 					def warning(msg:String) { println(prefix + msg) }
 
 					if( !arguments.isDefinedAt(language) ) error("Arguments not defined for every language")
+						// TODO: no default values for types
+						// Warning Different function names
 				}
 			}
 		}

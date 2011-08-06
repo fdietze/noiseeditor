@@ -17,7 +17,7 @@ import simplex3d.math.double.functions._
 
 
 object FileManager extends Publisher {
-	println("Starting SaveManager")
+	println("Starting FileManager")
 	
 	// TODO: reset selected filename in FileChooser
 	

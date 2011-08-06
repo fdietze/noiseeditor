@@ -18,7 +18,9 @@ object Noise {
 	val a = (seed ^ 0xB5C18E6A) | ((1 << 16) + 1)
 	val c = seed ^ 0xF292D0B2
 	def hash(x: Int) :Int = (a*(x ^ c)) >>> 16*/
-	def hash(k:Int) = ((k*0x12345678) >> (k*0x87754351)) & 0x7FFFFFFF
+	//def hash(k:Int) = ((k*0x12345678) >> (k*0x87754351)) & 0x7FFFFFFF
+	def hash(k:Int) = mod(((k*34)+1)*k, 289).toInt
+	
 
 
 	// Split Bezier Curves

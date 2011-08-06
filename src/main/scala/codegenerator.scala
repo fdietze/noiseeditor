@@ -32,7 +32,7 @@ object CodeGenerator {
 						case None => Left(argument.mapValues(_.default))
 					}
 			}
-			for( (language,function) <- out.function ) {
+			for( (language,function) <- out.function if ModuleManager.languages.contains(language) ) {
 				functions(language) += function
 			}
 			return CompositionTree(out.function, out.node.id, out.node.sliders, arguments)

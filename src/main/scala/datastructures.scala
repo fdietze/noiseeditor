@@ -6,7 +6,9 @@ package object datastructures {
 
 
 type LanguageMap[T] = Map[String,T]
-object LanguageMap{ def apply[T]( args:Tuple2[String,T]* ):LanguageMap[T] = Map(args:_*) }
+object LanguageMap {
+	def apply[T]( args:Tuple2[String,T]* ):LanguageMap[T] = Map(args:_*)
+}
 
 implicit def transposeonmapseq[K,V](m:Map[K,Traversable[V]]) = new { def mapseqtranspose = m.values.transpose.map( values => (m.keys zip values).toMap )}
 implicit def transposeonmapmap[K1,K2,V](m:Map[K1,Map[K2,V]]) = new { def mapmaptranspose = (m.values.head.keys zip m.values.map(_.values).transpose.map( x => (m.keys zip x).toMap)).toMap}

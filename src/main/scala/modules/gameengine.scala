@@ -12,7 +12,7 @@ import noiseeditor.{ModuleManager, Module}
 
 object GameEngine extends Module {
 	
-	val languages = Seq("scala", "glsl", "prediction")
+	val languages = Seq("scala", "glsl")//, "prediction")
 
 	val scalainitcode = """
 		import simplex3d.math._
@@ -40,7 +40,8 @@ object GameEngine extends Module {
 			"Material" -> "Material(0x000000)"
 		),
 		"prediction" -> 	Map(
-			"Interval" -> "Interval()"
+			"Interval" -> "Interval()",
+			"Volume" -> "Volume()"
 		)
 	)
 	
@@ -218,6 +219,10 @@ object GameEngine extends Module {
 						"glsl" -> Map(
 							"o" -> NodeFunction("sum2", "float",
 							"""return a+b;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("sum2", "Interval",
+							"""a+b""")
 						)
 					)
 				),
@@ -756,7 +761,7 @@ def proceduralworld(world:Vec3) = {
 				val returnvalue = calltree.varname
 
 """#version 120
-#extension GL_EXT_gpu_shader4 : enable
+//#extension GL_EXT_gpu_shader4 : enable
 //#extension GL_ARB_gpu_shader_fp64 : enable
 
 varying vec3 vertex;
@@ -783,20 +788,26 @@ void main () {
 /*int seed = 0;
 int a = (seed ^ int(0xB5C18E6A)) | ((1 << 16) + 1);
 int c = seed ^ int(0xF292D0B2);
-int hash(int x){ return (a*(x ^ c)) >> 16; }*/
+int hash(int x){ return (a*(x ^ c)) >> 16; }
+int hash(int k) { return ((k*int(0x12345678)) >> (k*int(0x87754351))) & 0x7FFFFFFF; }*/
+int hash(int k) { return int(mod(((k*34)+1)*k, 289)); }
 
-int hash(int k) { return ((k*int(0x12345678)) >> (k*int(0x87754351))) & 0x7FFFFFFF; }
-
-int fastfloor(float x) { return int( x > 0 ? x : x-1); }
-float fade(float t) { return t * t * t * (t * (t * 6 - 15) + 10); }
-float lerp(float t, float a, float b) { return a + t * (b - a); }
-
-float grad(int hash, float x, float y, float z) {
+/*float grad(int hash, float x, float y, float z) {
       int h = hash & 0xF;
       float u = h<8 ? x : y,
              v = h<4 ? y : h==12||h==14 ? x : z;
       return ((h&1) == 0 ? u : -u) + ((h&2) == 0 ? v : -v);
+}*/
+float grad(int hash, float x, float y, float z) {
+      int h = int(mod(hash,16));
+      float u = h<8 ? x : y,
+             v = h<4 ? y : h==12||h==14 ? x : z;
+      return ((mod(h,2)) == 0 ? u : -u) + ((mod(h,4)-mod(h,2)) == 0 ? v : -v);
 }
+
+int fastfloor(float x) { return int( x > 0 ? x : x-1); }
+float fade(float t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+float lerp(float t, float a, float b) { return a + t * (b - a); }
 
 float noise3(float x, float y, float z) {
 	int X = fastfloor(x);
