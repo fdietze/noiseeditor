@@ -26,6 +26,8 @@ case class NodeFunction(name:String, returntype:String, code:String)
 
 object NodeType {
 	def apply(title:String, arguments:LanguageMap[Seq[NodeArgument]], sliders:Seq[NodeSlider], functions:LanguageMap[ Map[String, NodeFunction]])(implicit e: DummyImplicit) = {
+		println("------------------------")
+		println(title, arguments, functions)
 		// save arguments and sliders in every function
 		val newfunctions = for( (language, functionmap) <- functions ) yield {
 			language -> (for( (title, NodeFunction(name, returntype, code)) <- functionmap ) yield {
@@ -38,10 +40,14 @@ object NodeType {
 		}
 		
 		// add default values to arguments depending on language
-		val newarguments = arguments.map{ case (language,args) => (language -> args.map{
-			case NodeArgument(name,datatype,"") => NodeArgument(name,datatype,ModuleManager.typedefaults(language)(datatype))
-			case argument => argument
-		}) }
+		val newarguments = arguments.map {
+			case (language,args) =>
+				language -> args.map{
+					case NodeArgument(name,datatype,"") =>
+						NodeArgument(name,datatype,ModuleManager.typedefaults(language)(datatype))
+					case argument => argument
+				}
+		}
 		
 		new NodeType(title,
 		newarguments,
@@ -57,15 +63,15 @@ case class NodeType(title:String, arguments:LanguageMap[Seq[NodeArgument]], slid
 case class NodeCategory(title:String, nodetypes:Seq[NodeType])
 
 case class CompositionTree(
-		function: LanguageMap[NodeFunctionFull],
+		function: NodeFunctionFull,
 		nodeid: Int,
 		sliders: Seq[FormulaSlider],
-		arguments: Seq[Either[LanguageMap[String], CompositionTree]] ) {
+		arguments: Seq[Either[String, CompositionTree]] ) {
 		
-	def varname = "vn%d_%s".format(nodeid, function("scala").name)
+	def varname = "vn%d_%s".format(nodeid, function.name)
 }
 
-case class Composition( functions:LanguageMap[Set[NodeFunctionFull]], calltree:CompositionTree )
+case class Composition( functions:Set[NodeFunctionFull], calltree:CompositionTree )
 
 
 

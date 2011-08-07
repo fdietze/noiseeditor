@@ -86,6 +86,7 @@ object Noise {
 		gradients3(hash(hash(hash(X)+Y)+Z) & 15)
 	}
 	
+	def noise3_prediction(v:Volume):Interval = noise3_prediction(v.x.low, v.y.low, v.z.low, v.x.high, v.y.high, v.z.high)
 	def nosie3_prediction(x:Interval,y:Interval,z:Interval):Interval = noise3_prediction(x.low, y.low, z.low, x.high, y.high, z.high)
 	def noise3_prediction(x0:Double, y0:Double, z0:Double, x1:Double, y1:Double, z1:Double):Interval = {
 		

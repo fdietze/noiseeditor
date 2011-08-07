@@ -25,16 +25,33 @@ import actors.Futures.future
 case class Material(color:Int = MaterialDefaultColor)
 
 class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
-	override def functions = ModuleManager.resultfunctions.map{ case (language,function) =>
-		(language -> Map("result" -> function))
-	}
-	override def arguments = ModuleManager.resultfunctions.map{ case (language,function) =>
-		(language -> function.arguments)
-	}
+	def thispreview = this
+	override def functions = LanguageMap(
+		"scala" -> Map(
+			"result" -> NodeFunctionFull("result", "(Double, Material)", "(d,m)",
+				Seq(
+					NodeArgument("d","Double", "0.0"),
+					NodeArgument("m","Material", "Material(0x000000)")
+				),
+				Nil
+			)
+		)
+	)
+	
+	override def arguments = LanguageMap("scala" -> functions("scala")("result").arguments)
 	
 	type Compositiontype = (Vec3) => (Double, Material)
 	var interpretedcomposition:Compositiontype = (world:Vec3) => (0.0, Material())
 	var involvedsliders = Set[String]()
+	
+	def connectedoutconnector(name:String) = {
+		import ConnectionManager.connections
+		
+		inconnectors.find( _.title == name ) match {
+			case Some(inconnector) => connections(inconnector)
+			case None => None
+		}
+	}
 	
 	minimumSize = Vec2i(100,100)
 	
@@ -291,7 +308,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 	}
 
 	val exportcontrols = new BoxPanel(Horizontal) {
-		val exportcombobox = new ComboBox(ModuleManager.languages) {
+		val exportcombobox = new ComboBox(ModuleManager.exporttypes) {
 			maximumSize = preferredSize
 			def selected = selection.item
 		}
@@ -300,45 +317,12 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 			margin = new Insets(1,1,1,1)
 			reactions += {
 				case e:ButtonClicked =>
-					import FileChooser.Result._
-					import FileManager.chooser
-					val oldselectedfile = chooser.selectedFile
-				
-					chooser.title = "Export: " + exportcombobox.selected
-					//chooser.setExtensionFilter("Scala function", "scala")
-					chooser.selectedFile = null
-					chooser.showSaveDialog match {
-						case Approve =>
-							val out = new java.io.FileWriter(chooser.selectedFile)
-							out.write(ModuleManager.export(CodeGenerator.composition(outconnectors(0)), exportcombobox.selected))
-							out.close
-						case Cancel =>
-					}
-					chooser.selectedFile = oldselectedfile
+					ModuleManager.export(thispreview, exportcombobox.selected)
 			}
 		}
 	}
 
-	val engineexport = new Button("engine export") {
-		margin = new Insets(1,1,1,1)
-		reactions += {
-			case e:ButtonClicked =>
-				print("exporting to engine...")
-				var path = "../gameengine" //"/data1/home2/dietze/Desktop/gameengine"
-				Runtime.getRuntime.exec("rm " + path + "/worldoctree")
 
-				val composition = CodeGenerator.composition(outconnectors(0))
-				var out = new java.io.FileWriter(path + "/src/main/scala/worldfunction.scala")
-				out.write(ModuleManager.export(composition, "scala"))
-				out.close
-
-				out = new java.io.FileWriter(path + "/src/main/resources/shaders/screen.frag")
-				out.write(ModuleManager.export(composition, "glsl"))
-				out.close
-				
-				println("done")
-		}
-	}
 
 	
 	val speedlabel = new Label(""){
@@ -357,7 +341,6 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 				contents += resetbutton
 			}
 			contents += new BoxPanel(Horizontal) {
-				contents += engineexport
 				contents += exportcontrols
 				contents += removebutton
 			}
@@ -367,13 +350,12 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 	def recompile {
 		println("Preview("+id+"): starting compiler in background...")
 		future {
-			val composition = CodeGenerator.composition(outconnectors(0))
-			val code = CodeGenerator.generatescalacode(composition)
+			val code = CompositionManager.generatepreviewcode(outconnectors.head)
 			val compilation = InterpreterManager[Compositiontype](code) // Future
 			compilation() match {
 				case Some(interpretedcode) =>
 					interpretedcomposition = interpretedcode
-					involvedsliders = CodeGenerator.involvedsliders(composition)
+					involvedsliders = CompositionManager.involvedsliders(outconnectors.head)
 					speedlabel.value = 0.0
 					image.recalc
 				case None =>
@@ -388,6 +370,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 				image.recalc
 		
 		case e:NodeConnected =>
+		//TODO: only recompile, if own composition is affected
 			recompile
 		
 		case e:NodeChanged =>

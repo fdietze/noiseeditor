@@ -3,7 +3,7 @@ package noiseeditor.modules
 import noiseeditor.utilities._
 import noiseeditor.datastructures._
 
-import noiseeditor.{ModuleManager, Module}
+import noiseeditor.{ModuleManager, CompositionManager, Preview, Module, OutConnector}
 
 //TODO: More High Level nodes, like Surface, Layers, Fractal Noise, Turbulence
 //TODO: More Noise types, like cellular noise
@@ -12,15 +12,14 @@ import noiseeditor.{ModuleManager, Module}
 
 object GameEngine extends Module {
 	
-	val languages = Seq("scala", "glsl")//, "prediction")
+	val exporttypes = Seq("scala_density", "scala_material", "glsl_material", "prediction", "engine")
+	val languages = Seq("scala", "glsl", "prediction")
 
 	val scalainitcode = """
 		import simplex3d.math._
 		import simplex3d.math.double._
 		import simplex3d.math.double.functions._
 		import noise.Noise.noise3
-		import noise.Noise.noise3_prediction
-		import noise.intervals._
 	"""
 	val typedefaults = LanguageMap(
 		"scala" -> 	Map(
@@ -40,8 +39,8 @@ object GameEngine extends Module {
 			"Material" -> "Material(0x000000)"
 		),
 		"prediction" -> 	Map(
-			"Interval" -> "Interval()",
-			"Volume" -> "Volume()"
+			"Interval" -> "Interval(0,0)",
+			"Volume" -> "Volume(Vec3(0),Vec3(0))"
 		)
 	)
 	
@@ -51,30 +50,6 @@ object GameEngine extends Module {
 		"prediction" -> "Double"
 	)
 
-	val resultfunctions = LanguageMap(
-		"scala" -> NodeFunctionFull("result", "(Double, Material)", "(d,m)",
-			Seq(
-				NodeArgument("d","Double", "0.0"),
-				NodeArgument("m","Material", "Material(0x000000)")
-			),
-			Nil
-		),
-		"glsl" -> NodeFunctionFull("result", "vec4", "return m;",
-			Seq(
-				NodeArgument("d","float", "0.0"),
-				NodeArgument("m","vec4", "vec4(0)")
-			),
-			Nil
-		),
-		"prediction" -> NodeFunctionFull("result", "Interval", "return d;",
-			Seq(
-				NodeArgument("d","Interval", "Interval()"),
-				NodeArgument("m","Material", "Material(0x000000)")
-			),
-			Nil
-		)
-	)
-	
 
 	lazy val nodecategories:Seq[NodeCategory] = Seq(
 
@@ -115,15 +90,15 @@ object GameEngine extends Module {
 					//TODO: transpose language and function map to reduce errors when writing definitions?
 					LanguageMap(
 						"scala" -> Map(
-							"o" -> NodeFunction("summedinputnoise3", "Double",
+							"o" -> NodeFunction("perlinnoise3", "Double",
 							"""(noise3((v + Vec3(x,y,z))*size)+offset)*scale/size + add - sub""")
 						),
 						"glsl" -> Map(
-							"o" -> NodeFunction("summedinputnoise3", "float",
+							"o" -> NodeFunction("perlinnoise3", "float",
 							"""return (noise3((v + vec3(x,y,z))*size)+offset)*scale/size + add - sub;""")
 						),
 						"prediction" -> Map(
-							"o" -> NodeFunction("summedinputnoise3", "Interval",
+							"o" -> NodeFunction("perlinnoise3", "Interval",
 							"""(noise3_prediction((v + Volume(x,y,z))*size)+offset)*scale/size + add - sub""")
 						)
 					)
@@ -237,6 +212,11 @@ object GameEngine extends Module {
 							NodeArgument("a","float"),
 							NodeArgument("b","float"),
 							NodeArgument("c","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval"),
+							NodeArgument("b","Interval"),
+							NodeArgument("c","Interval")
 						)
 					),
 					Nil,
@@ -248,6 +228,10 @@ object GameEngine extends Module {
 						"glsl" -> Map(
 							"o" -> NodeFunction("sum3", "float",
 							"""return a+b+c;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("sum3", "Interval",
+							"""a+b+c""")
 						)
 					)
 				),
@@ -260,6 +244,10 @@ object GameEngine extends Module {
 						"glsl" -> Seq(
 							NodeArgument("a","float", "1.0"),
 							NodeArgument("b","float", "1.0")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval","Interval(1,1)"),
+							NodeArgument("b","Interval","Interval(1,1)")
 						)
 					),
 					Nil,
@@ -271,6 +259,10 @@ object GameEngine extends Module {
 						"glsl" -> Map(
 							"o" -> NodeFunction("product2", "float",
 							"""return a*b;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("product2", "Interval",
+							"""a*b""")
 						)
 					)
 				),
@@ -285,6 +277,11 @@ object GameEngine extends Module {
 							NodeArgument("a","float", "1.0"),
 							NodeArgument("b","float", "1.0"),
 							NodeArgument("c","float", "1.0")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval","Interval(1,1)"),
+							NodeArgument("b","Interval","Interval(1,1)"),
+							NodeArgument("c","Interval","Interval(1,1)")
 						)
 					),
 					Nil,
@@ -296,6 +293,10 @@ object GameEngine extends Module {
 						"glsl" -> Map(
 							"o" -> NodeFunction("product3", "float",
 							"""return a*b*c;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("product3", "Interval",
+							"""a*b*c""")
 						)
 					)
 				),
@@ -308,6 +309,10 @@ object GameEngine extends Module {
 						"glsl" -> Seq(
 							NodeArgument("a","float"),
 							NodeArgument("b","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval"),
+							NodeArgument("b","Interval")
 						)
 					),
 					Nil,
@@ -319,13 +324,18 @@ object GameEngine extends Module {
 						"glsl" -> Map(
 							"o" -> NodeFunction("diff2", "float",
 							"""return a-b;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("diff2", "Interval",
+							"""a-b""")
 						)
 					)
 				),
 				NodeType("Constant Exp",
 					LanguageMap(
 						"scala" -> Nil,
-						"glsl" -> Nil
+						"glsl" -> Nil,
+						"prediction" -> Nil
 					),
 					Seq(
 						NodeSlider("value", "pow(256,((s-0.5)*2))")
@@ -338,6 +348,10 @@ object GameEngine extends Module {
 						"glsl" -> Map(
 							"o" -> NodeFunction("constantexp", "float",
 							"""return value;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("constantexp", "Interval",
+							"""Interval(value,value)""")
 						)
 					)
 				),
@@ -348,6 +362,9 @@ object GameEngine extends Module {
 						),
 						"glsl" -> Seq(
 							NodeArgument("a","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval")
 						)
 					),
 					Seq(
@@ -361,6 +378,10 @@ object GameEngine extends Module {
 						"glsl" -> Map(
 							"o" -> NodeFunction("addconstantexp", "float",
 							"""return a+value;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("addconstantexp", "Interval",
+							"""a+value""")
 						)
 					)
 				),
@@ -371,6 +392,9 @@ object GameEngine extends Module {
 						),
 						"glsl" -> Seq(
 							NodeArgument("a","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval")
 						)
 					),
 					Seq(
@@ -384,6 +408,10 @@ object GameEngine extends Module {
 						"glsl" -> Map(
 							"o" -> NodeFunction("multiplyconstantexp", "float",
 							"""return a*value;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("multiplyconstantexp", "Interval",
+							"""a*value""")
 						)
 					)
 				),
@@ -394,6 +422,9 @@ object GameEngine extends Module {
 						),
 						"glsl" -> Seq(
 							NodeArgument("v","vec3")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume")
 						)
 					),
 					Seq(
@@ -407,6 +438,10 @@ object GameEngine extends Module {
 						"glsl" -> Map(
 							"o" -> NodeFunction("sphere", "float",
 							"""return radius-sqrt(dot(v,v));""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("sphere", "Interval",
+							"""radius-intervalsqrt(volumedot(v,v))""")
 						)
 					)
 				),
@@ -421,6 +456,11 @@ object GameEngine extends Module {
 							NodeArgument("x","float"),
 							NodeArgument("y","float"),
 							NodeArgument("z","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("x","Interval"),
+							NodeArgument("y","Interval"),
+							NodeArgument("z","Interval")
 						)
 					),
 					Nil,
@@ -432,6 +472,10 @@ object GameEngine extends Module {
 						"glsl" -> Map(
 							"v" -> NodeFunction("createvec3", "vec3",
 							"""return vec3(x,y,z);""")
+						),
+						"scala" -> Map(
+							"v" -> NodeFunction("createvec3", "Volume",
+							"""Volume(x,y,z)""")
 						)
 					)
 				)
@@ -443,7 +487,8 @@ object GameEngine extends Module {
 				NodeType("World coordinates",
 					LanguageMap(
 						"scala" -> Nil,
-						"glsl" -> Nil
+						"glsl" -> Nil,
+						"prediction" -> Nil
 					),
 					Seq(
 						NodeSlider("scale","pow(256,((0.5-s)*2))")
@@ -460,6 +505,12 @@ object GameEngine extends Module {
 							"x" -> NodeFunction("scalesrcx", "float", "return world.x * scale;"),
 							"y" -> NodeFunction("scalesrcy", "float", "return world.y * scale;"),
 							"z" -> NodeFunction("scalesrcz", "float", "return world.z * scale;")
+						),
+						"prediction" -> Map(	
+							"v" -> NodeFunction("scalesrcv", "Volume",   "world   * scale"),
+							"x" -> NodeFunction("scalesrcx", "Interval", "world.x * scale"),
+							"y" -> NodeFunction("scalesrcy", "Interval", "world.y * scale"),
+							"z" -> NodeFunction("scalesrcz", "Interval", "world.z * scale")
 						)
 					)
 				)
@@ -650,13 +701,92 @@ object GameEngine extends Module {
 		
 	)
 */
-	def export(composition:Composition, language:String):String = {
-		language match {
-			case "scala" =>
+
+/*	val engineexport = new Button("engine export") {
+		margin = new Insets(1,1,1,1)
+		reactions += {
+			case e:ButtonClicked =>
+				println("exporting to engine...")
+				var path = "../gameengine" //"/data1/home2/dietze/Desktop/gameengine"
+				Runtime.getRuntime.exec("rm " + path + "/worldoctree")
+
+				val composition = CodeGenerator.composition(outconnectors(0))
+				
+				println("generating scala code")
+				var out = new java.io.FileWriter(path + "/src/main/scala/worldfunction.scala")
+				out.write(ModuleManager.export(composition, "scala"))
+				out.close
+
+				println("generating glsl code")
+				out = new java.io.FileWriter(path + "/src/main/resources/shaders/screen.frag")
+				out.write(ModuleManager.export(composition, "glsl"))
+				out.close
+				
+				println("generating prediction code")
+				out = new java.io.FileWriter(path + "/src/main/scala/worldprediction.scala")
+				out.write(ModuleManager.export(composition, "prediction"))
+				out.close
+				println("done")
+		}
+	}*/
+					/*import FileChooser.Result._
+					import FileManager.chooser
+					val oldselectedfile = chooser.selectedFile
+				
+					chooser.title = "Export: " + exportcombobox.selected
+					//chooser.setExtensionFilter("Scala function", "scala")
+					chooser.selectedFile = null
+					chooser.showSaveDialog match {
+						case Approve =>
+							val out = new java.io.FileWriter(chooser.selectedFile)
+							out.write(ModuleManager.export(CodeGenerator.composition(outconnectors(0)), exportcombobox.selected))
+							out.close
+						case Cancel =>
+					}
+					chooser.selectedFile = oldselectedfile*/
+
+	def export(preview:Preview, exporttype:String) = {
+		def generatescaladensitycode  = generatescalacode("proceduralworld_density", "0.0", preview.connectedoutconnector("d"))
+		def generatescalamaterialcode = generatescalacode("proceduralworld_material", "Material()", preview.connectedoutconnector("m"))
+		def generateglslmaterialcode  = generateglslcode (preview.connectedoutconnector("m"))
+		def generatepredictiondensitycode = generatepredictioncode(preview.connectedoutconnector("d"))
+
+		try {
+			exporttype match {
+				case "scala_density" =>
+					println(generatescaladensitycode)
+				
+				case "scala_material" =>
+					println(generatescalamaterialcode)
+
+				case "glsl_material" =>
+					println(generateglslmaterialcode)
+
+				case "prediction" =>
+					println(generatepredictiondensitycode)
+
+				case "engine" =>
+			}
+		}
+		catch {
+			case e:Exception =>
+			e.printStackTrace()
+		}
+	}
+	
+	
+	def generatescalacode(functionname:String, defaultreturn:String, outconnector:Option[OutConnector]):String = {
+		var functioncode     = ""
+		var functioncallcode = ""
+		var returnvalue      = defaultreturn
+		
+		outconnector match {
+			case Some(out) =>
+				val composition = CompositionManager.create(out, "scala")
 				import composition._
 		
 				// Function Definitions
-				val functioncode = (for( NodeFunctionFull(name,returntype, code, arguments, sliders) <- functions("scala") ) yield {
+				functioncode = (for( NodeFunctionFull(name, returntype, code, arguments, sliders) <- functions ) yield {
 					"def %s(%s):%s = {%s}".format(
 						name,
 						(arguments ++ sliders).map(a => "%s:%s".format(a.name, a.datatype)).mkString(", "),
@@ -664,8 +794,8 @@ object GameEngine extends Module {
 						code
 					)
 				}).mkString("\n")
-		
-		
+
+
 				// Function Calls via BFS
 				var functioncalls:Seq[String] = Nil
 				val nexttrees = new collection.mutable.Queue[CompositionTree]
@@ -676,11 +806,11 @@ object GameEngine extends Module {
 					import currenttree._
 					functioncalls +:= "val %s = %s(%s)".format(
 						varname,
-						function("scala").name,
+						function.name,
 						(
 							arguments.map{
 								case Right(arg) => arg.varname
-								case Left(default) => default("scala") }
+								case Left(default) => default }
 							++
 							sliders.map(_.globalvalue)
 						).mkString(", ")
@@ -688,12 +818,15 @@ object GameEngine extends Module {
 					// Move on with all arguments referring to other functions
 					nexttrees ++= currenttree.arguments.collect{case Right(x) => x}.distinct
 				}
-				val functioncallcode = functioncalls.distinct.mkString("\n")
-		
-		
+				functioncallcode = functioncalls.distinct.mkString("\n")
+
+
 				// Final Value
-				val returnvalue = calltree.varname
-		
+				returnvalue = calltree.varname
+			
+			case None =>
+		}
+
 """package xöpäx
 package object gen {
 
@@ -704,7 +837,7 @@ import simplex3d.math.double._
 import simplex3d.math.double.functions._
 
 case class Material(color:Int = 0x000000)
-def proceduralworld(world:Vec3) = {
+def %s(world:Vec3) = {
 %s
 
 %s
@@ -712,16 +845,23 @@ def proceduralworld(world:Vec3) = {
 %s
 }
 
-}""".format(
-					functioncode, functioncallcode, returnvalue
-				)
+}""".format( functionname, functioncode, functioncallcode, returnvalue )
+	}
 
 
-			case "glsl" =>
+
+	def generateglslcode(outconnector:Option[OutConnector]):String = {
+		var functioncode     = ""
+		var functioncallcode = ""
+		var returnvalue      = "vec4(0.5, 0.5, 0.5, 0.0)"
+
+		outconnector match {
+			case Some(out) =>
+				val composition = CompositionManager.create(out, "glsl")
 				import composition._
-		
+
 				// Function Definitions
-				val functioncode = (for( NodeFunctionFull(name,returntype, code, arguments, sliders) <- functions("glsl") ) yield {
+				functioncode = (for( NodeFunctionFull(name, returntype, code, arguments, sliders) <- functions ) yield {
 					"%s %s(%s) {%s}".format(
 						returntype,
 						name,
@@ -729,8 +869,8 @@ def proceduralworld(world:Vec3) = {
 						code
 					)
 				}).mkString("\n")
-		
-		
+
+
 				// Function Calls via BFS
 				var functioncalls:Seq[String] = Nil
 				val nexttrees = new collection.mutable.Queue[CompositionTree]
@@ -740,13 +880,13 @@ def proceduralworld(world:Vec3) = {
 					val currenttree = nexttrees.dequeue
 					import currenttree._
 					functioncalls +:= "%s %s = %s(%s);".format(
-						function("glsl").returntype,
+						function.returntype,
 						varname,
-						function("glsl").name,
+						function.name,
 						(
 							arguments.map{
 								case Right(arg) => arg.varname
-								case Left(default) => default("glsl") }
+								case Left(default) => default }
 							++
 							sliders.map(_.globalvalue)
 						).mkString(", ")
@@ -754,11 +894,14 @@ def proceduralworld(world:Vec3) = {
 					// Move on with all arguments referring to other functions
 					nexttrees ++= currenttree.arguments.collect{case Right(x) => x}.distinct
 				}
-				val functioncallcode = functioncalls.distinct.mkString("\n")
-		
-		
+				functioncallcode = functioncalls.distinct.mkString("\n")
+
+
 				// Final Value
-				val returnvalue = calltree.varname
+				returnvalue = calltree.varname
+			
+			case None =>
+		}
 
 """#version 120
 //#extension GL_EXT_gpu_shader4 : enable
@@ -855,12 +998,85 @@ void main(){
 
 	gl_FragColor = materialcolor * Idiff;
 }
+""".format(	functioncode, functioncallcode, returnvalue	)
 
-
-""".format(
-					functioncode, functioncallcode, returnvalue
-				)
-		}
 	}
+
+	def generatepredictioncode(outconnector:Option[OutConnector]):String = {
+		var functioncode     = ""
+		var functioncallcode = ""
+		var returnvalue      = "Interval(0,0)"
+
+		outconnector match {
+			case Some(out) =>
+				val composition = CompositionManager.create(out, "prediction")
+				import composition._
+
+				// Function Definitions
+				functioncode = (for( NodeFunctionFull(name, returntype, code, arguments, sliders) <- functions ) yield {
+					"def %s(%s):%s = {%s}".format(
+						name,
+						(arguments ++ sliders).map(a => "%s:%s".format(a.name, a.datatype)).mkString(", "),
+						returntype,
+						code
+					)
+				}).mkString("\n")
+
+
+				// Function Calls via BFS
+				var functioncalls:Seq[String] = Nil
+				val nexttrees = new collection.mutable.Queue[CompositionTree]
+				//TODO: take only density tree
+				nexttrees += calltree
+				while( nexttrees.nonEmpty ) {
+					val currenttree = nexttrees.dequeue
+					import currenttree._
+					functioncalls +:= "val %s = %s(%s)".format(
+						varname,
+						function.name,
+						(
+							arguments.map{
+								case Right(arg) => arg.varname
+								case Left(default) => default }
+							++
+							sliders.map(_.globalvalue)
+						).mkString(", ")
+					)
+					// Move on with all arguments referring to other functions
+					nexttrees ++= currenttree.arguments.collect{case Right(x) => x}.distinct
+				}
+				functioncallcode = functioncalls.distinct.mkString("\n")
+
+
+				// Final Value
+				returnvalue = calltree.varname
+			
+			case None =>
+		}
+		
+"""package xöpäx
+package object gen {
+
+import simplex3d.math._
+import simplex3d.math.double._
+import simplex3d.math.double.functions._
+
+import noise.Noise.noise3_prediction
+import noise.intervals._
+
+def proceduralworld_prediction(world:Volume) = {
+
+%s
+
+%s
+
+%s
+
+}
+
+}
+""".format(	functioncode, functioncallcode, returnvalue	)
+	}
+
 
 }

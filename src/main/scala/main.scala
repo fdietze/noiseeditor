@@ -54,7 +54,7 @@ object NoiseEditor extends SimpleSwingApplication {
 		
 		// Load some preconnected nodes
 		//TODO: Different Resourcepath on Mac OSX?
-		FileManager.readSession(getClass.getClassLoader.getResource("default.xml").getPath)
+		//FileManager.readSession(getClass.getClassLoader.getResource("default.xml").getPath)
 		FileManager.setFileunchanged
 	}
 
@@ -67,8 +67,9 @@ object NoiseEditor extends SimpleSwingApplication {
 		// If window is closed check if current document is saved
 		import javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE
 		peer.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE)
+		
 		override def closeOperation = {
-			if( FileManager.unsavedQuestion )
+		//	if( FileManager.unsavedQuestion )
 				sys.exit(0)
 		}
 		

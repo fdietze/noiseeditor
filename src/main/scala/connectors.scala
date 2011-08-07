@@ -31,6 +31,7 @@ abstract class Connector(val title:String, val datatype:String, val node:Node) e
 case class InConnector(
 		override val title:String,
 		override val datatype:String,
+		val argdefault:String,
 		override val node:Node ) extends Connector(title, datatype, node)
 
 case class OutConnector(

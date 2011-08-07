@@ -11,40 +11,41 @@ import simplex3d.math.double.functions._
 
 
 
-object CodeGenerator {
+object CompositionManager {
 
 	// Walks through the connected Nodes starting at given OutConnector
 	// and creates a simple data structure for code generation
-	def composition(out:OutConnector):Composition = {
+	def create(out:OutConnector, language:String):Composition = {
 		import ConnectionManager.connections
 
-		val functions = ModuleManager.languages.map( language =>
-			language -> collection.mutable.Set(ModuleManager.resultfunctions(language)) ).toMap
+		val functions = collection.mutable.Set[NodeFunctionFull]()
 		
 		def tree( out: OutConnector ):CompositionTree = {
 			// for each connection create a new tree
 			// for no connection give the argument's default
 			val arguments = (out.node.inconnectors.map( connections(_) )
-			     zip out.node.arguments.mapseqtranspose).map{
+			     zip out.node.arguments(language)).map {
 				case (connection, argument) =>
 					connection match {
 						case Some(outconnector) => Right(tree(outconnector)) // recursion
-						case None => Left(argument.mapValues(_.default))
+						case None => Left(argument.default)
 					}
 			}
-			for( (language,function) <- out.function if ModuleManager.languages.contains(language) ) {
-				functions(language) += function
-			}
-			return CompositionTree(out.function, out.node.id, out.node.sliders, arguments)
+			if( out.function.isDefinedAt(language) )
+				functions += out.function(language)
+			println(out.function)
+			return CompositionTree(out.function(language), out.node.id, out.node.sliders, arguments)
 		}
 		
 		val compositiontree = tree(out)
-		Composition(functions.mapValues(_.toSet), compositiontree)
+		Composition(functions.toSet, compositiontree)
 	}
 
 	// Gives a set of sliders which are involved in this composition
-	def involvedsliders(composition:Composition):Set[String] = {
+	def involvedsliders(out:OutConnector):Set[String] = {
+		val composition = create(out, "scala")
 		import composition._
+		
 		val involved = collection.mutable.Set[String]()
 		val nexttrees = new collection.mutable.Queue[CompositionTree]
 		nexttrees += calltree
@@ -60,11 +61,12 @@ object CodeGenerator {
 
 
 	// Generates Scala Code for preview
-	def generatescalacode(composition:Composition):String = {
+	def generatepreviewcode(out:OutConnector):String = {
+		val composition = create(out, "scala")
 		import composition._
 		
 		// Function Definitions
-		val functioncode = (for( NodeFunctionFull(name,returntype, code, arguments, sliders) <- functions("scala") ) yield {
+		val functioncode = (for( NodeFunctionFull(name,returntype, code, arguments, sliders) <- functions ) yield {
 			"def %s(%s):%s = {%s}".format(
 				name,
 				(arguments ++ sliders).map(a => "%s:%s".format(a.name, a.datatype)).mkString(", "),
@@ -83,11 +85,11 @@ object CodeGenerator {
 			import currenttree._
 			functioncalls +:= "val %s = %s(%s)".format(
 				varname,
-				function("scala").name,
+				function.name,
 				(
 					arguments.map{
 						case Right(arg) => arg.varname
-						case Left(default) => default("scala") }
+						case Left(default) => default }
 					++
 					sliders.map(s => "%s.value".format(s.globalname))
 				).mkString(", ")

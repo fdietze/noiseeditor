@@ -8,11 +8,11 @@ import datastructures._
 trait Module {
 	val title:String = getClass.getName.split('.').last.dropRight(1)
 	val languages:Seq[String]
+	val exporttypes:Seq[String]
 	val scalainitcode:String
 	val nodecategories:Seq[NodeCategory]
 	val typedefaults:LanguageMap[Map[String,String]]
-	def export(composition:Composition, language:String):String
-	val resultfunctions:LanguageMap[NodeFunctionFull]
+	def export(preview:Preview, exporttype:String)
 	val sliderdatatypes:LanguageMap[String]
 }
 
@@ -56,13 +56,15 @@ object ModuleManager{
 	def scalainitcode = currentmodule.scalainitcode
 	def nodecategories = currentmodule.nodecategories
 	def typedefaults = currentmodule.typedefaults
-	def languages = currentmodule.languages
+	//def languages = currentmodule.languages
+	def exporttypes = currentmodule.exporttypes
 	def export = currentmodule.export _
-	def resultfunctions = currentmodule.resultfunctions
+	//def resultfunctions = currentmodule.resultfunctions
 	def sliderdatatypes = currentmodule.sliderdatatypes
 	
 	def check(module:Module):Boolean = {
 		var isvalid = true
+		//TODO: Every module needs to contain the language scala
 		for( language <- module.languages ) {
 			for( NodeCategory(cattitle, nodetypes) <- module.nodecategories ) {
 				for( NodeType(title, arguments, sliders, functions) <- nodetypes ) {

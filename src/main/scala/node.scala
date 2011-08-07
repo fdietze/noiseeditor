@@ -100,8 +100,8 @@ trait NodeInit extends Node with DelayedInit {
 	val titledborder = new TitledBorder(new SoftBevelBorder(RAISED), title)
 	border = titledborder
 
-	override val inconnectors = for( NodeArgument(argname,argtype,_) <- arguments("scala") ) yield{
-		new InConnector(argname, argtype, thisnode)
+	override val inconnectors = for( NodeArgument(argname,argtype,argdefault) <- arguments("scala") ) yield{
+		new InConnector(argname, argtype, argdefault, thisnode)
 	}
 	
 	override val outconnectors = (for( (title, function) <- functions.mapmaptranspose ) yield {
