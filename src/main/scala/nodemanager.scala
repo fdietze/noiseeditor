@@ -10,6 +10,8 @@ import javax.swing.border._
 import javax.swing.border.BevelBorder._
 import Orientation._
 import java.awt.Color._
+import java.awt.event.InputEvent.{BUTTON1_DOWN_MASK, BUTTON2_DOWN_MASK}
+
 
 import simplex3d.math._
 import simplex3d.math.double._
@@ -24,14 +26,19 @@ object NodeManager extends NullPanel("NodeManager") {
 	
 	var nodes = Set[Node]()
 	val slidervalues = new collection.mutable.HashMap[String, Box[Double]]
-	var spawnpos = Vec2i(10,10)
+	var spawnpos:Option[Vec2i] = None
 	
 	def add( node:Node ) {
 		nodes += node
 		addComponent(node)
-		//TODO: Better Node placing
-		node.peer.setLocation(spawnpos)
-		//spawnpos += Vec2i(0,10)
+		
+		spawnpos match {
+			case Some(pos) =>
+				node.peer.setLocation(pos - node.size/2)
+				spawnpos = None
+			case None =>
+				node.peer.setLocation(Vec2i(10,10))
+		}
 		
 		listenTo(node)
 		
@@ -75,38 +82,58 @@ object NodeManager extends NullPanel("NodeManager") {
 		case UIElementResized(source:Node) =>
 			publish(NodeResized(this, node = source))
 
-		case UIElementResized(source) if( source eq NoiseEditor.top) =>
+		case UIElementResized(source) if( source eq NoiseEditor.window) =>
 			peer.setSize(source.size)
 	}
 	
+	// Context Menu with all Window-Menu-Items
+	reactions += {
+		case e:MousePressed =>
+			if(e.triggersPopup) {
+				val popupMenu = new PopupMenu {
+					contents ++= NoiseEditor.createmenu.menus
+				}
+				spawnpos = Some(e.point)
+				popupMenu.show(this, e.point.x, e.point.y)
+			}
+	}
+
+	
+	// Open files with double click
+	reactions += {
+		// double click with left mouse button
+		// TODO: dont't use hard coded modifier: 0
+		case MouseClicked(_, point, 0, 2, _) =>
+			FileManager.open
+	}
+	
+
 	// Movable Working Area
 	var lastpoint = Vec2i(0)
 	listenTo(mouse.clicks, mouse.moves, mouse.wheel)
 	reactions += {
-		case e:MouseDragged =>
-			val mousepos:Vec2i = Vec2i(e.point)
+		// mouse drag with left mouse button
+		case e @ MouseDragged(_, point, BUTTON1_DOWN_MASK) =>
+			val mousepos:Vec2i = point
 			val offset = lastpoint - mousepos
 			lastpoint = mousepos
 			for( node <- nodes )
 				node.peer.setLocation(node.location - offset)
 
-		case e:MousePressed =>
-			val mousepos = Vec2i(e.point)
+		// single click with left mouse button
+		case MousePressed(_, point, BUTTON1_DOWN_MASK, 1, _) =>
+			val mousepos = Vec2i(point)
 			lastpoint = mousepos
-		case e:MouseClicked =>
-			if( e.clicks == 2 ) // doubleclick
-				FileManager.open
-		case e:MouseWheelMoved =>
-			if( e.rotation == 1 ) {
-				val offset = Vec2i(0,20)
+
+		// scrolled down
+		case MouseWheelMoved(_,_,_,1) =>
 				for( node <- nodes )
-					node.peer.setLocation(node.location - offset)
-			}
-			else {
-				val offset = Vec2i(0,-20)
+					node.peer.setLocation(node.location + Vec2i(0,-20))
+
+		// scrolled up
+		case MouseWheelMoved(_,_,_,-1) =>
 				for( node <- nodes )
-					node.peer.setLocation(node.location - offset)
-			}
+					node.peer.setLocation(node.location + Vec2i(0,20))
 			
 	}
 

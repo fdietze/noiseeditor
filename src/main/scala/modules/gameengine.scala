@@ -7,7 +7,6 @@ import noiseeditor.{ModuleManager, CompositionManager, Preview, Module, OutConne
 
 //TODO: More High Level nodes, like Surface, Layers, Fractal Noise, Turbulence
 //TODO: More Noise types, like cellular noise
-//TODO: Tooltip with node description
 //TODO: Different Noise Dimensions
 
 object GameEngine extends Module {
@@ -16,9 +15,6 @@ object GameEngine extends Module {
 	val languages = Seq("scala", "glsl", "prediction")
 
 	val scalainitcode = """
-		import simplex3d.math._
-		import simplex3d.math.double._
-		import simplex3d.math.double.functions._
 		import noise.Noise.noise3
 	"""
 	val typedefaults = LanguageMap(
@@ -52,6 +48,41 @@ object GameEngine extends Module {
 
 
 	lazy val nodecategories:Seq[NodeCategory] = Seq(
+
+		NodeCategory("Sources",
+			Seq(
+				NodeType("World coordinates",
+					LanguageMap(
+						"scala" -> Nil,
+						"glsl" -> Nil,
+						"prediction" -> Nil
+					),
+					Seq(
+						NodeSlider("scale","pow(256,((0.5-s)*2))")
+					),
+					LanguageMap(
+						"scala" -> Map(	
+							"v" -> NodeFunction("scalesrcv", "Vec3",   "world   * scale"),
+							"x" -> NodeFunction("scalesrcx", "Double", "world.x * scale"),
+							"y" -> NodeFunction("scalesrcy", "Double", "world.y * scale"),
+							"z" -> NodeFunction("scalesrcz", "Double", "world.z * scale")
+						),
+						"glsl" -> Map(	
+							"v" -> NodeFunction("scalesrcv", "vec3",   "return world.xyz * scale;"),
+							"x" -> NodeFunction("scalesrcx", "float", "return world.x * scale;"),
+							"y" -> NodeFunction("scalesrcy", "float", "return world.y * scale;"),
+							"z" -> NodeFunction("scalesrcz", "float", "return world.z * scale;")
+						),
+						"prediction" -> Map(	
+							"v" -> NodeFunction("scalesrcv", "Volume",   "world   * scale"),
+							"x" -> NodeFunction("scalesrcx", "Interval", "world.x * scale"),
+							"y" -> NodeFunction("scalesrcy", "Interval", "world.y * scale"),
+							"z" -> NodeFunction("scalesrcz", "Interval", "world.z * scale")
+						)
+					)
+				)
+			)
+		),
 
 		NodeCategory("Noise",
 			Seq(
@@ -482,41 +513,6 @@ object GameEngine extends Module {
 			)
 		),
 
-		NodeCategory("Sources",
-			Seq(
-				NodeType("World coordinates",
-					LanguageMap(
-						"scala" -> Nil,
-						"glsl" -> Nil,
-						"prediction" -> Nil
-					),
-					Seq(
-						NodeSlider("scale","pow(256,((0.5-s)*2))")
-					),
-					LanguageMap(
-						"scala" -> Map(	
-							"v" -> NodeFunction("scalesrcv", "Vec3",   "world   * scale"),
-							"x" -> NodeFunction("scalesrcx", "Double", "world.x * scale"),
-							"y" -> NodeFunction("scalesrcy", "Double", "world.y * scale"),
-							"z" -> NodeFunction("scalesrcz", "Double", "world.z * scale")
-						),
-						"glsl" -> Map(	
-							"v" -> NodeFunction("scalesrcv", "vec3",   "return world.xyz * scale;"),
-							"x" -> NodeFunction("scalesrcx", "float", "return world.x * scale;"),
-							"y" -> NodeFunction("scalesrcy", "float", "return world.y * scale;"),
-							"z" -> NodeFunction("scalesrcz", "float", "return world.z * scale;")
-						),
-						"prediction" -> Map(	
-							"v" -> NodeFunction("scalesrcv", "Volume",   "world   * scale"),
-							"x" -> NodeFunction("scalesrcx", "Interval", "world.x * scale"),
-							"y" -> NodeFunction("scalesrcy", "Interval", "world.y * scale"),
-							"z" -> NodeFunction("scalesrcz", "Interval", "world.z * scale")
-						)
-					)
-				)
-			)
-		),
-
 		NodeCategory("Materials",
 			Seq(
 				NodeType("RGB",
@@ -799,7 +795,6 @@ object GameEngine extends Module {
 				// Function Calls via BFS
 				var functioncalls:Seq[String] = Nil
 				val nexttrees = new collection.mutable.Queue[CompositionTree]
-				//TODO: take only density tree
 				nexttrees += calltree
 				while( nexttrees.nonEmpty ) {
 					val currenttree = nexttrees.dequeue
@@ -874,7 +869,6 @@ def %s(world:Vec3) = {
 				// Function Calls via BFS
 				var functioncalls:Seq[String] = Nil
 				val nexttrees = new collection.mutable.Queue[CompositionTree]
-				//TODO: take only material tree
 				nexttrees += calltree
 				while( nexttrees.nonEmpty ) {
 					val currenttree = nexttrees.dequeue
@@ -1026,7 +1020,6 @@ void main(){
 				// Function Calls via BFS
 				var functioncalls:Seq[String] = Nil
 				val nexttrees = new collection.mutable.Queue[CompositionTree]
-				//TODO: take only density tree
 				nexttrees += calltree
 				while( nexttrees.nonEmpty ) {
 					val currenttree = nexttrees.dequeue

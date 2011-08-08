@@ -40,7 +40,6 @@ object Node {
 	}
 	
 	def custom(id:Int = nextid) = {
-		//TODO: Export to file and load it everytime
 		new CustomNode("Custom", id,
 			arguments = LanguageMap("scala" -> Seq(
 				NodeArgument("v","Vec3","Vec3(0)"),
@@ -197,7 +196,7 @@ class PredefinedNode(title:String, id:Int, nodetype:NodeType) extends Node(title
 }
 
 class CustomNode(title:String, id:Int, override val arguments:LanguageMap[Seq[NodeArgument]], customsliders:Seq[NodeSlider]) extends Node(title, id) with NodeInit with Resizable {
-	//TODO show compile errors in Custom Node?
+	//TODO show compile errors in GUI
 	override def sliderdefinitions = customsliders
 	override def functions = LanguageMap("scala" -> Map("o" -> customfunction))
 	

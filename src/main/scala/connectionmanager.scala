@@ -133,7 +133,7 @@ object ConnectionManager extends Component {
 		case e:NodeConnected =>
 			this.repaint
 		
-		case UIElementResized(source) if( source eq NoiseEditor.top) =>
+		case UIElementResized(source) if( source eq NoiseEditor.window) =>
 			peer.setSize(source.size)
 	}
 

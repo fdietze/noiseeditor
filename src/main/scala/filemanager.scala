@@ -31,35 +31,33 @@ object FileManager extends Publisher {
 			peer.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(description, extension) )
 		}
 	
-		def showOpenDialog:Value = showOpenDialog(NoiseEditor.top.contents.head)
-		def showSaveDialog:Value = showSaveDialog(NoiseEditor.top.contents.head)
+		def showOpenDialog:Value = showOpenDialog(NoiseEditor.window.contents.head)
+		def showSaveDialog:Value = showSaveDialog(NoiseEditor.window.contents.head)
 	}
 	
 	var currentFile:Option[File] = None
 	var filechanged:Boolean = false
 	
 	def newSession {
-		if( unsavedQuestion ) {
-			ModuleManager.reset
-			currentFile = None
-			setFileunchanged
-		}
+		ConnectionManager.reset
+		NodeManager.reset
+		Node.reset
+
+		currentFile = None
+		setFileunchanged
 	}
 	
 	def open {
 		import FileChooser.Result._
-
-		if( unsavedQuestion ) {
-			chooser.title = "Open Composition"
-			chooser.setExtensionFilter("XML Files", "xml")
-			chooser.showOpenDialog match {
-				case Approve =>
-					NoiseEditor.reset
-					FileManager.readSession(chooser.selectedFile)
-					currentFile = Some(chooser.selectedFile)
-					setFileunchanged
-				case Cancel =>
-			}
+		chooser.title = "Open Composition"
+		chooser.setExtensionFilter("XML Files", "xml")
+		chooser.showOpenDialog match {
+			case Approve =>
+				newSession
+				FileManager.readSession(chooser.selectedFile)
+				currentFile = Some(chooser.selectedFile)
+				setFileunchanged
+			case Cancel =>
 		}
 	}
 	
@@ -98,7 +96,7 @@ object FileManager extends Publisher {
 		import Dialog.Result._
 		if( filechanged && NodeManager.nodes.size > 0 ) {
 			Dialog.showConfirmation(
-				parent = NoiseEditor.top.contents.head,
+				parent = NoiseEditor.window.contents.head,
 				message = "Leaving unsaved Session. Save it now?",
 				optionType = Dialog.Options.YesNoCancel
 				
@@ -125,7 +123,7 @@ object FileManager extends Publisher {
 		case e:NodeConnected => setFilechanged(e)
 		case e:NodeMoved => setFilechanged(e)
 		case e:NodeResized => setFilechanged(e)
-		//TODO: Add Changes in Previews and CustomNodes
+		//TODO: Add FileChanges in Previews and CustomNodes
 	}
 	
 	def setFilechanged(reason:Event) {
@@ -133,9 +131,9 @@ object FileManager extends Publisher {
 		filechanged = true
 		currentFile match {
 			case Some(file) =>
-				NoiseEditor.setTitle(NoiseEditor.top, "*" + file.getName)
+				NoiseEditor.setTitle(NoiseEditor.window, "*" + file.getName)
 			case None =>
-				NoiseEditor.setTitle(NoiseEditor.top, "*")
+				NoiseEditor.setTitle(NoiseEditor.window, "*")
 		}
 	}
 
@@ -143,9 +141,9 @@ object FileManager extends Publisher {
 		filechanged = false
 		currentFile match {
 			case Some(file) =>
-				NoiseEditor.setTitle(NoiseEditor.top, file.getName)
+				NoiseEditor.setTitle(NoiseEditor.window, file.getName)
 			case None =>
-				NoiseEditor.setTitle(NoiseEditor.top, "")
+				NoiseEditor.setTitle(NoiseEditor.window, "")
 		}
 	}
 	
@@ -161,7 +159,8 @@ object FileManager extends Publisher {
 		val document = XML.loadFile(file)
 		
 		val modulename = (document \ "module" \ "@name").text
-		ModuleManager.load(modulename)
+		if( ModuleManager.title != modulename )
+			ModuleManager.load(modulename)
 
 		val ids = (document \ "nodes" \ "node") map ( n => (n \ "@id").text.toInt)
 		val newid = Node.getIdMapping(ids)
@@ -276,7 +275,7 @@ object FileManager extends Publisher {
 			ConnectionManager.changeConnection(inconnector, outconnector)
 		}
 		ConnectionManager.commitconnection
-		NoiseEditor.top.repaint
+		NoiseEditor.window.repaint
 	}
 
 	def writeSession(file:File) {

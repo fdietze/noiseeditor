@@ -3,8 +3,6 @@ package noiseeditor
 import utilities._
 import datastructures._
 
-//TODO: png export
-
 trait Module {
 	val title:String = getClass.getName.split('.').last.dropRight(1)
 	val languages:Seq[String]
@@ -21,45 +19,43 @@ object ModuleManager{
 	println("Starting ModuleManager...")
 	
 	val available = Seq(modules.GameEngine)
-	
-	
-	assert(available.size >= 1)
-	var currentmodule:Module = available(0)
-	
-	def reset {
-		NoiseEditor.reset
-		InterpreterManager.reset
-		InterpreterManager(scalainitcode)
-	}
+	var currentmodule:Module = null
 	
 	def load(moduletitle:String) {
-		if( FileManager.unsavedQuestion ) {
-			println("ModuleManager: Loading Module " + moduletitle)
-			available.find(_.title == moduletitle) match {
-				case Some(module) =>
-					//if( check(module) ) {
-						currentmodule = module
-						NoiseEditor.reset
-						InterpreterManager.reset
-						InterpreterManager(scalainitcode)
+		println("ModuleManager: Loading Module " + moduletitle)
+		available.find(_.title == moduletitle) match {
+			case Some(module) =>
+				//if( check(module) ) {
+					currentmodule = module
+					InterpreterManager.reset
+					InterpreterManager(ModuleManager.scalainitcode)
+					NoiseEditor.rebuildmenu
+					// Load some preconnected nodes
+					try {
+						//TODO: Different Resourcepath on Mac OSX?
+						FileManager.readSession(
+							getClass.getClassLoader.getResource("default_"+moduletitle+".xml").getPath
+						)
+					}
+					catch {
+						case e:Exception =>
+							FileManager.newSession
+					}
 /*					}
-					else {
-						throw new Exception("Error in Module definitions.")
-					}*/
-				case None =>
-					throw new Exception("Module " + moduletitle + " does not exist.")
-			}
+				else {
+					throw new Exception("Error in Module definitions.")
+				}*/
+			case None =>
+				throw new Exception("Module " + moduletitle + " does not exist.")
 		}
 	}
 	
 	def title = currentmodule.title
 	def scalainitcode = currentmodule.scalainitcode
-	def nodecategories = currentmodule.nodecategories
+	def nodecategories = if(currentmodule != null) currentmodule.nodecategories else Seq()
 	def typedefaults = currentmodule.typedefaults
-	//def languages = currentmodule.languages
-	def exporttypes = currentmodule.exporttypes
+	def exporttypes = if(currentmodule != null) currentmodule.exporttypes else Seq()
 	def export = currentmodule.export _
-	//def resultfunctions = currentmodule.resultfunctions
 	def sliderdatatypes = currentmodule.sliderdatatypes
 	
 	def check(module:Module):Boolean = {

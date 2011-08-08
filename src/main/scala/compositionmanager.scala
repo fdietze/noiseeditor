@@ -33,7 +33,6 @@ object CompositionManager {
 			}
 			if( out.function.isDefinedAt(language) )
 				functions += out.function(language)
-			println(out.function)
 			return CompositionTree(out.function(language), out.node.id, out.node.sliders, arguments)
 		}
 		

@@ -24,9 +24,9 @@ object InterpreterManager extends InterpreterQueue {
 	}
 	
 	override def reset {
+		println("InterpreterManager: reset")
 		super.reset
 		init
-		println("InterpreterManager: reset")
 	}
 }
 
@@ -82,7 +82,9 @@ class InterpreterQueue extends tools.nsc.interpreter.IMain {
 	}
 	
 	override def reset {
-		jq ! Job(() => super.reset)
+		jq ! Job(() => {
+			super.reset
+		})
 	}
 }
 
