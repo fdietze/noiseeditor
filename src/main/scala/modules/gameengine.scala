@@ -139,6 +139,37 @@ object GameEngine extends Module {
 
 		NodeCategory("Math",
 			Seq(
+				NodeType("DeVec",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec3")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v","vec3")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"x" -> NodeFunction("devecx", "Double","v.x"),
+							"y" -> NodeFunction("devecy", "Double","v.y"),
+							"z" -> NodeFunction("devecz", "Double","v.z")
+						),
+						"glsl" -> Map(
+							"x" -> NodeFunction("devecx", "float","v.x"),
+							"y" -> NodeFunction("devecy", "float","v.y"),
+							"z" -> NodeFunction("devecz", "float","v.z")
+						),
+						"prediction" -> Map(
+							"x" -> NodeFunction("devecx", "Interval","v.x"),
+							"y" -> NodeFunction("devecy", "Interval","v.y"),
+							"z" -> NodeFunction("devecz", "Interval","v.z")
+						)
+					)
+				),
 				NodeType("Min2",
 					LanguageMap(
 						"scala" -> Seq(
