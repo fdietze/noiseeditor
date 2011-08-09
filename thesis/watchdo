@@ -1,0 +1,9 @@
+#!/bin/sh
+
+$*
+
+while true
+do
+	inotifywait . -rqe close_write
+	$*
+done

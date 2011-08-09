@@ -1,0 +1,71 @@
+\chapter{Noise-Editor}
+\section{Motivation}
+Prozedurale Welten können durch Kompositionen von Dichtefunktionen beschrieben werden. Im gängigen Workflow wird eine solche Komposition in der Programmiersprache des Renderers geschrieben, kompiliert, das Programm gestartet und das Resultat betrachtet. Entspricht das Ergebnis nicht den Erwartungen wird der Code angepasst und die restlichen Schritte erneut ausgeführt. Jede dieser Iterationen nimmt viel Zeit in Anspruch und führt bei komplexeren Kompositionen erst nach sehr langer Zeit oder nicht zu sinnvollen Ergebnissen.
+
+Um das Entwerfen von prozeduralen Welten zu beschleunigen, habe ich ein Werkzeug entwickelt, mit dem es innerhalb kürzester Zeit möglich ist, Funktionen zu komponieren, deren Parameter zu ändern und das Ergebnis in Echtzeit betrachten zu können.
+
+\section{Anforderungen}
+Dem Noise-Editor unterliegen einige Anforderungen, um den Workflow drastisch verbessern zu können:
+\begin{enumerate}
+	\item Es muss die Komposition beliebiger Funktionen möglich sein.
+	\item Änderungen der Kompositionsschachtelung müssen in Echtzeit angezeigt werden.
+	\item Änderungen der Parameter einer Funktion müssen in Echtzeit angezeigt werden.
+	\item Sollte keine passende Integrierte Funktion für einen Anwendungsfall bereit stehen, muss es die Möglichkeit geben, eigenen Code eingeben zu können.
+	\item Eine Prozedurale Welt besteht aus Formen (Dichte) und Materialien. Diese zwei Aspekte müssen modellierbar sein.
+	\item Es muss Code in der Sprache des Renderers exportiert werden können um, nahtlos mit jedem beliebigen Renderer arbeiten zu können.
+	\item Für Kompositionen im $\mathbb{R}^3$ muss in der Vorschau die Tiefe wahrnehmbar sein.
+\end{enumerate}
+
+\section{Umsetzung}
+Die oben erwähnten Anforderungen lassen sich mit einem Node-Editor wie folgt modellieren:
+
+Jeder Node entspricht einer Funktion. Daher besitzt jeder Node Eingänge für Argumente und einen Ausgang für den Funktionswert. Besteht eine Verbindung zwischen dem Ausgang eines Nodes und dem Eingang eines anderen Nodes entspricht dies einer Komposition der beiden Funktionen. Konstante Argumente entsprechen Schiebereglern auf einem Node. Es existieren weitere Nodes um die Verarbeitung der Komposition zu modellieren (Vorschau), die Weltkoordinaten in Funktionen einsetzen zu können (Quellen) und ein Node zur Eingabe von eigenem Code. Zudem enthält der Vorschau-Node zwei Eingange für Material und Dichte.
+
+Jedem Node unterliegt Programmcode für die darstellende Funktion. Aus diesen Codeteilen kann über den Kompositionsbaum Code für den Renderer generiert werden.
+
+Die fehlenden Punkte für Echtzeit- und Tiefen-Vorschau sind abhängig von der Implementierung des Editors und werden in Sektion \ref{architecture} behandelt.
+
+\section{Softwarearchitektur}
+\label{architecture}
+\subsection{Graphische Oberfläche und Organisation der Nodes}
+\subsection{Verwaltung der Verbindungen, Code-Generierung und Echtzeit-Vorschau}
+
+
+
+
+
+%	- Architektur des Noise-Node-Editors
+%		- Scala/Swing, Components
+%		- Traits für Eigenschaften/Features von Swing-Componenten (Resize, Move, ScrollZoom)
+%		- Event-Fluss
+%		- Definition von Nodes/Kategorien
+%			- Instanz eines Nodes als Swing-Komponente
+%		- Verbindung von Nodes
+%			- unterliegende Datenstruktur
+%			- Konnektoren und Datentypen
+%				- (Keine Listen, d.h. Gruppierung von Argumenten, wegen Komplexität der Codegenerierung und Performance-Problemen)
+%		- Code-Generierung
+%			- Module für unterschiedliche Anwendungszwecke
+%			- Baum-Modell für beliebige Sprachen
+%			- Beispielgenerierung: Scala-Code
+%		- Echtzeit-Vorschau durch Laufzeit-Compilierung von generiertem Code
+%			- Interpreter-Warteschlange
+%			- Binden von Slider-Werten an compilierten Code
+%			- Interpretierte Formeln für Slider
+%		- Weitere Features
+%			- Custom-Nodes
+%			- Perspektiven
+%			- Verschiedene Ansichten der Preview, u.a. Tiefen-Ansicht, Normalisierung
+%			- Materialien
+%			- Laden/Speichern von Kompositionen mit XML
+%			- Verschiebbarkeit/Scrollbarkeit der Arbeitsfläche
+%	- Interessante Kompositionen
+%		- Oberfläche
+%		- Gesteinsschichten
+%		- Verzerrung durch Noise
+%		- Technodots
+%		- Schachbrett-Muster
+%		- ...?
+%	- Anwndungsbeispiele
+%		- Game-Engine
+%		- ...?
