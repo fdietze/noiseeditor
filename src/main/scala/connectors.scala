@@ -21,9 +21,13 @@ abstract class Connector(val title:String, val datatype:String, val node:Node) e
 	val highlightbackground = ConnectorHighlightColor
 	tooltip = "Type: " + datatype
 
+	listenTo(mouse.clicks)	
+	
 	reactions += {
 		case e:ButtonClicked =>
-			publish(HitConnector(source = this,connector = this))
+			publish(HitConnector(source = this, connector = this))
+		case MouseClicked(_, point, 0, 2, _) =>
+			publish(HitConnector(source = this, connector = this, clicks=2))
 	}
 	override def toString = getClass.getName.split('.').last + "(" + title + ", " + node + ")"
 }

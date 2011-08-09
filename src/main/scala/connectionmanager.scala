@@ -98,7 +98,17 @@ object ConnectionManager extends Component {
 	}
 	
 	reactions += {
-		case HitConnector(source, connector) =>
+		// Double Click on Connector:
+		// Remove all connections to this connector
+		case HitConnector(source, connector, 2) =>
+			connector match {
+				case in:InConnector => connections -= in
+				case out:OutConnector => connections -= out
+			}
+			commitconnection
+		
+		// Single Click on Connector
+		case HitConnector(source, connector, 1) =>
 			(connstart, connector) match {
 				case (Some(in:InConnector), out:OutConnector) =>
 					if( changeConnection(in, out) )

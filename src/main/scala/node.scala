@@ -82,6 +82,8 @@ class FormulaSlider(slidername:String, nodeid:Int, initvalue:Int = 50) extends S
 	preferredSize = Vec2i(100,preferredSize.height)
 }
 
+
+
 abstract class Node(val title:String, val id:Int = Node.nextid) extends BoxPanel(Vertical) with Movable {
 	def arguments:LanguageMap[Seq[NodeArgument]] = LanguageMap()
 	def sliderdefinitions:Seq[NodeSlider] = Nil
@@ -94,6 +96,8 @@ abstract class Node(val title:String, val id:Int = Node.nextid) extends BoxPanel
 	def thisnode = this // For accessing the node instance in inner classes
 	override def toString = getClass.getName + "(" + title + ")"
 }
+
+
 
 trait NodeInit extends Node with DelayedInit {
 	val titledborder = new TitledBorder(new SoftBevelBorder(RAISED), title)
@@ -153,8 +157,8 @@ trait NodeInit extends Node with DelayedInit {
 		listenTo(connector)
 
 	reactions += {
-		case HitConnector(source:Connector, connector) =>
-			publish(HitConnector(source=this, connector))
+		case HitConnector(source:Connector, connector, clicks) =>
+			publish(HitConnector(source=this, connector, clicks))
 	}	
 
 	// listen to sliders and publish for this node
