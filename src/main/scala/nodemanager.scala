@@ -74,8 +74,8 @@ object NodeManager extends NullPanel("NodeManager") {
 		case NodeChanged(source, node) if(source ne this) =>
 			publish(NodeChanged(source = this, node))
 
-		case HitConnector(source, connector) if(source ne this) =>
-			publish(HitConnector(source = this, connector))
+		case HitConnector(source, connector, clicks) if(source ne this) =>
+			publish(HitConnector(source = this, connector, clicks))
 
 		case UIElementMoved(source:Node) =>
 			publish(NodeMoved(this, node = source))

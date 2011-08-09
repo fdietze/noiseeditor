@@ -383,7 +383,31 @@ object GameEngine extends Module {
 						),
 						"prediction" -> Map(
 							"o" -> NodeFunction("constantexp", "Interval",
-							"""Interval(value,value)""")
+							"""Interval(value)""")
+						)
+					)
+				),
+				NodeType("Constant -1..1",
+					LanguageMap(
+						"scala" -> Nil,
+						"glsl" -> Nil,
+						"prediction" -> Nil
+					),
+					Seq(
+						NodeSlider("value", "s*2-1")
+					),
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("constant1", "Double",
+							"""value""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("constant1", "float",
+							"""return value;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("constant1", "Interval",
+							"""Interval(value)""")
 						)
 					)
 				),
@@ -477,6 +501,22 @@ object GameEngine extends Module {
 						)
 					)
 				),
+				NodeType("Rotation",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec3")
+						)
+					),
+					Seq(
+						NodeSlider("angle", "(s*2-1)*Pi")
+					),
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("rotate", "Vec3",
+							"""Mat3(Mat3x4 rotateZ angle) * v""")
+						)
+					)
+				),
 				NodeType("Vec3",
 					LanguageMap(
 						"scala" -> Seq(
@@ -510,7 +550,38 @@ object GameEngine extends Module {
 							"""Volume(x,y,z)""")
 						)
 					)
-				)
+				),
+				NodeType("Extract Vec3",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec3")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v","vec3")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"x" -> NodeFunction("vec3x", "Double","v.x"),
+							"y" -> NodeFunction("vec3y", "Double","v.y"),
+							"z" -> NodeFunction("vec3z", "Double","v.z")
+						),
+						"glsl" -> Map(
+							"x" -> NodeFunction("vec3x", "float","v.x"),
+							"y" -> NodeFunction("vec3y", "float","v.y"),
+							"z" -> NodeFunction("vec3z", "float","v.z")
+						),
+						"prediction" -> Map(
+							"x" -> NodeFunction("vec3x", "Interval","v.x"),
+							"y" -> NodeFunction("vec3y", "Interval","v.y"),
+							"z" -> NodeFunction("vec3z", "Interval","v.z")
+						)
+					)
+				)			
 			)
 		),
 
