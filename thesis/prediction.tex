@@ -1,0 +1,19 @@
+\chapter{Vorhersage von Kompositionen}
+%%\begin{figure}[ht!]
+%%\rahmengraphik[0.5]{01/bla.eps}
+%%\caption{ Beispiel }
+%%\label{bsp_label}
+%%\end{figure}
+	- Intervall-Vorhersage durch Intervallarithmetik
+		- Intervallarithmetik auf einfachen Funktionen
+		- Intervallarithmetik für Improved Perlin Noise
+			- Perlin-Noise ist Polynom
+			- Polynome lassen sich in Bezierkurven mit regelmäßiger Anordnung der Kontrollpunkte umrechnen
+			- Bezierkurven lassen sich leicht zerschneiden
+			- Bezierkurven liegen in der Konvexen hülle der Kontrollpunkte
+			- Das Minimum und Maximum der Kontrollpunkte bestimmt den zu erwartenden Wertebereich.
+			- Implementierung
+		- Vorhersage in der GameEngine
+			- Bereichsanfrage von Oktanten
+			- Kontrollpunkt-cache in der Noise-Prediction
+			- Vorhersage-Code-Generierung mit dem Noise-Editor

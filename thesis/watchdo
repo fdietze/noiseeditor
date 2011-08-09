@@ -4,6 +4,6 @@ $*
 
 while true
 do
-	inotifywait . -re close_write
+	inotifywait . -rqe close_write
 	$*
 done
