@@ -17,6 +17,7 @@ object GameEngine extends Module {
 	val scalainitcode = """
 		import noise.Noise.noise3
 	"""
+	
 	val typedefaults = LanguageMap(
 		"scala" -> 	Map(
 			"Int" -> "0",
@@ -503,7 +504,7 @@ object GameEngine extends Module {
 						),
 						"prediction" -> Map(
 							"o" -> NodeFunction("sphere", "Interval",
-							"""radius-intervalsqrt(volumedot(v,v))""")
+							"""-intervalsqrt(volumedot(v,v)) + radius""")
 						)
 					)
 				),
@@ -535,7 +536,7 @@ object GameEngine extends Module {
 							"v" -> NodeFunction("createvec3", "vec3",
 							"""return vec3(x,y,z);""")
 						),
-						"scala" -> Map(
+						"prediction" -> Map(
 							"v" -> NodeFunction("createvec3", "Volume",
 							"""Volume(x,y,z)""")
 						)
@@ -773,8 +774,8 @@ object GameEngine extends Module {
 					chooser.selectedFile = oldselectedfile*/
 
 	def export(preview:Preview, exporttype:String) = {
-		def generatescaladensitycode  = generatescalacode("proceduralworld_density", "0.0", preview.connectedoutconnector("d"))
-		def generatescalamaterialcode = generatescalacode("proceduralworld_material", "Material()", preview.connectedoutconnector("m"))
+		def generatescaladensitycode  = generatescalacode("density", "0.0", preview.connectedoutconnector("d"))
+		def generatescalamaterialcode = generatescalacode("material", "Material()", preview.connectedoutconnector("m"))
 		def generateglslmaterialcode  = generateglslcode (preview.connectedoutconnector("m"))
 		def generatepredictiondensitycode = generatepredictioncode(preview.connectedoutconnector("d"))
 
@@ -793,6 +794,28 @@ object GameEngine extends Module {
 					println(generatepredictiondensitycode)
 
 				case "engine" =>
+					println("Exporting to Engine:")
+					
+					var path = "../gameengine"
+					
+					println("clearing world cache...")
+					Runtime.getRuntime.exec("rm " + path + "/worldoctree")
+
+					println("generating scala density code...")
+					var out = new java.io.FileWriter(path + "/src/main/scala/worldfunction.scala")
+					out.write(generatescaladensitycode)
+					out.close
+
+					println("generating glsl code...")
+					out = new java.io.FileWriter(path + "/src/main/resources/shaders/screen.frag")
+					out.write(generateglslmaterialcode)
+					out.close
+				
+					println("generating prediction code...")
+					out = new java.io.FileWriter(path + "/src/main/scala/worldprediction.scala")
+					out.write(generatepredictiondensitycode)
+					out.close
+					println("done")
 			}
 		}
 		catch {
@@ -853,8 +876,8 @@ object GameEngine extends Module {
 			case None =>
 		}
 
-"""package xöpäx
-package object gen {
+""" 
+package xöpäx.gen
 
 import noise.Noise.noise3
 
@@ -863,7 +886,10 @@ import simplex3d.math.double._
 import simplex3d.math.double.functions._
 
 case class Material(color:Int = 0x000000)
-def %s(world:Vec3) = {
+
+object %s {
+
+def apply(world:Vec3) = {
 %s
 
 %s
@@ -871,7 +897,8 @@ def %s(world:Vec3) = {
 %s
 }
 
-}""".format( functionname, functioncode, functioncallcode, returnvalue )
+}
+""".format( functionname, functioncode, functioncallcode, returnvalue )
 	}
 
 
@@ -928,7 +955,8 @@ def %s(world:Vec3) = {
 			case None =>
 		}
 
-"""#version 120
+""" 
+#version 120
 //#extension GL_EXT_gpu_shader4 : enable
 //#extension GL_ARB_gpu_shader_fp64 : enable
 
@@ -1078,8 +1106,8 @@ void main(){
 			case None =>
 		}
 		
-"""package xöpäx
-package object gen {
+""" 
+package xöpäx.gen
 
 import simplex3d.math._
 import simplex3d.math.double._
@@ -1088,14 +1116,15 @@ import simplex3d.math.double.functions._
 import noise.Noise.noise3_prediction
 import noise.intervals._
 
-def proceduralworld_prediction(world:Volume) = {
+object prediction {
+
+def apply(world:Volume) = {
 
 %s
 
 %s
 
 %s
-
 }
 
 }
