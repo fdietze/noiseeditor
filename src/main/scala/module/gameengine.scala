@@ -1,9 +1,11 @@
 package noiseeditor.modules
 
-import noiseeditor.utilities._
-import noiseeditor.datastructures._
+import noiseeditor.util._
+import noiseeditor.datastructure._
 
-import noiseeditor.{ModuleManager, CompositionManager, Preview, Module, OutConnector}
+import noiseeditor.{Preview, Module}
+import noiseeditor.manager.CompositionManager
+import noiseeditor.connector.OutConnector
 
 //TODO: More High Level nodes, like Surface, Layers, Fractal Noise, Turbulence
 //TODO: More Noise types, like cellular noise
@@ -167,7 +169,7 @@ object GameEngine extends Module {
 						),
 						"prediction" -> Map(
 							"o" -> NodeFunction("min2", "Interval",
-							"""intervalmin(a,b)""")
+							"""interval.min(a,b)""")
 						)
 					)
 				),
@@ -201,7 +203,7 @@ object GameEngine extends Module {
 						),
 						"prediction" -> Map(
 							"o" -> NodeFunction("min3", "Interval",
-							"""intervalmin(intervalmin(a,b),c)""")
+							"""interval.min(interval.min(a,b),c)""")
 						)
 					)
 				),
@@ -232,7 +234,7 @@ object GameEngine extends Module {
 						),
 						"prediction" -> Map(
 							"o" -> NodeFunction("max2", "Interval",
-							"""intervalmax(a,b)""")
+							"""interval.max(a,b)""")
 						)
 					)
 				),
@@ -266,7 +268,7 @@ object GameEngine extends Module {
 						),
 						"prediction" -> Map(
 							"o" -> NodeFunction("max3", "Interval",
-							"""intervalmax(intervalmax(a,b),c)""")
+							"""interval.max(interval.max(a,b),c)""")
 						)
 					)
 				),
@@ -617,15 +619,15 @@ object GameEngine extends Module {
 					LanguageMap(
 						"scala" -> Map(
 							"o" -> NodeFunction("sphere", "Double",
-							"""radius-sqrt(dot(v,v))""")
+							"""radius - sqrt(dot(v,v))""")
 						),
 						"glsl" -> Map(
 							"o" -> NodeFunction("sphere", "float",
-							"""return radius-sqrt(dot(v,v));""")
+							"""return radius - sqrt(dot(v,v));""")
 						),
 						"prediction" -> Map(
 							"o" -> NodeFunction("sphere", "Interval",
-							"""-intervalsqrt(volumedot(v,v)) + radius""")
+							"""-interval.length(v) + radius""")
 						)
 					)
 				),
@@ -781,7 +783,7 @@ object GameEngine extends Module {
 							"m" -> NodeFunction("matmix", "Material", "if(t >= shift) m1 else m2")
 						),
 						"glsl" -> Map(
-							"m" -> NodeFunction("matmix", "vec4", "return t >= shift ? m1 : m2")
+							"m" -> NodeFunction("matmix", "vec4", "return t >= shift ? m1 : m2;")
 						)
 					)
 				),
@@ -1320,7 +1322,8 @@ import simplex3d.math.double._
 import simplex3d.math.double.functions._
 
 import noise.Noise.noise3_prediction
-import noise.intervals._
+import noise.interval
+import noise.interval.{Interval, Volume}
 
 object prediction {
 

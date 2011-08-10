@@ -1,11 +1,14 @@
-package noiseeditor
+package noiseeditor.connector
 
-import utilities._
-import config._
-import datastructures._
+import noiseeditor.Node
+import noiseeditor.event._
+
+import noiseeditor.util._
+import noiseeditor.config._
+import noiseeditor.datastructure._
 
 import swing._
-import event._
+import swing.event._
 import javax.swing.SwingUtilities._
 import Orientation._
 import java.awt.Color._

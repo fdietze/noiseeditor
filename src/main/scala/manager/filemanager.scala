@@ -1,11 +1,15 @@
-package noiseeditor
+package noiseeditor.manager
 
-import utilities._
-import datastructures._
-import swingextensions._
+import noiseeditor.event._
+import noiseeditor.{Node, PredefinedNode, CustomNode, Preview}
+import noiseeditor.NoiseEditor
+
+import noiseeditor.util._
+import noiseeditor.datastructure._
+import noiseeditor.swingextension._
 
 import swing._
-import event._
+import swing.event._
 import Orientation._
 
 import xml._
@@ -336,7 +340,7 @@ object FileManager extends Publisher {
 							for( (language, nodefunctions) <- functions ) yield {
 								<language name={language}>{
 									for( (outname, NodeFunctionFull(name, returntype, code, _, _)) <- nodefunctions ) yield {
-										<function outname={outname} name={name} returntype={returntype}>{code}</function>
+										<function outname={outname} name={uidsuffix(name)} returntype={returntype}>{code}</function>
 									}
 								}</language>
 							}

@@ -1,12 +1,14 @@
 package noiseeditor
 
+import manager._
+
 import config._
-import utilities._
-import swingextensions._
-import datastructures._
+import util._
+import swingextension._
+import datastructure._
 
 import swing._
-import event._
+import swing.event._
 import javax.swing.UIManager
 import javax.swing.SwingUtilities._
 import javax.swing.border._
