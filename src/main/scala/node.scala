@@ -121,7 +121,7 @@ trait NodeInit extends Node with DelayedInit {
 
 	override val sliders = 
 		for( NodeSlider(name, sformula, initvalue,  _) <- sliderdefinitions ) yield {
-			val compilation = InterpreterManager[Double => Double]("(s:Double) => " + sformula)
+			val compilation = InterpreterManager[Double => Double]("(s:Double) => {" + sformula + "}")
 			new FormulaSlider(name, nodeid = id, initvalue) {
 				compilation() match {
 					case Some(f) =>

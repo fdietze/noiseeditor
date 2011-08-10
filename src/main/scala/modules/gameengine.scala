@@ -59,7 +59,7 @@ object GameEngine extends Module {
 						"prediction" -> Nil
 					),
 					Seq(
-						NodeSlider("scale","pow(256,((0.5-s)*2))")
+						NodeSlider("scale","pow(256, 1-s*2)")
 					),
 					LanguageMap(
 						"scala" -> Map(	
@@ -115,9 +115,9 @@ object GameEngine extends Module {
 						)
 					),
 					Seq(
-						NodeSlider("size", "pow(256,((0.5-s)*2))"),
-						NodeSlider("scale", "pow(256,((s-0.5)*2))"),
-						NodeSlider("offset", "(s-0.5)*2")
+						NodeSlider("size", "pow(256, 1-s*2)"),
+						NodeSlider("scale", "pow(256, s*2-1)"),
+						NodeSlider("offset", "s*2-1")
 					),
 					//TODO: transpose language and function map to reduce errors when writing definitions?
 					LanguageMap(
@@ -140,7 +140,7 @@ object GameEngine extends Module {
 
 		NodeCategory("Math",
 			Seq(
-				NodeType("Min2",
+				NodeType("Min 2",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("a","Double"),
@@ -171,7 +171,41 @@ object GameEngine extends Module {
 						)
 					)
 				),
-				NodeType("Max2",
+				NodeType("Min 3",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double"),
+							NodeArgument("b","Double"),
+							NodeArgument("c","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float"),
+							NodeArgument("b","float"),
+							NodeArgument("c","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval"),
+							NodeArgument("b","Interval"),
+							NodeArgument("c","Interval")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("min3", "Double",
+							"""min(min(a,b),c)""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("min3", "float",
+							"""return min(min(a,b),c);""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("min3", "Interval",
+							"""intervalmin(intervalmin(a,b),c)""")
+						)
+					)
+				),
+				NodeType("Max 2",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("a","Double"),
@@ -202,7 +236,41 @@ object GameEngine extends Module {
 						)
 					)
 				),
-				NodeType("Sum2",
+				NodeType("Max 3",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double"),
+							NodeArgument("b","Double"),
+							NodeArgument("c","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float"),
+							NodeArgument("b","float"),
+							NodeArgument("c","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval"),
+							NodeArgument("b","Interval"),
+							NodeArgument("c","Interval")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("max3", "Double",
+							"""max(max(a,b),c)""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("max3", "float",
+							"""return max(max(a,b),c);""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("max3", "Interval",
+							"""intervalmax(intervalmax(a,b),c)""")
+						)
+					)
+				),
+				NodeType("Sum 2",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("a","Double"),
@@ -233,7 +301,7 @@ object GameEngine extends Module {
 						)
 					)
 				),
-				NodeType("Sum3",
+				NodeType("Sum 3",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("a","Double"),
@@ -267,7 +335,7 @@ object GameEngine extends Module {
 						)
 					)
 				),
-				NodeType("Product2",
+				NodeType("Product 2",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("a","Double", "1.0"),
@@ -298,7 +366,7 @@ object GameEngine extends Module {
 						)
 					)
 				),
-				NodeType("Product3",
+				NodeType("Product 3",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("a","Double", "1.0"),
@@ -332,7 +400,7 @@ object GameEngine extends Module {
 						)
 					)
 				),
-				NodeType("Diff2",
+				NodeType("Diff 2",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("a","Double"),
@@ -363,6 +431,34 @@ object GameEngine extends Module {
 						)
 					)
 				),
+				NodeType("Negate",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("negate", "Double",
+							"""-a""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("negate", "float",
+							"""return -a;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("negate", "Interval",
+							"""-a""")
+						)
+					)
+				),
 				NodeType("Constant Exp",
 					LanguageMap(
 						"scala" -> Nil,
@@ -370,7 +466,7 @@ object GameEngine extends Module {
 						"prediction" -> Nil
 					),
 					Seq(
-						NodeSlider("value", "pow(256,((s-0.5)*2))")
+						NodeSlider("value", "pow(256, s*2-1)")
 					),
 					LanguageMap(
 						"scala" -> Map(
@@ -424,7 +520,7 @@ object GameEngine extends Module {
 						)
 					),
 					Seq(
-						NodeSlider("value", "pow(256,((s-0.5)*2))",0)
+						NodeSlider("value", "val s1 = (s*2-1); if(s1 >= 0) pow(257, s1)-1 else 1-pow(257, -s1)")
 					),
 					LanguageMap(
 						"scala" -> Map(
@@ -454,7 +550,7 @@ object GameEngine extends Module {
 						)
 					),
 					Seq(
-						NodeSlider("value", "pow(256,((s-0.5)*2))")
+						NodeSlider("value", "pow(256, s*2-1)")
 					),
 					LanguageMap(
 						"scala" -> Map(
@@ -471,6 +567,38 @@ object GameEngine extends Module {
 						)
 					)
 				),
+				NodeType("Scale Vec3",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec3")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v","vec3")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume")
+						)
+					),
+					Seq(
+						NodeSlider("x", "pow(256, s*2-1)"),
+						NodeSlider("y", "pow(256, s*2-1)"),
+						NodeSlider("z", "pow(256, s*2-1)")
+					),
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("scalevec3", "Vec3",
+							"""v*Vec3(x,y,z)""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("scalevec3", "vec3",
+							"""return v*vec3(x,y,z);""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("scalevec3", "Volume",
+							"""v*Volume(Vec3(x,y,z))""")
+						)
+					)
+				),
 				NodeType("Sphere",
 					LanguageMap(
 						"scala" -> Seq(
@@ -484,7 +612,7 @@ object GameEngine extends Module {
 						)
 					),
 					Seq(
-						NodeSlider("radius", "pow(256,((s-0.5)*2))")
+						NodeSlider("radius", "pow(256, s*2-1)")
 					),
 					LanguageMap(
 						"scala" -> Map(
@@ -501,10 +629,16 @@ object GameEngine extends Module {
 						)
 					)
 				),
-				NodeType("Rotation",
+				NodeType("Z-Rotation",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("v","Vec3")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v","vec3")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume")
 						)
 					),
 					Seq(
@@ -513,6 +647,14 @@ object GameEngine extends Module {
 					LanguageMap(
 						"scala" -> Map(
 							"o" -> NodeFunction("rotate", "Vec3",
+							"""Mat3(Mat3x4 rotateZ angle) * v""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("rotate", "vec3",
+							"""Mat3(Mat3x4 rotateZ angle) * v""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("rotate", "Volume",
 							"""Mat3(Mat3x4 rotateZ angle) * v""")
 						)
 					)
@@ -590,31 +732,31 @@ object GameEngine extends Module {
 				NodeType("RGB",
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),
 					Seq(NodeSlider("r"), NodeSlider("g"), NodeSlider("b")),
-					LanguageMap("scala" -> Map( "m" -> NodeFunction("matrgb", "Material", "Material((r*255).toInt << 16 | (g*255).toInt << 8 | (b*255).toInt);") ),
+					LanguageMap("scala" -> Map( "m" -> NodeFunction("matrgb", "Material", "Material((r*255).toInt << 16 | (g*255).toInt << 8 | (b*255).toInt)") ),
 						"glsl" -> Map("m" -> NodeFunction("matrgb", "vec4", "return vec4(r, g, b, 0.0);")	)
 					)
 				),
 				NodeType("Gold",
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
-					LanguageMap("scala" -> Map( "m" -> NodeFunction("matgold", "Material", "Material(0xfab614);") ),
+					LanguageMap("scala" -> Map( "m" -> NodeFunction("matgold", "Material", "Material(0xfab614)") ),
 						"glsl" -> Map("m" -> NodeFunction("matgold", "vec4", "return vec4(0.98, 0.71, 0.08, 0.0);")	)
 					)
 				),
 				NodeType("Stone",
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
-					LanguageMap("scala" -> Map( "m" -> NodeFunction("matstone", "Material", "Material(0x8e8e8e);") ),
+					LanguageMap("scala" -> Map( "m" -> NodeFunction("matstone", "Material", "Material(0x8e8e8e)") ),
 						"glsl" -> Map("m" -> NodeFunction("matstone", "vec4", "return vec4(0.56, 0.56, 0.56, 0.0);")	)
 					)
 				),
 				NodeType("Gravel",
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
-					LanguageMap("scala" -> Map( "m" -> NodeFunction("matgravel", "Material", "Material(0x4f4f4f);") ),
+					LanguageMap("scala" -> Map( "m" -> NodeFunction("matgravel", "Material", "Material(0x4f4f4f)") ),
 						"glsl" -> Map("m" -> NodeFunction("matgravel", "vec4", "return vec4(0.31, 0.31, 0.31, 0.0);")	)
 					)
 				),
 				NodeType("Earth",
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
-					LanguageMap("scala" -> Map( "m" -> NodeFunction("matearth", "Material", "Material(0x5a3910);") ),
+					LanguageMap("scala" -> Map( "m" -> NodeFunction("matearth", "Material", "Material(0x5a3910)") ),
 						"glsl" -> Map("m" -> NodeFunction("matearth", "vec4", "return vec4(0.35, 0.22, 0.06, 0.0);")	)
 					)
 				),
@@ -631,52 +773,76 @@ object GameEngine extends Module {
 							NodeArgument("m2","vec4")
 						)
 					),
+					Seq(
+						NodeSlider("shift", "val s1 = (s*2-1); if(s1 >= 0) pow(257, s1)-1 else 1-pow(257, -s1)")
+					),
+					LanguageMap(
+						"scala" -> Map(
+							"m" -> NodeFunction("matmix", "Material", "if(t >= shift) m1 else m2")
+						),
+						"glsl" -> Map(
+							"m" -> NodeFunction("matmix", "vec4", "return t >= shift ? m1 : m2")
+						)
+					)
+				),
+				NodeType("Blend Materials (not working yet)",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("m1","Material"),
+							NodeArgument("t","Double"),
+							NodeArgument("m2","Material")
+						),
+						"glsl" -> Seq(
+							NodeArgument("m1","vec4"),
+							NodeArgument("t","float"),
+							NodeArgument("m2","vec4")
+						)
+					),
 					Nil,
 					LanguageMap(
 						"scala" -> Map(
-							"m" -> NodeFunction("matthreshold", "Material", "if(t >= 0) m1 else m2;")
+							"m" -> NodeFunction("matthreshold", "Material",
+								"""Material(
+									((m1.color >> 16)*clamp(t,0,1) + (m2.color >> 16)*clamp(1-t,0,1)).toInt << 16)""")
 						),
 						"glsl" -> Map(
-							"m" -> NodeFunction("matthreshold", "vec4", "return t >= 0 ? m1 : m2;")
+							"m" -> NodeFunction("matthreshold", "vec4", "return ;")
+						)
+					)
+				),
+				NodeType("Switch 2 Materials",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("m1","Material"),
+							NodeArgument("t1","Double"),
+							NodeArgument("t2","Double"),
+							NodeArgument("m2","Material")
+						),
+						"glsl" -> Seq(
+							NodeArgument("m1","vec4"),
+							NodeArgument("t1","float"),
+							NodeArgument("t2","float"),
+							NodeArgument("m2","vec4")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"m" -> NodeFunction("matswitch2", "Material", "if(t1 >= t2) m1 else m2;")
+						),
+						"glsl" -> Map(
+							"m" -> NodeFunction("matswitch2", "vec4", "return t1 >= t2 ? m1 : m2;")
 						)
 					)
 				)
+
 			)
 		)
 
 
 	)
 		
-/*		NodeCategory("Sources",
-			Seq(
-				NodeType("Scalable World",
-					Nil,
-					Seq(
-						NodeSlider("scale","pow(256,((0.5-s)*2))")
-						),
-					Map(	
-						"v" -> NodeFunction("scalesrcv", "Vec3",   "world   * scale"),
-						"x" -> NodeFunction("scalesrcx", "Double", "world.x * scale"),
-						"y" -> NodeFunction("scalesrcy", "Double", "world.y * scale"),
-						"z" -> NodeFunction("scalesrcz", "Double", "world.z * scale")
-					)
-				)
-			)
-		)*/
-
-/*		
-
-		
-		FunctionNodeType("Noise", "Noise v", Seq("v:Vec3=Vec3(0)"),
-			Seq(
-				("size", "pow(256,((0.5-s)*2))"),
-				("scale", "pow(256,((s-0.5)*2))"),
-				("offset", "(s-0.5)*2")),
-			Function("noise3v" ,"(noise1(v*size)+offset)*scale/size", "Double")),
-
-
-			
-		FunctionNodeType("Combinations","Mix", Seq("x:Double","y:Double"), Seq("mixvalue"),
+/*		FunctionNodeType("Combinations","Mix", Seq("x:Double","y:Double"), Seq("mixvalue"),
 			Function("mix", "x*(1-mixvalue)+y*mixvalue", "Double")),
 			
 		FunctionNodeType("Combinations", "Threshold", Seq("x:Double=1","t:Double","y:Double=0"),	Seq(("threshold","(s-0.5)*2")),
