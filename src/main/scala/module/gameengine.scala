@@ -13,14 +13,14 @@ import noiseeditor.connector.OutConnector
 
 object GameEngine extends Module {
 	
-	val exporttypes = Seq("scala_density", "scala_material", "glsl_material", "prediction", "engine")
-	val languages = Seq("scala", "glsl", "prediction")
+	override val exporttypes = Seq("engine", "scala_density", "scala_material", "glsl_material", "prediction")
+	override val languages = Seq("scala", "glsl", "prediction")
 
-	val scalainitcode = """
+	override val scalainitcode = """
 		import noise.Noise.noise3
 	"""
 	
-	val typedefaults = LanguageMap(
+	override val typedefaults = LanguageMap(
 		"scala" -> 	Map(
 			"Int" -> "0",
 			"Double" -> "0.0",
@@ -50,7 +50,7 @@ object GameEngine extends Module {
 	)
 
 
-	lazy val nodecategories:Seq[NodeCategory] = Seq(
+	override lazy val nodecategories:Seq[NodeCategory] = Seq(
 
 		NodeCategory("Sources",
 			Seq(
@@ -853,40 +853,16 @@ object GameEngine extends Module {
 		FunctionNodeType("Combinations", "Threshold abs", Seq("x:Double=1","t:Double","y:Double=0"), Seq(("threshold","(s-0.5)*2")),
 			Function( "absthreshold", "if(abs(t) > threshold) x else y", "Double")),
 
-		FunctionNodeType("Vectors", "Vec3", Seq("x:Seq[Double]","y:Seq[Double]","z:Seq[Double]"),Nil,
-			Function("vec3", "Vec3(x.sum,y.sum,z.sum)", "Vec3")),
-
-		FunctionNodeType("Vectors", "Vec3.xyz", Seq("v:Vec3"), Nil,
-			Function("vec3x", "v.x", "Double", "x"),
-			Function("vec3y", "v.y", "Double", "y"),
-			Function("vec3z", "v.z", "Double", "z")),
-
 		FunctionNodeType("Vectors", "Vec3*s",Seq("v:Vec3","s:Double"),Nil, Function("vec3p", "v*s", "Vec3")),
 
 		FunctionNodeType("Vectors", "Vec3*expscale", Seq("v:Vec3"), Seq(("factor","pow(256,((s-0.5)*2))")),
 			Function("vec3p", "v*factor", "Vec3")),
-
-		FunctionNodeType("Math", "Min", Seq("xs:Seq[Double]"), Nil, Function("min", "xs.min", "Double")),
-		FunctionNodeType("Math", "Max", Seq("xs:Seq[Double]"), Nil, Function("max", "xs.max", "Double")),
-		FunctionNodeType("Math", "Product", Seq("xs:Seq[Double]"), Nil, Function("product", "xs.product", "Double")),
-		FunctionNodeType("Math", "Sum", Seq("xs:Seq[Double]"), Nil, Function("sum", "xs.sum", "Double")),
-
-		FunctionNodeType("Math", "Div", Seq("x:Double","y:Double=1"), Nil, Function("division", "x/y", "Double")),
-		FunctionNodeType("Math", "Diff", Seq("x:Double","y:Double"), Nil, Function("difference", "x-y", "Double")),
 
 		FunctionNodeType("Math", "Exp Clamp 256", Seq("x:Double"), Seq(("maxabs","pow(256,((s-0.5)*2))")),
 			Function("expclamp256", "clamp(x,-maxabs,maxabs)", "Double")),
 		
 		FunctionNodeType("Math", "Squeeze", Seq("x:Double"), Seq(("max","pow(256,((s-0.5)*2))")),
 			Function("squeeze", "(if(x<=0) (1/(1-x)-1) else 1/(-1-x)+1)*max", "Double")),
-
-		FunctionNodeType("Math", "Exp Scale 256", Seq("x:Double"), Seq(("factor","pow(256,((s-0.5)*2))")),
-			Function("expscale256", "x*factor", "Double")),
-
-		FunctionNodeType("Math", "Constant 1/256..256", Nil, Seq(("constant","pow(256,((s-0.5)*2))")),
-			Function("constant256", "constant", "Double")),
-		FunctionNodeType("Math", "Constant -1..1", Nil, Seq(("constant","(s-0.5)*2")),
-			Function("constantm1" ,"constant", "Double")),
 
 		FunctionNodeType("High Level", "Heart Surface", Seq("v:Vec3"),
 			Seq(
@@ -899,31 +875,6 @@ object GameEngine extends Module {
 		FunctionNodeType("Math", "Root", Seq("a:Double"), Seq(("degree","1/pow(256, s)")),
 			Function("root", "sign(a)*pow(abs(a), degree)", "Double")),
 		
-		FunctionNodeType("Material", "Material Red", Nil, Nil, Function("matred", "Material(0xFF0000)", "Material")),
-		FunctionNodeType("Material", "Material Green", Nil, Nil, Function("matgreen", "Material(0x00FF00)", "Material")),
-		FunctionNodeType("Material", "Material Blue", Nil, Nil, Function("matblue", "Material(0x0000FF)", "Material")),
-		FunctionNodeType("Material", "Material Yellow", Nil, Nil, Function("matyellow", "Material(0xFFFF00)", "Material")),
-		FunctionNodeType("Material", "Material RGB", Nil,
-			Seq(("r","s*255"),("g","s*255"),("b","s*255")),
-			Function("matrgb", "Material(r.toInt << 16 | g.toInt << 8 | b.toInt)", "Material")),
-
-
-		FunctionNodeType("Material", "Material Threshold", Seq("x:Material=Material(0xFFFFFF)","t:Double","y:Material=Material(0)"),
-			Seq(("threshold","(s-0.5)*2")),
-			Function("matthreshold", "if(t > threshold) x else y", "Material")),
-		
-		FunctionNodeType("Sources", "Scalable World", Nil, Seq(("scale","pow(256,((0.5-s)*2))")),
-			Function("scalesrcv", "world * scale", "Vec3", "v"),
-			Function("scalesrcx", "world.x * scale", "Double", "x"),
-			Function("scalesrcy", "world.y * scale", "Double", "y"),
-			Function("scalesrcz", "world.z * scale", "Double", "z")),
-			
-		FunctionNodeType("Sources", "World", Nil, Nil,
-			Function("srcv", "world", "Vec3", "v"),
-			Function("srcxyzx", "world.x", "Double", "x"),
-			Function("srcxyzy", "world.y", "Double", "y"),
-			Function("srcxyzz", "world.z", "Double", "z")),
-
 		
 		// King Arthurs Gold
 		FunctionNodeType("Material", "Earth", Nil, Nil, Function("matearth", "Material(0x5a3910)", "Material")),
@@ -938,33 +889,6 @@ object GameEngine extends Module {
 	)
 */
 
-/*	val engineexport = new Button("engine export") {
-		margin = new Insets(1,1,1,1)
-		reactions += {
-			case e:ButtonClicked =>
-				println("exporting to engine...")
-				var path = "../gameengine" //"/data1/home2/dietze/Desktop/gameengine"
-				Runtime.getRuntime.exec("rm " + path + "/worldoctree")
-
-				val composition = CodeGenerator.composition(outconnectors(0))
-				
-				println("generating scala code")
-				var out = new java.io.FileWriter(path + "/src/main/scala/worldfunction.scala")
-				out.write(ModuleManager.export(composition, "scala"))
-				out.close
-
-				println("generating glsl code")
-				out = new java.io.FileWriter(path + "/src/main/resources/shaders/screen.frag")
-				out.write(ModuleManager.export(composition, "glsl"))
-				out.close
-				
-				println("generating prediction code")
-				out = new java.io.FileWriter(path + "/src/main/scala/worldprediction.scala")
-				out.write(ModuleManager.export(composition, "prediction"))
-				out.close
-				println("done")
-		}
-	}*/
 					/*import FileChooser.Result._
 					import FileManager.chooser
 					val oldselectedfile = chooser.selectedFile
@@ -981,7 +905,7 @@ object GameEngine extends Module {
 					}
 					chooser.selectedFile = oldselectedfile*/
 
-	def export(preview:Preview, exporttype:String) = {
+	override def export(preview:Preview, exporttype:String) {
 		def generatescaladensitycode  = generatescalacode("density", "0.0", preview.connectedoutconnector("d"))
 		def generatescalamaterialcode = generatescalacode("material", "Material()", preview.connectedoutconnector("m"))
 		def generateglslmaterialcode  = generateglslcode (preview.connectedoutconnector("m"))
