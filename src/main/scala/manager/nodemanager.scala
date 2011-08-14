@@ -1,11 +1,15 @@
-package noiseeditor
+package noiseeditor.manager
 
-import utilities._
-import config._
-import swingextensions._
+import noiseeditor.Node
+import noiseeditor.event._
+import noiseeditor.NoiseEditor
+
+import noiseeditor.util._
+import noiseeditor.config._
+import noiseeditor.swingextension._
 
 import swing._
-import event._
+import swing.event._
 import javax.swing.border._
 import javax.swing.border.BevelBorder._
 import Orientation._
@@ -45,7 +49,7 @@ object NodeManager extends NullPanel("NodeManager") {
 		
 		for(slider <- node.sliders) {
 			slidervalues(slider.globalname) = Box(slider.globalvalue)
-			InterpreterManager.fbind(slider.globalname, "noiseeditor.Box[Double]", slidervalues(slider.globalname))
+			InterpreterManager.fbind(slider.globalname, "noiseeditor.util.Box[Double]", slidervalues(slider.globalname))
 		}
 	}
 

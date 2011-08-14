@@ -1,12 +1,16 @@
 package noiseeditor
 
-import utilities._
-import config._
-import swingextensions._
-import datastructures._
+import noiseeditor.event._
+import noiseeditor.connector._
+import noiseeditor.manager._
+
+import noiseeditor.util._
+import noiseeditor.config._
+import noiseeditor.swingextension._
+import noiseeditor.datastructure._
 
 import swing._
-import event._
+import swing.event._
 import javax.swing.border._
 import javax.swing.border.BevelBorder._
 import Orientation._
@@ -67,22 +71,6 @@ object Node {
 	}
 }
 
-class FormulaSlider(slidername:String, nodeid:Int, initvalue:Int = 50) extends Slider with ScrollableSlider {
-	name = slidername
-	value = initvalue
-	val globalname = "n" + nodeid + "_" + name
-
-	var formula = "s"
-	var transform:Double => Double = s => s
-
-	def globalvalue = transform(value/100.0)
-	tooltip = globalvalue.toString
-
-	//TODO: variable slider size
-	preferredSize = Vec2i(100,preferredSize.height)
-}
-
-
 
 abstract class Node(val title:String, val id:Int = Node.nextid) extends BoxPanel(Vertical) with Movable {
 	def arguments:LanguageMap[Seq[NodeArgument]] = LanguageMap()
@@ -121,7 +109,7 @@ trait NodeInit extends Node with DelayedInit {
 
 	override val sliders = 
 		for( NodeSlider(name, sformula, initvalue,  _) <- sliderdefinitions ) yield {
-			val compilation = InterpreterManager[Double => Double]("(s:Double) => " + sformula)
+			val compilation = InterpreterManager[Double => Double]("(s:Double) => {" + sformula + "}")
 			new FormulaSlider(name, nodeid = id, initvalue) {
 				compilation() match {
 					case Some(f) =>
@@ -145,7 +133,7 @@ trait NodeInit extends Node with DelayedInit {
 		}
 	}
 	
-	val removebutton = new RemoveButton("x") {
+	val removebutton = new RemoveButton {
 		reactions += {
 			case e:ButtonClicked =>
 				NodeManager.remove(thisnode)
@@ -246,3 +234,18 @@ class CustomNode(title:String, id:Int, override val arguments:LanguageMap[Seq[No
 	}
 }
 
+
+class FormulaSlider(slidername:String, nodeid:Int, initvalue:Int = 50) extends Slider with ScrollableSlider {
+	name = slidername
+	value = initvalue
+	val globalname = "n" + nodeid + "_" + name
+
+	var formula = "s"
+	var transform:Double => Double = s => s
+
+	def globalvalue = transform(value/100.0)
+	tooltip = globalvalue.toString
+
+	//TODO: variable slider size
+	preferredSize = Vec2i(100,preferredSize.height)
+}

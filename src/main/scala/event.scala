@@ -1,7 +1,10 @@
-package noiseeditor
+package noiseeditor.event
+
+import noiseeditor.Node
+import noiseeditor.connector._
 
 import swing._
-import event._
+import swing.event._
 
 
 abstract class NoiseEditorEvent(source:Publisher) extends Event {

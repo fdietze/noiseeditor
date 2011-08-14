@@ -1,7 +1,7 @@
 package noiseeditor
 
 import swing._
-import event._
+import swing.event._
 import Orientation._
 import javax.swing.border._
 import javax.swing.border.BevelBorder._
@@ -11,7 +11,7 @@ import simplex3d.math._
 import simplex3d.math.double._
 import simplex3d.math.double.functions._
 
-package object swingextensions {
+package object swingextension {
 
 implicit def awtPointToVec2i( v:java.awt.Point ) = Vec2i(v.x, v.y)
 implicit def Vec2iToawtPoint( v:Vec2i ) = new java.awt.Point(v.x, v.y)

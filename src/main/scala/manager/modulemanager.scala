@@ -1,19 +1,11 @@
-package noiseeditor
+package noiseeditor.manager
 
-import utilities._
-import datastructures._
+import noiseeditor.Module
+import noiseeditor.modules
+import noiseeditor.NoiseEditor
 
-trait Module {
-	val title:String = getClass.getName.split('.').last.dropRight(1)
-	val languages:Seq[String]
-	val exporttypes:Seq[String]
-	val scalainitcode:String
-	val nodecategories:Seq[NodeCategory]
-	val typedefaults:LanguageMap[Map[String,String]]
-	def export(preview:Preview, exporttype:String)
-	val sliderdatatypes:LanguageMap[String]
-}
-
+import noiseeditor.util._
+import noiseeditor.datastructure._
 
 object ModuleManager{
 	println("Starting ModuleManager...")

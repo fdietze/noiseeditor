@@ -1,9 +1,11 @@
-package noiseeditor
+package noiseeditor.manager
 
 import swing._
-import config._
-import utilities._
-import datastructures._
+
+import noiseeditor.config._
+import noiseeditor.util._
+import noiseeditor.datastructure._
+import noiseeditor.connector._
 
 import simplex3d.math._
 import simplex3d.math.double._

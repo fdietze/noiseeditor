@@ -1,8 +1,11 @@
 package noiseeditor
 
-import config._
+import util._
+import connector._
+import manager._
 
-package object datastructures {
+
+package object datastructure {
 
 
 type LanguageMap[T] = Map[String,T]
@@ -163,6 +166,5 @@ class ConnectionTree {
 		return false
 	}
 }
-
 
 }
