@@ -18,8 +18,9 @@ implicit def Vec2iToawtPoint( v:Vec2i ) = new java.awt.Point(v.x, v.y)
 implicit def awtDimensionToVec2i( v:java.awt.Dimension ) = Vec2i(v.getWidth.toInt, v.getHeight.toInt)
 implicit def Vec2ToawtDimension( v:Vec2i ) = new java.awt.Dimension(v.x, v.y)
 
+// Panel in which all Components can have manual size and position
+// Idea from http://dgronau.wordpress.com/2010/08/28/eine-frage-des-layouts
 class NullPanel(name:String, components:Component*) extends Panel with LayoutContainer {
-// Idea from http://dgronau.wordpress.com/2010/08/28/eine-frage-des-layouts/
 
 	components.reverse.foreach( addComponent _ )
 	

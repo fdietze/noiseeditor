@@ -83,6 +83,22 @@ object GameEngine extends Module {
 							"z" -> NodeFunction("scalesrcz", "Interval", "world.z * scale")
 						)
 					)
+				),
+				NodeType("Time",
+					LanguageMap(
+						"scala" -> Nil,
+						"glsl" -> Nil,
+						"prediction" -> Nil
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(	
+							"s" -> NodeFunction("timeseconds", "Double",   "System.currentTimeMillis.toDouble/1000.0")
+						),
+						"glsl" -> Map(	
+							"s" -> NodeFunction("timeseconds", "float",   "return time;")
+						)
+					)
 				)
 			)
 		),
@@ -1022,6 +1038,7 @@ case class Material(color:Int = 0x000000)
 object %s {
 
 def apply(world:Vec3) = {
+
 %s
 
 %s
@@ -1095,6 +1112,7 @@ def apply(world:Vec3) = {
 varying vec3 vertex;
 varying vec3 normal;
 varying vec4 world;
+uniform float time;
 
 /*
 possible vertex shader:
