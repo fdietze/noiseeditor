@@ -667,15 +667,15 @@ object GameEngine extends Module {
 						"scala" -> Map(
 							"o" -> NodeFunction("rotate", "Vec3",
 							"""Mat3(Mat3x4 rotateZ angle) * v""")
-						),
-						"glsl" -> Map(
+						)
+/*						"glsl" -> Map(
 							"o" -> NodeFunction("rotate", "vec3",
 							"""Mat3(Mat3x4 rotateZ angle) * v""")
 						),
 						"prediction" -> Map(
 							"o" -> NodeFunction("rotate", "Volume",
 							"""Mat3(Mat3x4 rotateZ angle) * v""")
-						)
+						)*/
 					)
 				),
 				NodeType("Z-Rotation Slider",
@@ -697,15 +697,15 @@ object GameEngine extends Module {
 						"scala" -> Map(
 							"o" -> NodeFunction("rotate", "Vec3",
 							"""Mat3(Mat3x4 rotateZ angle) * v""")
-						),
-						"glsl" -> Map(
+						)
+/*						"glsl" -> Map(
 							"o" -> NodeFunction("rotate", "vec3",
 							"""Mat3(Mat3x4 rotateZ angle) * v""")
 						),
 						"prediction" -> Map(
 							"o" -> NodeFunction("rotate", "Volume",
 							"""Mat3(Mat3x4 rotateZ angle) * v""")
-						)
+						)*/
 					)
 				),
 				NodeType("Vec3",
