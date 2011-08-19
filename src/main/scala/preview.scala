@@ -241,6 +241,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 					// Grid indicator
 					val ig = bufferedimage.createGraphics
 					ig.setColor(GridIndicatorColor);
+					//TODO: Calculate Color to be always visible?
 					ig.drawRect(10,10,(1/zoom).toInt,(1/zoom).toInt)
 				}
 				

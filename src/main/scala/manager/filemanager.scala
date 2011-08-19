@@ -288,7 +288,7 @@ object FileManager extends Publisher {
 		implicit def doubleToString(x:Double) = x.toString
 		implicit def booleanToString(x:Boolean) = x.toString
 		
-		//TODO: replace last suffix, higher base
+		//TODO: replace last suffix, higher base than hex
 		def uidsuffix(name:String) = {
 			val suffix = "_uid" + (System.currentTimeMillis/1000).toHexString
 			name.split("_uid").head + suffix
