@@ -29,7 +29,7 @@ case class NodeFunction(name:String, returntype:String, code:String)
 
 object NodeType {
 	def apply(title:String, arguments:LanguageMap[Seq[NodeArgument]], sliders:Seq[NodeSlider], functions:LanguageMap[ Map[String, NodeFunction]])(implicit e: DummyImplicit) = {
-		// save arguments and sliders in every function
+		// store arguments and sliders in every function
 		val newfunctions = for( (language, functionmap) <- functions ) yield {
 			language -> (for( (title, NodeFunction(name, returntype, code)) <- functionmap ) yield {
 				title -> NodeFunctionFull(name, returntype, code, arguments(language), sliders.map {

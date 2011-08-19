@@ -49,7 +49,13 @@ object NodeManager extends NullPanel("NodeManager") {
 		
 		for(slider <- node.sliders) {
 			slidervalues(slider.globalname) = Box(slider.globalvalue)
-			InterpreterManager.fbind(slider.globalname, "noiseeditor.util.Box[Double]", slidervalues(slider.globalname))
+// TODO:			future{
+				InterpreterManager.fbind(
+					slider.globalname,
+					"noiseeditor.util.Box[Double]",
+					slidervalues(slider.globalname)
+				)
+//			}
 		}
 	}
 

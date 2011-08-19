@@ -111,13 +111,17 @@ trait NodeInit extends Node with DelayedInit {
 		for( NodeSlider(name, sformula, initvalue,  _) <- sliderdefinitions ) yield {
 			val compilation = InterpreterManager[Double => Double]("(s:Double) => {" + sformula + "}")
 			new FormulaSlider(name, nodeid = id, initvalue) {
-				compilation() match {
-					case Some(f) =>
-						transform = f
-						formula = sformula
-					case None =>
-				}
-				tooltip = globalvalue.toString
+// TODO: compile sliders in background for faster Composition loading
+//				future {
+					compilation() match {
+						case Some(f) =>
+							transform = f
+							formula = sformula
+						case None =>
+					}
+					tooltip = globalvalue.toString
+//					publish(new ValueChanged(this))
+//				}
 			}
 		}
 

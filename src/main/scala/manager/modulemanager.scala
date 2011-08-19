@@ -44,11 +44,11 @@ object ModuleManager{
 	
 	def title = currentmodule.title
 	def scalainitcode = currentmodule.scalainitcode
-	def nodecategories = if(currentmodule != null) currentmodule.nodecategories else Seq()
 	def typedefaults = currentmodule.typedefaults
+	def sliderdatatypes = currentmodule.sliderdatatypes
+	def nodecategories = if(currentmodule != null) currentmodule.nodecategories else Seq()
 	def exporttypes = if(currentmodule != null) currentmodule.exporttypes else Seq()
 	def export = currentmodule.export _
-	def sliderdatatypes = currentmodule.sliderdatatypes
 	
 	def check(module:Module):Boolean = {
 		var isvalid = true

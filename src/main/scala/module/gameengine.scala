@@ -93,7 +93,7 @@ object GameEngine extends Module {
 					Nil,
 					LanguageMap(
 						"scala" -> Map(	
-							"s" -> NodeFunction("timeseconds", "Double",   "System.currentTimeMillis.toDouble/1000.0")
+							"s" -> NodeFunction("timeseconds", "Double",   "InterpreterUptime")
 						),
 						"glsl" -> Map(	
 							"s" -> NodeFunction("timeseconds", "float",   "return time;")
@@ -648,6 +648,37 @@ object GameEngine extends Module {
 					)
 				),
 				NodeType("Z-Rotation",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec3"),
+							NodeArgument("angle","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v","vec3"),
+							NodeArgument("angle","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume"),
+							NodeArgument("angle","Interval")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("rotate", "Vec3",
+							"""Mat3(Mat3x4 rotateZ angle) * v""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("rotate", "vec3",
+							"""Mat3(Mat3x4 rotateZ angle) * v""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("rotate", "Volume",
+							"""Mat3(Mat3x4 rotateZ angle) * v""")
+						)
+					)
+				),
+				NodeType("Z-Rotation Slider",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("v","Vec3")

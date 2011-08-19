@@ -64,10 +64,9 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 	
 	val viewtypes = Seq(
 		"iso" -> "Iso surface",
-		"isodepth" -> "Iso surface depth",
-		"valuesclamped" -> "Values clamped",
-		"valuesclampedgrid" -> "Values clamped +Grid",
-		"valuesstretched" -> "Values stretched",
+		"isowithdepth" -> "Iso surface depth",
+		"values" -> "Values",
+		"valueswithiso" -> "Values and Iso",
 		"valuesnormalized" -> "Values normalized"
 		)
 	
@@ -123,6 +122,12 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 				|| height != bufferedimage.getHeight ) {
 				bufferedimage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)
 			}
+
+			// TODO: limit framerate
+/*			val maxframerate = 10.0
+			val minframepause = 1000.0 / maxframerate
+			val lastcalc = (timer.getTime - timer.starttime)/1000000.0
+			Thread.sleep(max(0,minframepause - lastcalc).toInt)*/
 			
 			if( needsrecalc ) {
 				timer.reset
@@ -141,7 +146,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 								0xFFFFFF
 						}.toArray
 
-					case "isodepth" =>
+					case "isowithdepth" =>
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y =i/width
@@ -167,7 +172,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 							rgbcolor(nr,ng,nb)
 						}.toArray
 
-					case "valuesclamped" =>
+					case "values" =>
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y =i/width
@@ -176,34 +181,24 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 							graycolor(value)
 						}.toArray
 
-					case "valuesclampedgrid" =>
+					case "valueswithiso" =>
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y =i/width
 							val translated = transformcoords(x,y,z)
 
-							if( abs(translated.x - round(translated.x)) < zoom*0.5
-							 || abs(translated.y - round(translated.y)) < zoom*0.5 )
+/*							if( abs(translated.x - round(translated.x)) < zoom*0.5
+							 && abs(translated.y - round(translated.y)) < zoom*0.5
+							 && abs(translated.z - round(translated.z)) < zoom*0.5 )
 								GridColor
-							else {
+							else {*/
 								val result = valueat(x,y,z)
 								val value = (clamp( (result._1+1)*0.5, 0, 1 )*255).toInt
 								if( result._1 > 0 )
 									mixcolors(IsolineColor, graycolor(value), 0.3)
 								else
 									graycolor(value)
-							}
-						}.toArray
-
-					case "valuesstretched" =>
-						def stretch(x:Double) = atan(x*0.33)/math.Pi+0.5
-						
-						(0 until width*height).par.map{i =>
-							val x = i%width
-							val y = i/width
-							val result = valueat(x,y,z)
-							val value = (stretch( result._1)*255).toInt
-							graycolor(value)
+//							}
 						}.toArray
 
 					case "valuesnormalized" =>
@@ -235,16 +230,27 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 				speedlabel.text = "%s px/s max".format(thousandspoints((speedlabel.value).toLong.toString))	
 				bufferedimage.setRGB(0, 0, width, height, data, 0, width)
 				
-				// Grid indicator
-				val ig = bufferedimage.createGraphics
-				ig.setColor(GridIndicatorColor);
-				ig.drawRect(10,10,(1/zoom).toInt,(1/zoom).toInt)
+				if( gridcheckbox.selected )
+				{
+					val ig = bufferedimage.createGraphics
+					ig.setColor(GridIndicatorColor);
+					// TODO: Draw Grid
+				}
+				else
+				{
+					// Grid indicator
+					val ig = bufferedimage.createGraphics
+					ig.setColor(GridIndicatorColor);
+					ig.drawRect(10,10,(1/zoom).toInt,(1/zoom).toInt)
+				}
 				
 				needsrecalc = false
 			}
 			
 			super.paintComponent(g) // Paint background
 			drawImage(bufferedimage, null, 0, 0)
+
+			if( continouscheckbox.selected ) recalc
 		}
 		
 		listenTo(mouse.moves, mouse.clicks)
@@ -330,7 +336,21 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 	val speedlabel = new Label(""){
 		var value:Double = 0.0
 	}
-
+	
+	//TODO: save grid and continous in file
+	val gridcheckbox = new CheckBox("grid") {
+		reactions += {
+			case e:ButtonClicked =>
+				image.recalc
+		}
+	}
+	val continouscheckbox = new CheckBox("continous") {
+		reactions += {
+			case e:ButtonClicked =>
+				image.recalc
+		}
+	}
+	
 	contents += new BoxPanel(Horizontal) {
 		contents += inconnectorpanel
 		contents += new BoxPanel(Vertical) {
@@ -343,6 +363,8 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 				contents += resetbutton
 			}
 			contents += new BoxPanel(Horizontal) {
+				contents += gridcheckbox
+				contents += continouscheckbox
 				contents += exportcontrols
 				contents += removebutton
 			}
