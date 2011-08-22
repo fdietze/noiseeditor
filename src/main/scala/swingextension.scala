@@ -92,7 +92,9 @@ trait Resizable extends Component{
 		case e:MouseDragged =>
 			if( resizestart != null ){
 				val delta = e.point - resizestart
-				peer.setSize(max(oldsize + delta, minimumSize))
+				val newsize = max(oldsize + delta, minimumSize)
+				peer.setSize(newsize)
+				preferredSize = newsize
 
 				oldsize += delta
 				resizestart += delta

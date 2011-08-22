@@ -234,7 +234,7 @@ object FileManager extends Publisher {
 				val perspective = (node \ "view" \ "@perspective").text
 				val depthslider = (node \ "depthslider" \ "@value").text.toDouble
 
-				val preview = Node.preview(newid(id))
+				val preview = Node.preview(title, newid(id))
 				nodeforid(preview.id) = preview
 				NodeManager.add(preview)
 
@@ -259,7 +259,7 @@ object FileManager extends Publisher {
 				val newarguments = arguments.map{ case (language,args) => (language -> args.map{
 					case NodeArgument(name,datatype,"") => NodeArgument(name,datatype,ModuleManager.typedefaults("scala")(datatype)) }) }
 				
-				val custom = Node.loadcustom( newsliders, newarguments, functions("scala").values.head.code, newid(id) )
+				val custom = Node.loadcustom( title, newsliders, newarguments, functions("scala").values.head.code, newid(id) )
 				nodeforid(custom.id) = custom
 				NodeManager.add(custom)
 				

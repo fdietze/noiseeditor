@@ -26,7 +26,7 @@ import actors.Futures.future
 
 case class Material(color:Int = MaterialDefaultColor)
 
-class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
+class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with Resizable {
 	def thispreview = this
 	override def functions = LanguageMap(
 		"scala" -> Map(
@@ -78,6 +78,11 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		)
 		
 	val timer = new Timer
+	
+	override def paint(g:Graphics2D) {
+		image.repaint
+		super.paint(g)
+	}
 	
 	val image = new PreviewImage
 	class PreviewImage extends Component with ScrollableZoomOffset {
@@ -309,7 +314,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 	}
 
 	val resetbutton = new Button("reset") {
-		margin = new Insets(1,1,1,1)
+		margin = new Insets(0,0,0,0)
 		reactions += {
 			case e:ButtonClicked =>
 				image.reset
@@ -323,7 +328,7 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 		}
 		contents += exportcombobox
 		contents += new Button("export") {
-			margin = new Insets(1,1,1,1)
+			margin = new Insets(0,0,0,0)
 			reactions += {
 				case e:ButtonClicked =>
 					ModuleManager.export(thispreview, exportcombobox.selected)
@@ -340,12 +345,14 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 	
 	//TODO: save grid and continous in file
 	val gridcheckbox = new CheckBox("grid") {
+		margin = new Insets(0,0,0,0)
 		reactions += {
 			case e:ButtonClicked =>
 				image.recalc
 		}
 	}
 	val continouscheckbox = new CheckBox("continous") {
+		margin = new Insets(0,0,0,0)
 		reactions += {
 			case e:ButtonClicked =>
 				image.recalc
@@ -367,11 +374,14 @@ class Preview(id:Int) extends Node("Preview", id) with NodeInit with Resizable {
 				contents += gridcheckbox
 				contents += continouscheckbox
 				contents += exportcontrols
+			}
+			contents += new BoxPanel(Horizontal) {
+				contents += renamebutton
 				contents += removebutton
 			}
 		}
 	}
-	
+
 	def recompile {
 		println("Preview("+id+"): starting compiler in background...")
 		future {

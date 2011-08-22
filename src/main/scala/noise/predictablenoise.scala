@@ -218,6 +218,13 @@ g3y/6,(g3z-g3y)/6,(2*g3z-g3y)/6,-(6*g7z+g7y-6*g3z+g3y)/12,-(2*g7z+g7y)/6,-(g7z+g
 			val v = if(h<4) y else {if(h==12 || h==14) x else z}
 			(if((h&1) == 0) u else -u) + (if((h&2) == 0) v else -v)
 		}
+
+		/*def grad(hash:Int, x:Double, y:Double, z:Double) = {
+			val h = mod(hash,16)
+			val u = if(h<8) x else y
+			val v = if(h<4) y else {if(h==12 || h==14) x else z}
+			(if(mod(h,2) == 0) u else -u) + (if((mod(h,4)-mod(h,2)) == 0) v else -v)
+		}*/
 		
 		val X = fastfloor(x)
 		val Y = fastfloor(y)

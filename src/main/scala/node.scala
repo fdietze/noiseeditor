@@ -60,19 +60,19 @@ object Node {
 			)
 	}
 
-	def loadcustom( sliders:Seq[NodeSlider], arguments:LanguageMap[Seq[NodeArgument]], code:String, id:Int = nextid ) = {
-		val node = new CustomNode("Custom", id, arguments, sliders)
+	def loadcustom( title:String, sliders:Seq[NodeSlider], arguments:LanguageMap[Seq[NodeArgument]], code:String, id:Int = nextid ) = {
+		val node = new CustomNode(title, id, arguments, sliders)
 		node.funcfield.text = code
 		node
 	}
 	
-	def preview(id:Int = nextid) = {
-		new Preview(id)
+	def preview(title:String = "Preview", id:Int = nextid) = {
+		new Preview(title, id)
 	}
 }
 
 
-abstract class Node(val title:String, val id:Int = Node.nextid) extends BoxPanel(Vertical) with Movable {
+abstract class Node(var title:String, val id:Int = Node.nextid) extends BoxPanel(Vertical) with Movable {
 	def arguments:LanguageMap[Seq[NodeArgument]] = LanguageMap()
 	def sliderdefinitions:Seq[NodeSlider] = Nil
 	def functions:LanguageMap[Map[String, NodeFunctionFull]] = LanguageMap()
@@ -144,6 +144,30 @@ trait NodeInit extends Node with DelayedInit {
 		}
 	}
 
+	val renamebutton = new Button("rename") {
+		margin = new Insets(0,0,0,0)
+		reactions += {
+			case e:ButtonClicked =>
+				Dialog.showInput(
+					parent = NoiseEditor.window.contents.head,
+					message = "Enter new Name: ",
+					title = "Rename Node",
+					messageType = Dialog.Message.Plain,
+					icon = null,
+					entries = Seq(),
+					initial = titledborder.getTitle
+				) match {
+					case Some(newname) =>
+						thisnode.title = newname
+						titledborder.setTitle(thisnode.title)
+						thisnode.peer.setSize(max(titledborder.getMinimumSize(thisnode.peer), thisnode.preferredSize))
+						thisnode.revalidate
+						thisnode.repaint
+					case None =>
+				}
+		}
+	}
+
 	// listen to all connectors and publish events for this node
 	for( connector <- inconnectors ++ outconnectors )
 		listenTo(connector)
@@ -173,6 +197,7 @@ trait NodeInit extends Node with DelayedInit {
 		
 		//Draw the complete border with title. Even if the content is smaller
 		preferredSize = max(titledborder.getMinimumSize(thisnode.peer), preferredSize)
+		peer.setSize(preferredSize)
 	}
 	
 	override def toString = "Node("+title+")"
@@ -188,7 +213,10 @@ class PredefinedNode(title:String, id:Int, nodetype:NodeType) extends Node(title
 		contents += sliderpanel
 		contents += outconnectorpanel
 	}
-	contents += removebutton
+	contents += new BoxPanel(Horizontal) {
+		contents += renamebutton
+		contents += removebutton
+	}
 }
 
 class CustomNode(title:String, id:Int, override val arguments:LanguageMap[Seq[NodeArgument]], customsliders:Seq[NodeSlider]) extends Node(title, id) with NodeInit with Resizable {
@@ -211,16 +239,16 @@ class CustomNode(title:String, id:Int, override val arguments:LanguageMap[Seq[No
 		editable = true
 	}
 	
-	val compilebutton = new Button("compile")
+	val compilebutton = new Button("compile") {
+		margin = new Insets(0,0,0,0)
+		reactions += {
+			case e:ButtonClicked => compile
+		}
+	}
 
 	def compile {
 		outconnectors(0).function = LanguageMap("scala" -> customfunction)
 		publish(NodeChanged(source = thisnode, node = thisnode))
-	}
-	
-	listenTo(funcfield, compilebutton)
-	reactions += {
-		case ButtonClicked(`compilebutton`) => compile
 	}
 	
 	val controlpanel = new BoxPanel(Horizontal) {
@@ -234,6 +262,7 @@ class CustomNode(title:String, id:Int, override val arguments:LanguageMap[Seq[No
 	contents += new ScrollPane(funcfield)
 	contents += new BoxPanel(Horizontal){
 		contents += compilebutton
+		contents += renamebutton
 		contents += removebutton
 	}
 }
