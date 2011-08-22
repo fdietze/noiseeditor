@@ -19,7 +19,10 @@ object InterpreterManager extends InterpreterQueue {
 			import simplex3d.math.double.functions._
 			import noiseeditor.Material
 			import noiseeditor.util.Box"""
-
+		
+		apply("val __starttime = System.currentTimeMillis")		
+		apply("def InterpreterUptime = (System.currentTimeMillis - __starttime).toDouble/1000.0")
+		
 		apply(imports)
 	}
 	

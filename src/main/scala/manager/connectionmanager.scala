@@ -15,6 +15,7 @@ import swing._
 import swing.event._
 import javax.swing.SwingUtilities._
 import Orientation._
+import java.awt.Color
 import java.awt.Color._
 
 import simplex3d.math._
@@ -45,12 +46,16 @@ object ConnectionManager extends Component {
 		super.paintComponent(g)
 		import g._
 		
-		setColor(BLACK)
 		for( ( a, b ) <- connections.edges ){
 			val apos = convertPoint(a.peer.getParent, a.location, this.peer) + a.size / 2
 			val bpos = convertPoint(b.peer.getParent, b.location, this.peer) + b.size / 2
 			
-			//TODO: Draw Bezier Curves instead of Lines
+			// Color the lines depending on the distance
+			val d = distance(apos, bpos) / 500.0
+			val t = clamp(d*d,0,1)
+			setColor(new Color(mixcolors(0x0000FF,0x000000,t)))
+			
+			//TODO: Draw Curves instead of Lines
 			drawLine( apos.x, apos.y, bpos.x, bpos.y)
 		}
 	}

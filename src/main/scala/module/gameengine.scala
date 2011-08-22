@@ -83,6 +83,22 @@ object GameEngine extends Module {
 							"z" -> NodeFunction("scalesrcz", "Interval", "world.z * scale")
 						)
 					)
+				),
+				NodeType("Time",
+					LanguageMap(
+						"scala" -> Nil,
+						"glsl" -> Nil,
+						"prediction" -> Nil
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(	
+							"s" -> NodeFunction("timeseconds", "Double",   "InterpreterUptime")
+						),
+						"glsl" -> Map(	
+							"s" -> NodeFunction("timeseconds", "float",   "return time;")
+						)
+					)
 				)
 			)
 		),
@@ -634,6 +650,37 @@ object GameEngine extends Module {
 				NodeType("Z-Rotation",
 					LanguageMap(
 						"scala" -> Seq(
+							NodeArgument("v","Vec3"),
+							NodeArgument("angle","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v","vec3"),
+							NodeArgument("angle","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume"),
+							NodeArgument("angle","Interval")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("rotate", "Vec3",
+							"""Mat3(Mat3x4 rotateZ angle) * v""")
+						)
+/*						"glsl" -> Map(
+							"o" -> NodeFunction("rotate", "vec3",
+							"""Mat3(Mat3x4 rotateZ angle) * v""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("rotate", "Volume",
+							"""Mat3(Mat3x4 rotateZ angle) * v""")
+						)*/
+					)
+				),
+				NodeType("Z-Rotation Slider",
+					LanguageMap(
+						"scala" -> Seq(
 							NodeArgument("v","Vec3")
 						),
 						"glsl" -> Seq(
@@ -650,15 +697,15 @@ object GameEngine extends Module {
 						"scala" -> Map(
 							"o" -> NodeFunction("rotate", "Vec3",
 							"""Mat3(Mat3x4 rotateZ angle) * v""")
-						),
-						"glsl" -> Map(
+						)
+/*						"glsl" -> Map(
 							"o" -> NodeFunction("rotate", "vec3",
 							"""Mat3(Mat3x4 rotateZ angle) * v""")
 						),
 						"prediction" -> Map(
 							"o" -> NodeFunction("rotate", "Volume",
 							"""Mat3(Mat3x4 rotateZ angle) * v""")
-						)
+						)*/
 					)
 				),
 				NodeType("Vec3",
@@ -1022,6 +1069,7 @@ case class Material(color:Int = 0x000000)
 object %s {
 
 def apply(world:Vec3) = {
+
 %s
 
 %s
@@ -1095,6 +1143,7 @@ def apply(world:Vec3) = {
 varying vec3 vertex;
 varying vec3 normal;
 varying vec4 world;
+uniform float time;
 
 /*
 possible vertex shader:

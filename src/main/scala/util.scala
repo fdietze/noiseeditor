@@ -101,6 +101,7 @@ class InterpreterQueue extends tools.nsc.interpreter.IMain {
 	}
 	
 	override def reset {
+	//TODO: reset actor with poison-pill
 		jq ! Job(() => {
 			super.reset
 		})
