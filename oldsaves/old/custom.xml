@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<document>
+  <nodes>
+    <node type="preview" title="Preview" id="1">
+      <pos x="480" y="37"></pos>
+      <size width="282" height="318"></size>
+      <image offsety="-6.727934" offsetx="-6.342179" zoom="0.051315807"></image>
+      <depth checked="false"></depth>
+      <zslider value="50"></zslider>
+      <sliders> </sliders>
+      <intypes>
+        <intype type="d:Float"></intype>
+        <intype type="m:Material"></intype>
+      </intypes>
+      <functions> </functions>
+    </node>
+    <node type="predefined" title="Source" id="3">
+      <pos x="21" y="100"></pos>
+      <sliders> </sliders>
+      <intypes> </intypes>
+      <functions>
+        <function name="sourcev" outtype="Vec3">source</function>
+        <function name="sourcex" outtype="Float">source.x</function>
+        <function name="sourcey" outtype="Float">source.y</function>
+        <function name="sourcez" outtype="Float">source.z</function>
+      </functions>
+    </node>
+    <node type="custom" title="Custom" id="4">
+      <pos x="129" y="91"></pos>
+      <size width="329" height="242"></size>
+      <sliders>
+        <slider name="s1" value="50"></slider>
+        <slider name="s2" value="50"></slider>
+        <slider name="s3" value="50"></slider>
+      </sliders>
+      <intypes>
+        <intype type="a:Float"></intype>
+        <intype type="b:Float"></intype>
+        <intype type="c:Float"></intype>
+        <intype type="d:Float"></intype>
+      </intypes>
+      <functions>
+        <function name="custom_f4" outtype="Float">
+          sin(pow(a,2))+sin(pow(b,2))+sin(pow(c,2))
+        </function>
+      </functions>
+    </node>
+  </nodes>
+  <connections>
+    <connection>
+      <in nodeid="1" connector="0"></in>
+      <out nodeid="4" connector="0"></out>
+    </connection>
+    <connection>
+      <in nodeid="4" connector="1"></in>
+      <out nodeid="3" connector="2"></out>
+    </connection>
+    <connection>
+      <in nodeid="4" connector="2"></in>
+      <out nodeid="3" connector="3"></out>
+    </connection>
+    <connection>
+      <in nodeid="4" connector="0"></in>
+      <out nodeid="3" connector="1"></out>
+    </connection>
+  </connections>
+</document>

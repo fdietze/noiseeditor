@@ -71,10 +71,10 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 		)
 	
 	val perspectives = Seq(
-		("sideview_yup", ((v:Vec3) => Vec3(v.x,-v.y,v.z)), "Side view (y up)"),
-		("topview_yup", ((v:Vec3) => Vec3(v.x,v.z,-v.y)), "Top view (y up)"),
 		("sideview_zup", ((v:Vec3) => Vec3(v.x,v.z,-v.y)), "Side view (z up)"),
-		("topview_zup", ((v:Vec3) => Vec3(v.x,v.y,-v.z)), "Top view (z up)")
+		("topview_zup", ((v:Vec3) => Vec3(v.x,v.y,-v.z)), "Top view (z up)"),
+		("sideview_yup", ((v:Vec3) => Vec3(v.x,-v.y,v.z)), "Side view (y up)"),
+		("topview_yup", ((v:Vec3) => Vec3(v.x,v.z,-v.y)), "Top view (y up)")
 		)
 		
 	val timer = new Timer

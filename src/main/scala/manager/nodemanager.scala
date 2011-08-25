@@ -113,9 +113,9 @@ object NodeManager extends NullPanel("NodeManager") {
 	// Open files with double click
 	reactions += {
 		// double click with left mouse button
-		// TODO: dont't use hard coded modifier: 0
+		// TODO: don't use hard coded modifier: 0
 		case MouseClicked(_, point, 0, 2, _) =>
-			FileManager.open
+			if( FileManager.unsavedQuestion ) FileManager.open
 	}
 	
 

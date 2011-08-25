@@ -23,7 +23,8 @@ abstract class Connector(val title:String, val datatype:String, val node:Node) e
 	val originalbackground = background
 	val highlightbackground = ConnectorHighlightColor
 	tooltip = "Type: " + datatype
-
+	
+	
 	listenTo(mouse.clicks)	
 	
 	reactions += {

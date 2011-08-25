@@ -25,7 +25,8 @@ import simplex3d.math.double.functions._
 //TODO: Metanodes?
 
 object NoiseEditor extends SimpleSwingApplication {
-	UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName())
+	//UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName())
+	UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel")
 	
 	def init {
 		InterpreterManager.reset
