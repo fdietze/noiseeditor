@@ -1,0 +1,61 @@
+(source:Vec3) => {
+val noise1 = new Noise(ClassicalGradientNoise){
+	def apply(u:Vec3):Float = super.apply(u).toFloat
+}
+def product_1308958664(xs:Seq[Float]=Nil) = {xs.product}
+def constantm1_1308958664(factor:Float) = {(factor-0.5f)*2f}
+def fsrcx_1308958664(scale:Float, x:Float, y:Float, z:Float) = {(source.x + (x-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))}
+def fnoise(v:Seq[Vec3]=Seq(Vec3(0)), x:Seq[Float]=Nil, y:Seq[Float]=Nil, z:Seq[Float]=Nil, add:Seq[Float]=Nil, sub:Seq[Float]=Nil, size:Float, scale:Float, offset:Float) = {
+			val invexpsize = pow(256,((0.5f-size)*2f))
+			val expoutscale = pow(256,((scale-0.5f)*2f))/invexpsize
+			val linearoutoffset = (offset-0.5f)*2f
+			val sumv = v.reduce( (x,y) => x+y ) + Vec3(x.sum,y.sum,z.sum);
+			(noise1(sumv*invexpsize)+linearoutoffset)*expoutscale + add.sum - sub.sum
+			}
+def fnoise_1308958664(v:Seq[Vec3]=Seq(Vec3(0)), x:Seq[Float]=Nil, y:Seq[Float]=Nil, z:Seq[Float]=Nil, add:Seq[Float]=Nil, sub:Seq[Float]=Nil, size:Float, scale:Float, offset:Float) = {
+			val invexpsize = pow(256,((0.5f-size)*2f))
+			val expoutscale = pow(256,((scale-0.5f)*2f))/invexpsize
+			val linearoutoffset = (offset-0.5f)*2f
+			val sumv = v.reduce( (x,y) => x+y ) + Vec3(x.sum,y.sum,z.sum);
+			(noise1(sumv*invexpsize)+linearoutoffset)*expoutscale + add.sum - sub.sum
+			}
+def product(xs:Seq[Float]=Nil) = {xs.product}
+def fsrcz_1308958664(scale:Float, x:Float, y:Float, z:Float) = {(source.z + (z-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))}
+def fsrcy_1308958664(scale:Float, x:Float, y:Float, z:Float) = {(source.y + (y-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))}
+def fsrcv_1308958664(scale:Float, x:Float, y:Float, z:Float) = {(source + (Vec3(x,y,z)-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))}
+def vec3p(v:Vec3=Vec3(0), s:Float) = {v*s}
+def constant256(factor:Float) = {pow(256,((factor-0.5f)*2f))}
+def min(xs:Seq[Float]=Nil) = {xs.min}
+def constant256_1308958664(factor:Float) = {pow(256,((factor-0.5f)*2f))}
+def vec3(x:Seq[Float], y:Seq[Float], z:Seq[Float]) = {Vec3(x.sum,y.sum,z.sum)}
+
+val vn1_fsrcz_1308958664 = fsrcz_1308958664(0.76f, 0.5f, 0.5f, 0.5f)
+val vn1_fsrcy_1308958664 = fsrcy_1308958664(0.76f, 0.5f, 0.5f, 0.5f)
+val vn1_fsrcx_1308958664 = fsrcx_1308958664(0.76f, 0.5f, 0.5f, 0.5f)
+val vn1_fsrcv_1308958664 = fsrcv_1308958664(0.76f, 0.5f, 0.5f, 0.5f)
+val vn36_constant256 = constant256(0.33f)
+val vn34_vec3 = vec3(Seq(vn1_fsrcx_1308958664), Nil, Seq(vn1_fsrcz_1308958664))
+val vn33_vec3 = vec3(Nil, Seq(vn1_fsrcy_1308958664), Seq(vn1_fsrcz_1308958664))
+val vn35_vec3 = vec3(Seq(vn1_fsrcx_1308958664), Seq(vn1_fsrcy_1308958664), Nil)
+val vn31_vec3p = vec3p(vn34_vec3, vn36_constant256)
+val vn27_vec3p = vec3p(vn33_vec3, vn36_constant256)
+val vn32_vec3p = vec3p(vn35_vec3, vn36_constant256)
+val vn8_constant256_1308958664 = constant256_1308958664(0.0f)
+val vn37_constant256 = constant256(0.7f)
+val vn23_fnoise = fnoise(Seq(vn31_vec3p), Nil, Nil, Nil, Nil, Nil, 0.5f, 0.5f, 0.5f)
+val vn25_fnoise = fnoise(Seq(vn27_vec3p), Nil, Nil, Nil, Nil, Nil, 0.5f, 0.5f, 0.5f)
+val vn24_fnoise = fnoise(Seq(vn32_vec3p), Nil, Nil, Nil, Nil, Nil, 0.5f, 0.5f, 0.5f)
+val vn15_constantm1_1308958664 = constantm1_1308958664(0.88f)
+val vn2_product_1308958664 = product_1308958664(Seq(vn1_fsrcz_1308958664, vn8_constant256_1308958664))
+val vn29_product = product(Seq(vn23_fnoise, vn37_constant256))
+val vn28_product = product(Seq(vn25_fnoise, vn37_constant256))
+val vn30_product = product(Seq(vn37_constant256, vn24_fnoise))
+val vn6_product_1308958664 = product_1308958664(Seq(vn1_fsrcx_1308958664, vn8_constant256_1308958664))
+val vn4_product_1308958664 = product_1308958664(Seq(vn1_fsrcy_1308958664, vn8_constant256_1308958664))
+val vn3_fnoise_1308958664 = fnoise_1308958664(Seq(Vec3(0)), Seq(vn28_product, vn1_fsrcx_1308958664), Seq(vn1_fsrcy_1308958664, vn29_product), Seq(vn2_product_1308958664), Seq(vn15_constantm1_1308958664), Nil, 0.5f, 0.5f, 0.5f)
+val vn9_fnoise_1308958664 = fnoise_1308958664(Seq(Vec3(0)), Seq(vn6_product_1308958664), Seq(vn1_fsrcy_1308958664, vn29_product), Seq(vn1_fsrcz_1308958664, vn30_product), Seq(vn15_constantm1_1308958664), Nil, 0.5f, 0.5f, 0.5f)
+val vn12_fnoise_1308958664 = fnoise_1308958664(Seq(Vec3(0)), Seq(vn28_product, vn1_fsrcx_1308958664), Seq(vn4_product_1308958664), Seq(vn1_fsrcz_1308958664, vn30_product), Seq(vn15_constantm1_1308958664), Nil, 0.5f, 0.51f, 0.5f)
+val vn16_min = min(Seq(vn12_fnoise_1308958664, vn9_fnoise_1308958664, vn3_fnoise_1308958664))
+
+(vn16_min, Material())
+}

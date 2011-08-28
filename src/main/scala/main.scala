@@ -25,7 +25,7 @@ import simplex3d.math.double.functions._
 //TODO: Metanodes?
 
 object NoiseEditor extends SimpleSwingApplication {
-	UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName())
+	UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel")
 	
 	def init {
 		InterpreterManager.reset
@@ -132,7 +132,36 @@ object NoiseEditor extends SimpleSwingApplication {
 				}
 			}
 		}
-	
+		
+		contents += new Menu("View") {
+				contents += new Menu("Look and Feel") {
+				val lookandfeel = Map(
+					// http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
+					"Cross Platform" -> UIManager.getCrossPlatformLookAndFeelClassName(),
+					"System" -> UIManager.getSystemLookAndFeelClassName(),
+					"Nimbus" -> "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel",
+					"GTK" -> "com.sun.java.swing.plaf.gtk.GTKLookAndFeel"
+				)
+				for( (lookname,look) <- lookandfeel ) {
+					contents += new MenuItem(lookname) {
+						action = new Action(lookname) {
+							def apply = {
+								UIManager.setLookAndFeel(look)
+								javax.swing.SwingUtilities.updateComponentTreeUI(window.peer);
+								window.peer.pack();
+								for( node <- NodeManager.nodes ) {
+									//TODO: Change nodesize if needed
+									node.peer.setSize(node.preferredSize)
+									node.revalidate
+									node.repaint
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+			
 		for( NodeCategory(title, nodetypes) <- ModuleManager.nodecategories ) {
 			contents += new Menu(title){
 				for( nodetype <- nodetypes ) {

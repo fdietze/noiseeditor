@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<document>
+			<nodes><node type="predefined" title="Feature Noise" id="4">
+						<pos x="566" y="6"></pos>
+						
+						<sliders>
+							<slider name="size" value="50"></slider><slider name="scale" value="50"></slider><slider name="offset" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="v:Seq[Vec3]=Seq(Vec3(0))"></intype><intype type="x:Seq[Float]=Nil"></intype><intype type="y:Seq[Float]=Nil"></intype><intype type="z:Seq[Float]=Nil"></intype><intype type="add:Seq[Float]=Nil"></intype><intype type="sub:Seq[Float]=Nil"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="fnoise_t1309627902_t1309635078_t1309643789" outname=" " outtype="Float">
+			val invexpsize = pow(256,((0.5f-size)*2f))
+			val expoutscale = pow(256,((scale-0.5f)*2f))/invexpsize
+			val linearoutoffset = (offset-0.5f)*2f
+			val sumv = v.reduce( (x,y) =&gt; x+y ) + Vec3(x.sum,y.sum,z.sum);
+			(noise1(sumv*invexpsize)+linearoutoffset)*expoutscale + add.sum - sub.sum
+			</function>
+						</functions>
+					</node><node type="predefined" title="Feature Source" id="3">
+						<pos x="121" y="46"></pos>
+						
+						<sliders>
+							<slider name="scale" value="50"></slider><slider name="x" value="50"></slider><slider name="y" value="50"></slider><slider name="z" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							
+						</intypes>
+		
+						<functions>
+							<function name="fsrcv_t1309428937_t1309431402_t1309432915_t1309435462_t1309436660_t1309437545_t1309442790_t1309525872_t1309539800_t1309627902_t1309635078_t1309643789" outname="v" outtype="Vec3">(source + (Vec3(x,y,z)-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="fsrcx_t1309428937_t1309431402_t1309432915_t1309435462_t1309436660_t1309437545_t1309442790_t1309525872_t1309539800_t1309627902_t1309635078_t1309643789" outname="x" outtype="Float">(source.x + (x-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="fsrcy_t1309428937_t1309431402_t1309432915_t1309435462_t1309436660_t1309437545_t1309442790_t1309525872_t1309539800_t1309627902_t1309635078_t1309643789" outname="y" outtype="Float">(source.y + (y-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="fsrcz_t1309428937_t1309431402_t1309432915_t1309435462_t1309436660_t1309437545_t1309442790_t1309525872_t1309539800_t1309627902_t1309635078_t1309643789" outname="z" outtype="Float">(source.z + (z-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function>
+						</functions>
+					</node><node type="preview" title="Preview" id="5">
+						<pos x="866" y="16"></pos>
+						<size width="337" height="332"></size><image offsety="-9.179664" offsetx="-8.420776" zoom="0.056447383"></image><view selected="valuesclamped"></view><zslider value="73.03032"></zslider>
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							<intype type="d:Float"></intype><intype type="m:Material"></intype>
+						</intypes>
+		
+						<functions>
+							
+						</functions>
+					</node><node type="custom" title="Custom" id="2">
+						<pos x="42" y="193"></pos>
+						<size width="797" height="802"></size>
+						<sliders>
+							<slider name="s1" value="100"></slider><slider name="s2" value="16"></slider><slider name="s3" value="0"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="a:Float"></intype><intype type="b:Float"></intype><intype type="c:Float"></intype><intype type="d:Float"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="custom_f2_t1309643789" outname=" " outtype="Float">object gradients {
+	//util.Random.shuffle(for(i &lt;- 0 until 16) yield { val a = i*2*Pi/16.toFloat; Vec2(cos(a),sin(a)) }).toArray
+	val g2d16 = Array(Vec2(-0.9238795f, -0.38268343f), Vec2(0.38268343f, 0.9238795f), Vec2(0.707107f, -0.70710653f), Vec2(-0.9238796f, 0.38268328f), Vec2(-0.70710677f, 0.70710677f), Vec2(-4.371139E-8f, 1.0f), Vec2(-0.38268313f, -0.9238797f), Vec2(-0.70710665f, -0.7071069f), Vec2(-0.38268352f, 0.9238795f), Vec2(1.0f, 0.0f), Vec2(-1.0f, -8.742278E-8f), Vec2(0.92387956f, -0.38268343f), Vec2(1.1924881E-8f, -1.0f), Vec2(0.9238795f, 0.38268346f), Vec2(0.70710677f, 0.70710677f), Vec2(0.3826836f, -0.92387944f))
+	val g3d16 = Array(Vec3( +1.000e+00f,+0.000e+00f,+0.000e+00f ),   Vec3( +4.607e-01f,-8.512e-01f,-2.514e-01f ),   Vec3( -8.579e-01f,-2.110e-01f,+4.686e-01f ),   Vec3( -1.817e-01f,-8.059e-01f,+5.635e-01f ),   Vec3( -7.634e-01f,+6.329e-01f,-1.294e-01f ),   Vec3( -1.817e-01f,-3.705e-01f,-9.109e-01f ),   Vec3( -4.443e-01f,+5.611e-01f,+6.984e-01f ),   Vec3( -1.928e-01f,+5.310e-01f,-8.252e-01f ),   Vec3( -4.443e-01f,-8.681e-01f,-2.212e-01f ),   Vec3( -8.923e-01f,-1.287e-01f,-4.326e-01f ),   Vec3( +6.039e-01f,-1.342e-01f,-7.857e-01f ),   Vec3( +6.557e-01f,-5.042e-01f,+5.620e-01f ),   Vec3( +5.900e-01f,+5.313e-01f,+6.080e-01f ),   Vec3( +2.207e-02f,-5.640e-02f,+9.982e-01f ),   Vec3( +6.039e-01f,+6.773e-01f,-4.202e-01f ),   Vec3( +2.207e-02f,+9.967e-01f,+7.794e-02f )	)
+} 
+
+def noise3(pos:Vec3,seed:Int=0) = {
+	def kernel(v:Vec3, gradient:Vec3) = {
+		import v.{x,y,z}
+		val ax = abs(x); val ay = abs(y); val az = abs(z)
+		val t = s1 - ax*ax*ax-ay*ay*ay-az*az*az
+		if( t &gt; 0 ){
+			t*t*t*t*(gradient.x * x + gradient.y * y + gradient.z * z)
+		}
+		else
+			0f
+	}
+	def hash(k:Int,seed:Int=0) = (((k*0x12345678) &gt;&gt;&gt; (k*0x87754351))^seed) &amp; 0x7FFFFFFF
+
+	def gradient(vertex:Vec3i) = {
+		gradients.g3d16( hash(hash(hash(vertex.x,seed) + vertex.y,seed) + vertex.z,seed) &amp; 15)
+	}
+
+	def fastfloor(x:Float):Int = if(x &gt; 0) x.toInt else (x-1).toInt
+	def isbitset(a:Int, bit:Int) = (a &amp; (1 &lt;&lt; bit)) &gt;&gt; bit
+	
+	val floorx = fastfloor(pos.x)
+	val floory = fastfloor(pos.y)
+	val floorz = fastfloor(pos.z)
+	
+	val vertices = new Array[Vec3i](8)
+	for( i &lt;- 0 until 8 ) {
+		vertices(i) = Vec3i(
+			floorx + isbitset(i,0),
+			floory + isbitset(i,1),
+			floorz + isbitset(i,2)
+		)
+	}
+
+	vertices.map( vertex =&gt; kernel(pos-vertex, gradient(vertex)) ).sum*1.2f
+}
+
+noise3(Vec3(a,b,c),(s2*100).toInt)
+
+</function>
+						</functions>
+					</node><node type="preview" title="Preview" id="1">
+						<pos x="884" y="351"></pos>
+						<size width="307" height="327"></size><image offsety="6.9396625" offsetx="9.574853" zoom="0.046650738"></image><view selected="iso"></view><zslider value="67.0"></zslider>
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							<intype type="d:Float"></intype><intype type="m:Material"></intype>
+						</intypes>
+		
+						<functions>
+							
+						</functions>
+					</node></nodes>
+			<connections><connection>
+						<in nodeid="2" connector="0"></in>
+						<out nodeid="3" connector="1"></out>
+					</connection><connection>
+						<in nodeid="1" connector="0"></in>
+						<out nodeid="2" connector="0"></out>
+					</connection><connection>
+						<in nodeid="4" connector="0"></in>
+						<out nodeid="3" connector="0"></out>
+					</connection><connection>
+						<in nodeid="2" connector="2"></in>
+						<out nodeid="3" connector="3"></out>
+					</connection><connection>
+						<in nodeid="2" connector="1"></in>
+						<out nodeid="3" connector="2"></out>
+					</connection><connection>
+						<in nodeid="5" connector="0"></in>
+						<out nodeid="4" connector="0"></out>
+					</connection></connections>
+		</document>

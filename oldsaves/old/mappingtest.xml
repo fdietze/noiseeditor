@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<document>
+			<nodes><node type="predefined" title="Feature Source" id="1">
+						<pos x="9" y="9"></pos>
+						
+						<sliders>
+							<slider name="scale" value="60"></slider><slider name="x" value="47"></slider><slider name="y" value="45"></slider><slider name="z" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							
+						</intypes>
+		
+						<functions>
+							<function name="srcv1308700001_1308700798_t1309182284_t1309291439_t1309294560_t1309295107" outname="v" outtype="Vec3">(source + (Vec3(x,y,z)-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="srcx1308700001_1308700798_t1309182284_t1309291439_t1309294560_t1309295107" outname="x" outtype="Float">(source.x + (x-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="srcy1308700001_1308700798_t1309182284_t1309291439_t1309294560_t1309295107" outname="y" outtype="Float">(source.y + (y-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function><function name="srcz1308700001_1308700798_t1309182284_t1309291439_t1309294560_t1309295107" outname="z" outtype="Float">(source.z + (z-0.5f)*256f) * (pow(256,((0.5f-scale)*2f)))</function>
+						</functions>
+					</node><node type="preview" title="Preview" id="2">
+						<pos x="559" y="12"></pos>
+						<size width="170" height="120"></size><image offsety="0.0" offsetx="0.0" zoom="1.0"></image><view selected="iso"></view><zslider value="50"></zslider>
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							<intype type="d:Float"></intype><intype type="m:Material"></intype>
+						</intypes>
+		
+						<functions>
+							
+						</functions>
+					</node><node type="custom" title="Custom" id="3">
+						<pos x="178" y="11"></pos>
+						<size width="369" height="313"></size>
+						<sliders>
+							<slider name="s1" value="50"></slider><slider name="s2" value="50"></slider><slider name="s3" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="a:Float"></intype><intype type="b:Float"></intype><intype type="c:Float"></intype><intype type="d:Float"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="custom_f3_t1309295107" outname=" " outtype="Float">if( a &lt; 0f ) 0.5f else {if(floor(a).toInt % 2 == 0) 1f else -1f}</function>
+						</functions>
+					</node></nodes>
+			<connections><connection>
+						<in nodeid="3" connector="0"></in>
+						<out nodeid="1" connector="1"></out>
+					</connection><connection>
+						<in nodeid="2" connector="0"></in>
+						<out nodeid="3" connector="0"></out>
+					</connection></connections>
+		</document>

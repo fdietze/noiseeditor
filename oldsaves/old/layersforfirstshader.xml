@@ -1,0 +1,208 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<document>
+			<nodes><node type="predefined" title="Sum" id="7">
+						<pos x="882" y="335"></pos>
+						
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							<intype type="xs:Seq[Float]=Nil"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="sum_t1310394855_t1310396061" outname=" " outtype="Float">xs.sum</function>
+						</functions>
+					</node><node type="predefined" title="Material RGB" id="9">
+						<pos x="344" y="591"></pos>
+						
+						<sliders>
+							<slider name="r" value="100"></slider><slider name="g" value="81"></slider><slider name="b" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							
+						</intypes>
+		
+						<functions>
+							<function name="matrgb_t1310348205_t1310394855_t1310396061" outname=" " outtype="Material">Material((r*255).toInt &lt;&lt; 16 | (g*255).toInt &lt;&lt; 8 | (b*255).toInt)</function>
+						</functions>
+					</node><node type="predefined" title="Material RGB" id="2">
+						<pos x="366" y="729"></pos>
+						
+						<sliders>
+							<slider name="r" value="47"></slider><slider name="g" value="29"></slider><slider name="b" value="12"></slider>
+						</sliders>
+		
+						<intypes>
+							
+						</intypes>
+		
+						<functions>
+							<function name="matrgb_t1310348205_t1310394855_t1310396061" outname=" " outtype="Material">Material((r*255).toInt &lt;&lt; 16 | (g*255).toInt &lt;&lt; 8 | (b*255).toInt)</function>
+						</functions>
+					</node><node type="predefined" title="Noise v" id="6">
+						<pos x="454" y="393"></pos>
+						
+						<sliders>
+							<slider name="size" value="16"></slider><slider name="outscale" value="67"></slider><slider name="outoffset" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="v:Vec3=Vec3(0)"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="noise3v_t1310394855_t1310396061" outname=" " outtype="Float">
+			val invexpsize = pow(256,((0.5f-size)*2f))
+			val expoutscale = pow(256,((outscale-0.5f)*2f))/invexpsize
+			val linearoutoffset = (outoffset-0.5f)*2f
+			(noise1(v*invexpsize)+linearoutoffset)*expoutscale
+			</function>
+						</functions>
+					</node><node type="predefined" title="Source v" id="3">
+						<pos x="164" y="263"></pos>
+						
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							
+						</intypes>
+		
+						<functions>
+							<function name="srcv_t1310348205_t1310394855_t1310396061" outname="v" outtype="Vec3">source</function>
+						</functions>
+					</node><node type="predefined" title="Source xyz" id="4">
+						<pos x="166" y="115"></pos>
+						
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							
+						</intypes>
+		
+						<functions>
+							<function name="srcxyzx_t1310348205_t1310394855_t1310396061" outname="x" outtype="Float">source.x</function><function name="srcxyzy_t1310348205_t1310394855_t1310396061" outname="y" outtype="Float">source.y</function><function name="srcxyzz_t1310348205_t1310394855_t1310396061" outname="z" outtype="Float">source.z</function>
+						</functions>
+					</node><node type="predefined" title="Material Threshold" id="10">
+						<pos x="837" y="520"></pos>
+						
+						<sliders>
+							<slider name="threshold" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="x:Material=Material(0xFFFFFF)"></intype><intype type="t:Float"></intype><intype type="y:Material=Material(0)"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="matthreshold_t1310348205_t1310394855_t1310396061" outname=" " outtype="Material">if(t &gt; (threshold-0.5f)*2f) x else y</function>
+						</functions>
+					</node><node type="predefined" title="Noise xyz" id="8">
+						<pos x="570" y="156"></pos>
+						
+						<sliders>
+							<slider name="size" value="50"></slider><slider name="outscale" value="50"></slider><slider name="outoffset" value="40"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="x:Float"></intype><intype type="y:Float"></intype><intype type="z:Float"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="noise3_t1310348205_t1310394855_t1310396061" outname=" " outtype="Float">
+			val v = Vec3(x,y,z)
+			val invexpsize = pow(256,((0.5f-size)*2f))
+			val expoutscale = pow(256,((outscale-0.5f)*2f))/invexpsize
+			val linearoutoffset = (outoffset-0.5f)*2f
+			(noise1(v*invexpsize)+linearoutoffset)*expoutscale
+			</function>
+						</functions>
+					</node><node type="predefined" title="Sum" id="5">
+						<pos x="516" y="249"></pos>
+						
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							<intype type="xs:Seq[Float]=Nil"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="sum_t1310348205_t1310394855_t1310396061" outname=" " outtype="Float">xs.sum</function>
+						</functions>
+					</node><node type="preview" title="Preview" id="1">
+						<pos x="1137" y="170"></pos>
+						<size width="550" height="504"></size><image offsety="21.042774" offsetx="-35.57272" zoom="0.019784467"></image><view selected="iso"></view><zslider value="0.0"></zslider>
+						<sliders>
+							
+						</sliders>
+		
+						<intypes>
+							<intype type="d:Float"></intype><intype type="m:Material"></intype>
+						</intypes>
+		
+						<functions>
+							
+						</functions>
+					</node><node type="predefined" title="Noise v" id="11">
+						<pos x="279" y="244"></pos>
+						
+						<sliders>
+							<slider name="size" value="65"></slider><slider name="outscale" value="50"></slider><slider name="outoffset" value="50"></slider>
+						</sliders>
+		
+						<intypes>
+							<intype type="v:Vec3=Vec3(0)"></intype>
+						</intypes>
+		
+						<functions>
+							<function name="noise3v_t1310348205_t1310394855_t1310396061" outname=" " outtype="Float">
+			val invexpsize = pow(256,((0.5f-size)*2f))
+			val expoutscale = pow(256,((outscale-0.5f)*2f))/invexpsize
+			val linearoutoffset = (outoffset-0.5f)*2f
+			(noise1(v*invexpsize)+linearoutoffset)*expoutscale
+			</function>
+						</functions>
+					</node></nodes>
+			<connections><connection>
+						<in nodeid="11" connector="0"></in>
+						<out nodeid="3" connector="0"></out>
+					</connection><connection>
+						<in nodeid="10" connector="1"></in>
+						<out nodeid="7" connector="0"></out>
+					</connection><connection>
+						<in nodeid="10" connector="2"></in>
+						<out nodeid="2" connector="0"></out>
+					</connection><connection>
+						<in nodeid="6" connector="0"></in>
+						<out nodeid="3" connector="0"></out>
+					</connection><connection>
+						<in nodeid="1" connector="1"></in>
+						<out nodeid="10" connector="0"></out>
+					</connection><connection>
+						<in nodeid="10" connector="0"></in>
+						<out nodeid="9" connector="0"></out>
+					</connection><connection>
+						<in nodeid="8" connector="1"></in>
+						<out nodeid="5" connector="0"></out>
+					</connection><connection>
+						<in nodeid="5" connector="0"></in>
+						<out nodeid="4" connector="1"></out>
+					</connection><connection>
+						<in nodeid="7" connector="0"></in>
+						<out nodeid="6" connector="0"></out>
+					</connection><connection>
+						<in nodeid="5" connector="0"></in>
+						<out nodeid="11" connector="0"></out>
+					</connection><connection>
+						<in nodeid="7" connector="0"></in>
+						<out nodeid="8" connector="0"></out>
+					</connection></connections>
+		</document>
