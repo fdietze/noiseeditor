@@ -149,8 +149,12 @@ object NoiseEditor extends SimpleSwingApplication {
 								UIManager.setLookAndFeel(look)
 								javax.swing.SwingUtilities.updateComponentTreeUI(window.peer);
 								window.peer.pack();
-								for( node <- NodeManager.nodes )
+								for( node <- NodeManager.nodes ) {
+									//TODO: Change nodesize if needed
+									node.peer.setSize(node.preferredSize)
 									node.revalidate
+									node.repaint
+								}
 							}
 						}
 					}

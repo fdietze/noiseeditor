@@ -145,6 +145,7 @@ trait NodeInit extends Node with DelayedInit {
 	}
 
 	val renamebutton = new Button("rename") {
+	//TODO: not working correctly in CustomNodes
 		margin = new Insets(0,0,0,0)
 		reactions += {
 			case e:ButtonClicked =>
