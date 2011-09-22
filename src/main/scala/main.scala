@@ -150,7 +150,7 @@ object NoiseEditor extends SimpleSwingApplication {
 								javax.swing.SwingUtilities.updateComponentTreeUI(window.peer);
 								window.peer.pack();
 								for( node <- NodeManager.nodes ) {
-									//TODO: Change nodesize if needed
+									//TODO: After Look&Feel change update nodesize
 									node.peer.setSize(node.preferredSize)
 									node.revalidate
 									node.repaint
