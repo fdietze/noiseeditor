@@ -388,6 +388,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 		contents += new BoxPanel(Vertical) {
 			contents += image
 			contents += speedlabel
+
 			contents += depthslider
 			contents += new BoxPanel(Horizontal) {
 				contents += viewcombobox
@@ -418,6 +419,8 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 					speedlabel.value = 0.0
 					image.recalc
 				case None =>
+					interpretedcomposition = (world:Vec3) => (0.0, Material(0xFF0000))
+					image.recalc
 			}
 		}
 	}

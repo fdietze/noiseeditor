@@ -22,7 +22,7 @@ package object config {
 	
 	class RemoveButton(title:String = "x") extends Button(title) {
 		margin = new Insets(0,0,0,0)
-		background = RED
+		background = new Color(0xFF7380)
 		tooltip = "Remove"
 	}
 }
