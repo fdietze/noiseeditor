@@ -15,6 +15,7 @@ import javax.swing.border.BevelBorder._
 import swing.ListView._
 
 import java.awt.Graphics2D
+import java.awt.Color
 import java.awt.Color.BLACK
 import java.awt.image.BufferedImage
 
@@ -24,7 +25,7 @@ import simplex3d.math.double.functions._
 
 import actors.Futures.future
 
-case class Material(color:Int = MaterialDefaultColor)
+case class Material(color:Int = materialDefaultColor)
 
 class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with Resizable {
 	def thispreview = this
@@ -101,12 +102,12 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 		
 		
 		override def scrolledorzoomed = {
-			depthslider.value = (100*GridIndicatorScale*z/(32*zoom))+50
+			depthslider.value = (100*gridIndicatorScale*z/(32*zoom))+50
 			recalc
 		}
 		
 		def reset {
-			zoom = GridIndicatorScale
+			zoom = gridIndicatorScale
 			offset = -size / 2 * zoom
 			if( depthslider != null ) depthslider.value = 50
 			recalc
@@ -114,8 +115,8 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 		
 		def transformcoords(x:Double, y:Double, z:Double) =
 			perspective(Vec3(transformZoomOffset(Vec2(x,y)),z) )
-		def valueat(x:Double, y:Double, z:Double) =
-			interpretedcomposition(transformcoords(x,y,z))
+		
+		def valueat(x:Double, y:Double, z:Double) = interpretedcomposition(transformcoords(x,y,z))
 		
 		override def paint(g:Graphics2D) {
 			import g._
@@ -160,15 +161,15 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 							var counter = 0
 					
 							var result = valueat(x,y,z)
-							while( result._1 < 0 && counter < DepthMaxsteps ){
-								tmpz += DepthStepSize*zoom
+							while( result._1 < 0 && counter < depthMaxsteps ){
+								tmpz += depthStepSize*zoom
 								counter += 1
 								result = valueat(x,y,tmpz)
 							}
 							
 							val color = result._2.color
 							counter = if(counter == 0) 0 else counter + 2
-							val factor = math.pow(DepthFadeOutFactor,counter)
+							val factor = math.pow(depthFadeOutFactor,counter)
 					
 							val nr = 255 - ((255-red(color)) * factor).toInt
 							val ng = 255 - ((255-green(color)) * factor).toInt
@@ -200,7 +201,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 								val result = valueat(x,y,z)
 								val value = (clamp( (result._1+1)*0.5, 0, 1 )*255).toInt
 								if( result._1 > 0 )
-									mixcolors(IsolineColor, graycolor(value), 0.3)
+									mixcolors(isolineColor, graycolor(value), 0.3)
 								else
 									graycolor(value)
 //							}
@@ -220,7 +221,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 							val value = (((v - minvalue) / (maxvalue-minvalue))*255).toInt
 							val isovalue = (((0 - minvalue) / (maxvalue-minvalue))*255).toInt
 							if( abs(value-isovalue) < 3 )
-								IsolineColor
+								isolineColor
 							else
 								graycolor(value)
 						}.toArray
@@ -237,23 +238,38 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 				
 				if( gridcheckbox.selected )
 				{
-					/*val ig = bufferedimage.createGraphics
+					val ig = bufferedimage.createGraphics
 					import ig._
-					setColor(GridIndicatorColor);
 					
-					val Δ = 1 / zoom
-					var x = 0.0; while( x < width ) {
-						drawLine( x.toInt, 0, x.toInt, height);
-						x += Δ
-					}*/
+					val minGridSize = 5
 					
-					// TODO: Draw Grid
+					def drawGrid(delta:Double){
+						val alpha = map( delta, minGridSize, gridDistance*minGridSize, 0, 255).toInt
+						setColor(gridIndicatorColor.setAlpha(alpha));
+						var x = mod(-offset.x / zoom, delta)
+						while( x < width ) {
+							drawLine( x.toInt, 0, x.toInt, height);
+							x += delta
+						}
+						var y = mod(-offset.y / zoom, delta)
+						while( y < height ) {
+							drawLine( 0, y.toInt, width, y.toInt);
+							y += delta
+						}
+					}
+					
+					// Choose Grid distances depending on the zoom level
+					// http://www.wolframalpha.com/input/?i=plot+3^ceil%28log%285%2Fx%29%2Flog%283%29%29%2C+x*3^ceil%28log%285%2Fx%29%2Flog%283%29%29+from+x+%3D+0..5
+					var delta = 1/zoom * pow(gridDistance,ceil(log(minGridSize * zoom)/log(gridDistance)))
+					
+					drawGrid(delta)
+					drawGrid(delta*gridDistance)
 				}
 				else
 				{
 					// Grid indicator
 					val ig = bufferedimage.createGraphics
-					ig.setColor(GridIndicatorColor);
+					ig.setColor(gridIndicatorColor);
 					//TODO: Calculate Color to be always visible?
 					ig.drawRect(10,10,(1/zoom).toInt,(1/zoom).toInt)
 				}
@@ -284,7 +300,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 				case e:ValueChanged =>
 					if( floatvalue.toInt != value )
 						floatvalue = value.toDouble
-					image.z = (floatvalue-50)/100/GridIndicatorScale*32*image.zoom
+					image.z = (floatvalue-50)/100/gridIndicatorScale*32*image.zoom
 					image.recalc
 			}
 		}
