@@ -21,7 +21,7 @@ import simplex3d.math.double.functions._
 abstract class Connector(val title:String, val datatype:String, val node:Node) extends Button(title) {
 	margin = new Insets(0,0,0,0)
 	val originalbackground = background
-	val highlightbackground = ConnectorHighlightColor
+	val highlightbackground = connectorHighlightColor
 	tooltip = "Type: " + datatype
 	
 	

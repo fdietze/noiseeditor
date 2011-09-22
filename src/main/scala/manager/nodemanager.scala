@@ -41,7 +41,7 @@ object NodeManager extends NullPanel("NodeManager") {
 				node.peer.setLocation(pos - node.size/2)
 				spawnpos = None
 			case None =>
-				//TODO: Bug after mobing working area this value is not true anymore
+				//TODO: Bug: after moving working area this value is not true anymore
 				node.peer.setLocation(Vec2i(10,10))
 		}
 		
@@ -49,7 +49,7 @@ object NodeManager extends NullPanel("NodeManager") {
 		
 		for(slider <- node.sliders) {
 			slidervalues(slider.globalname) = Box(slider.globalvalue)
-// TODO:			future{
+// TODO: bind slidervalues in background (?)			future{
 				InterpreterManager.fbind(
 					slider.globalname,
 					"noiseeditor.util.Box[Double]",

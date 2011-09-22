@@ -233,7 +233,11 @@ object FileManager extends Publisher {
 				val view = (node \ "view" \ "@mode").text
 				val perspective = (node \ "view" \ "@perspective").text
 				val depthslider = (node \ "depthslider" \ "@value").text.toDouble
-
+				
+				//TODO: remove backwards compatibility for grid/continous checkbox
+				val grid = (node \ "grid" \ "@selected").text match { case "" => false; case s => s.toBoolean}
+				val continous = (node \ "continous" \ "@selected").text match { case "" => false; case s => s.toBoolean}
+				
 				val preview = Node.preview(title, newid(id))
 				nodeforid(preview.id) = preview
 				NodeManager.add(preview)
@@ -246,6 +250,8 @@ object FileManager extends Publisher {
 				preview.viewcombobox.select(view)
 				preview.perspective.select(perspective)				
 				preview.depthslider.value = depthslider
+				preview.gridcheckbox.selected = grid
+				preview.continouscheckbox.selected = continous
 			case "custom" =>
 				val width = (node \ "size" \ "@width").text.toInt
 				val height = (node \ "size" \ "@height").text.toInt
@@ -317,6 +323,8 @@ object FileManager extends Publisher {
 								<image offsetx={image.offset.x} offsety={image.offset.y} zoom={image.zoom} />
 								<view mode={viewcombobox.selected} perspective={perspective.selectedname} />
 								<depthslider value={depthslider.value} />
+								<grid selected={gridcheckbox.selected} />
+								<continous selected={continouscheckbox.selected} />
 							}
 							else if( nodetype == "custom") {
 								<size width={size.width} height={size.height} />

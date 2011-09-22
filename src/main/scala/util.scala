@@ -6,6 +6,7 @@ import simplex3d.math.double.functions._
 
 import config._
 
+import java.awt.Color
 
 package object util {
 
@@ -48,6 +49,12 @@ def mixcolors(a:Int, b:Int, t:Double=0.5) = {
 		(t*blue(a)  + (1-t)*blue(b) ).toInt
 	)
 }
+implicit def colorSetAlpha(c:Color) = new { def setAlpha(alpha:Int) = new Color(c.getRed,c.getGreen,c.getBlue, alpha) }
+
+
+def map(value:Double, low1:Double, high1:Double, low2:Double, high2:Double) =
+	clamp( (value - low1)*(high2 - low2) / (high1 - low1) + low2, low2, high2 )
+
 
 object Box{	def apply[T](value:T) = new Box[T](value) }
 class Box[T](var value:T) { override def toString = value.toString }
@@ -75,6 +82,7 @@ class InterpreterQueue extends tools.nsc.interpreter.IMain {
 				None
 			}
 			else*/
+				println(valueOfTerm(mostRecentVar).asInstanceOf[Option[T]])
 				valueOfTerm(mostRecentVar).asInstanceOf[Option[T]]
 		}
 		else {
