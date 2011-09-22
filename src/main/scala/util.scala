@@ -82,7 +82,7 @@ class InterpreterQueue extends tools.nsc.interpreter.IMain {
 				None
 			}
 			else*/
-				println(valueOfTerm(mostRecentVar).asInstanceOf[Option[T]])
+				//TODO: make the interpreter work with Scala 2.9.1
 				valueOfTerm(mostRecentVar).asInstanceOf[Option[T]]
 		}
 		else {
