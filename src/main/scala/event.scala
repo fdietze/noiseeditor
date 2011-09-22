@@ -6,6 +6,7 @@ import noiseeditor.connector._
 import swing._
 import swing.event._
 
+// These Swing-Events are used to communicate between different Components and Managers
 
 abstract class NoiseEditorEvent(source:Publisher) extends Event {
 	//println("Event: " + getClass.getName + ", source: " + source)

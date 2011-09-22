@@ -7,6 +7,7 @@ import noiseeditor.NoiseEditor
 import noiseeditor.util._
 import noiseeditor.datastructure._
 
+// Loads modules and provides access to the currently loaded module
 object ModuleManager{
 	println("Starting ModuleManager...")
 	
@@ -49,6 +50,7 @@ object ModuleManager{
 	def nodecategories = if(currentmodule != null) currentmodule.nodecategories else Seq()
 	def exporttypes = if(currentmodule != null) currentmodule.exporttypes else Seq()
 	def export = currentmodule.export _
+	
 	
 	def check(module:Module):Boolean = {
 		var isvalid = true

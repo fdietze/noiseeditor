@@ -23,8 +23,7 @@ import simplex3d.math.double.functions._
 
 import actors.Futures.future
 
-
-
+// A Component containing all Nodes
 object NodeManager extends NullPanel("NodeManager") {
 	println("Starting NodeManager...")
 	

@@ -8,8 +8,11 @@ import config._
 
 import java.awt.Color
 
+// Contains misc. functions and datastructures for general use.
 package object util {
 
+
+// measure time of a statement execute  and print it
 def time[A](msg:String)(function: => A) = {
 	val start = System.nanoTime
 	val returnvalue = function
@@ -18,6 +21,7 @@ def time[A](msg:String)(function: => A) = {
 	returnvalue
 }
 
+// Can be used as stopwatch to measure times
 class Timer {
 	var starttime = 0L
 	var passedtime = 0L
@@ -36,7 +40,7 @@ class Timer {
 	def read =   passedtime/1000000000.0
 }
 
-
+//color manipulation
 def rgbcolor(r:Int, g:Int, b:Int) = r << 16 | g << 8 | b
 def graycolor(w:Int) = rgbcolor(w,w,w)
 def red(c:Int) = c >> 16
@@ -51,9 +55,15 @@ def mixcolors(a:Int, b:Int, t:Double=0.5) = {
 }
 implicit def colorSetAlpha(c:Color) = new { def setAlpha(alpha:Int) = new Color(c.getRed,c.getGreen,c.getBlue, alpha) }
 
-
-def map(value:Double, low1:Double, high1:Double, low2:Double, high2:Double) =
+// Re-maps a number from one range to another
+def remap(value:Double, low1:Double, high1:Double, low2:Double, high2:Double) =
 	clamp( (value - low1)*(high2 - low2) / (high1 - low1) + low2, low2, high2 )
+
+
+def thousandsseparator(s:String) = {
+	var i = 0
+	("" /: s.reverse)( (x,y) ⇒ {i+=1;x + (if(i%3==1) "." else "") +y}).drop(1).reverse
+}
 
 
 object Box{	def apply[T](value:T) = new Box[T](value) }
@@ -67,23 +77,11 @@ class InterpreterQueue extends tools.nsc.interpreter.IMain {
 
 	val jq = new JobQueue
 	
-	
 	private def compile[T:Manifest](code:String):Option[T] = {
 		//TODO: Important: Better handling of wrong type
 		if( interpret(code) == Success ) {
-/*			val term = runtimeTypeOfTerm(mostRecentVar)
-//			val termtype = manifest[term]
-			val manifesttype = manifest[T]
-			
-			println(term + "\n" + manifesttype + "\n" + manifesttype.erasure.getName)
-			
-			if( manifesttype != termtype ) {
-				println("Type of compiled code does not match:\nIs: " + termtype + "\nShould be: " + manifesttype)
-				None
-			}
-			else*/
-				//TODO: make the interpreter work with Scala 2.9.1
-				valueOfTerm(mostRecentVar).asInstanceOf[Option[T]]
+			//TODO: make the interpreter work with Scala 2.9.1
+			valueOfTerm(mostRecentVar).asInstanceOf[Option[T]]
 		}
 		else {
 			println("error in interpreted code: "+code+"\n")

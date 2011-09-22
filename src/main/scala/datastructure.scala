@@ -7,14 +7,25 @@ import manager._
 
 package object datastructure {
 
-
+// Map with individual values for each language
 type LanguageMap[T] = Map[String,T]
 object LanguageMap {
 	def apply[T]( args:Tuple2[String,T]* ):LanguageMap[T] = Map(args:_*)
 }
 
+// Transposes a Map of Sequences to a Sequence of Maps
 implicit def transposeonmapseq[K,V](m:Map[K,Traversable[V]]) = new { def mapseqtranspose = m.values.transpose.map( values => (m.keys zip values).toMap )}
+// Transposes a Map of Maps
 implicit def transposeonmapmap[K1,K2,V](m:Map[K1,Map[K2,V]]) = new { def mapmaptranspose = (m.values.head.keys zip m.values.map(_.values).transpose.map( x => (m.keys zip x).toMap)).toMap}
+
+
+// Types for the definition of Nodes used in modules
+case class NodeCategory(title:String, nodetypes:Seq[NodeType])
+
+case class NodeType(title:String, arguments:LanguageMap[Seq[NodeArgument]], sliders:Seq[NodeSlider], functions:LanguageMap[Map[String, NodeFunctionFull]]) {
+	assert( functions.size > 0, "Nodes need at least one function." )
+}
+
 
 trait NodeFunctionArgument {
 	def name:String
@@ -33,7 +44,7 @@ object NodeType {
 		val newfunctions = for( (language, functionmap) <- functions ) yield {
 			language -> (for( (title, NodeFunction(name, returntype, code)) <- functionmap ) yield {
 				title -> NodeFunctionFull(name, returntype, code, arguments(language), sliders.map {
-					// for every slider add datatype for this language
+					// for every slider: add datatype for this language
 					case NodeSlider(sname, formula, initvalue, "") => 
 					NodeSlider(sname, formula, initvalue, ModuleManager.sliderdatatypes(language))
 				})
@@ -57,12 +68,9 @@ object NodeType {
 	}
 }
 
-case class NodeType(title:String, arguments:LanguageMap[Seq[NodeArgument]], sliders:Seq[NodeSlider], functions:LanguageMap[Map[String, NodeFunctionFull]]) {
-	assert( functions.size > 0, "Nodes need at least one function." )
-}
 
-case class NodeCategory(title:String, nodetypes:Seq[NodeType])
 
+// Abstract syntax tree
 case class CompositionTree(
 		function: NodeFunctionFull,
 		nodeid: Int,
@@ -72,11 +80,13 @@ case class CompositionTree(
 	def varname = "vn%d_%s".format(nodeid, function.name)
 }
 
+// Used for generating code
+// the set of functions makes it easier to build function lists instead of traversing the tree
 case class Composition( functions:Set[NodeFunctionFull], calltree:CompositionTree )
 
 
 
-
+// Organizes the Connections between Nodes
 class ConnectionTree {
 	// Bipartite directed Graph G(FROM,TO)
 	// from FROM to TO

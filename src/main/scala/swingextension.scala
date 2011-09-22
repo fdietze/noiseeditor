@@ -58,7 +58,8 @@ class NullPanel(name:String, components:Component*) extends Panel with LayoutCon
 	override def toString = name
 }
 
-trait Movable extends Component{
+
+trait Movable extends Component {
 	var dragstart:Vec2i = null
 	listenTo(mouse.clicks, mouse.moves)
 	reactions += {
@@ -79,7 +80,8 @@ trait Movable extends Component{
 	}
 }
 
-trait Resizable extends Component{
+
+trait Resizable extends Component {
 	import java.awt.Cursor
 	import java.awt.Cursor._
 	var resizestart:Vec2i = null
@@ -129,7 +131,8 @@ trait Resizable extends Component{
 	}
 }
 
-trait ScrollableZoomOffset extends Component {
+
+trait Zoomable extends Component {
 	var offset = Vec2(0.0)
 	var zoom = 1.0
 	val zoomFactor = 1.1
@@ -161,6 +164,7 @@ trait ScrollableZoomOffset extends Component {
 	}
 }
 
+// Sliders can be changed with the mouse wheel
 trait ScrollableSlider extends Slider {
 	listenTo(mouse.wheel)
 	reactions += {
@@ -168,6 +172,7 @@ trait ScrollableSlider extends Slider {
 			value -= e.rotation
 	}
 }
+
 
 
 import javax.swing.JPopupMenu
