@@ -6,6 +6,7 @@ import java.awt.Color._
 
 package object config {
 	val GridIndicatorColor:Color = new Color(0x39B3E9)
+	val GridDistance = 8
 	val GridIndicatorScale = 0.1
 	val IsolineColor:Int = 0x39E9B3
 	val GridColor:Int = 0xFFB578

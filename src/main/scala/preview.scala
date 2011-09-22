@@ -228,7 +228,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 				timer.stop
 				def thousandspoints(s:String) = {
 					var i = 0
-					("" /: s.reverse)( (x,y) => {i+=1;x + (if(i%3==1) "." else "") +y}).drop(1).reverse
+					("" /: s.reverse)( (x,y) ⇒ {i+=1;x + (if(i%3==1) "." else "") +y}).drop(1).reverse
 				}
 
 				speedlabel.value = math.max((width*height)/timer.read, speedlabel.value)
@@ -237,8 +237,16 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 				
 				if( gridcheckbox.selected )
 				{
-					val ig = bufferedimage.createGraphics
-					ig.setColor(GridIndicatorColor);
+					/*val ig = bufferedimage.createGraphics
+					import ig._
+					setColor(GridIndicatorColor);
+					
+					val Δ = 1 / zoom
+					var x = 0.0; while( x < width ) {
+						drawLine( x.toInt, 0, x.toInt, height);
+						x += Δ
+					}*/
+					
 					// TODO: Draw Grid
 				}
 				else
