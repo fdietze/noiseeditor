@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<document>
+			<module name="GameEngine"></module>
+			<nodes><node type="predefined" title="World coordinates" id="1">
+						<location x="29" y="44"></location>
+						
+						<arguments><language name="scala"></language><language name="glsl"></language><language name="prediction"></language></arguments>
+
+						<sliders>
+							<slider name="scale" formula="pow(256, 1-s*2)" value="50"></slider>
+						</sliders>
+		
+						<functions><language name="scala"><function name="scalesrcv_uid4e7c9ea3" returntype="Vec3" outname="v">world   * scale</function><function name="scalesrcx_uid4e7c9ea3" returntype="Double" outname="x">world.x * scale</function><function name="scalesrcy_uid4e7c9ea3" returntype="Double" outname="y">world.y * scale</function><function name="scalesrcz_uid4e7c9ea3" returntype="Double" outname="z">world.z * scale</function></language><language name="glsl"><function name="scalesrcv_uid4e7c9ea3" returntype="vec3" outname="v">return world.xyz * scale;</function><function name="scalesrcx_uid4e7c9ea3" returntype="float" outname="x">return world.x * scale;</function><function name="scalesrcy_uid4e7c9ea3" returntype="float" outname="y">return world.y * scale;</function><function name="scalesrcz_uid4e7c9ea3" returntype="float" outname="z">return world.z * scale;</function></language><language name="prediction"><function name="scalesrcv_uid4e7c9ea3" returntype="Volume" outname="v">world   * scale</function><function name="scalesrcx_uid4e7c9ea3" returntype="Interval" outname="x">world.x * scale</function><function name="scalesrcy_uid4e7c9ea3" returntype="Interval" outname="y">world.y * scale</function><function name="scalesrcz_uid4e7c9ea3" returntype="Interval" outname="z">world.z * scale</function></language></functions>
+					</node><node type="preview" title="Preview" id="3">
+						<location x="549" y="39"></location>
+						<size width="388" height="383"></size><image offsety="-11.700000000000001" offsetx="-16.7" zoom="0.1"></image><view mode="iso" perspective="sideview_zup"></view><depthslider value="50.0"></depthslider><grid selected="false"></grid><continous selected="false"></continous>
+						<arguments><language name="scala"><argument name="d" datatype="Double"></argument><argument name="m" datatype="Material"></argument></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="result_uid4e7c9ea3" returntype="(Double, Material)" outname="result">(d,m)</function></language></functions>
+					</node><node type="predefined" title="3D Perlin Noise Sum" id="2">
+						<location x="241" y="53"></location>
+						
+						<arguments><language name="scala"><argument name="v" datatype="Vec3"></argument></language><language name="glsl"><argument name="v" datatype="vec3"></argument></language><language name="prediction"><argument name="v" datatype="Volume"></argument></language></arguments>
+
+						<sliders>
+							<slider name="size" formula="pow(256, 1-s*2)" value="63"></slider><slider name="scale" formula="pow(256, s*2-1)" value="50"></slider><slider name="offset" formula="s*2-1" value="50"></slider><slider name="steps" formula="1+(s*10).floor" value="50"></slider><slider name="factor" formula="1+s*2" value="50"></slider>
+						</sliders>
+		
+						<functions><language name="scala"><function name="perlinnoise3sum_uid4e7c9ea3" returntype="Double" outname="o"> 
+val pos = v*size
+var sum = 0.0
+for(i &lt;- 0 until steps.toInt) {
+	val f = pow(factor,i)
+	sum += noise3(pos*f)/f
+}
+(sum+offset)*scale/size</function></language><language name="glsl"><function name="perlinnoise3sum_uid4e7c9ea3" returntype="float" outname="o"> 
+vec3 pos = v*size;
+float res = 0.0;
+int intsteps = int(steps);
+for(int i = 0; i &lt; intsteps; ++i) {
+	float f = pow(factor,i);
+	res += noise3(pos*f)/f;
+}
+return (res+offset)*scale/size;</function></language><language name="prediction"><function name="perlinnoise3sum_uid4e7c9ea3" returntype="Interval" outname="o"> 
+val pos = v*size
+var sum = Interval(0.0)
+for(i &lt;- 0 until steps.toInt) {
+	val f = pow(factor,i)
+	sum += noise3_prediction(pos*f)/f
+}
+(sum+offset)*scale/size</function></language></functions>
+					</node></nodes>
+			<connections><connection>
+						<in nodeid="2" connector="0"></in>
+						<out nodeid="1" connector="0"></out>
+					</connection><connection>
+						<in nodeid="3" connector="0"></in>
+						<out nodeid="2" connector="0"></out>
+					</connection></connections>
+		</document>
