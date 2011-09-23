@@ -86,6 +86,7 @@ object Noise {
 		gradients3(hash(hash(hash(X)+Y)+Z) & 15)
 	}
 	
+	// Interval extension for Improved Perlin Noise
 	def noise3_prediction(v:Volume):Interval = noise3_prediction(v.x.low, v.y.low, v.z.low, v.x.high, v.y.high, v.z.high)
 	def nosie3_prediction(x:Interval,y:Interval,z:Interval):Interval = noise3_prediction(x.low, y.low, z.low, x.high, y.high, z.high)
 	def noise3_prediction(x0:Double, y0:Double, z0:Double, x1:Double, y1:Double, z1:Double):Interval = {
@@ -209,6 +210,7 @@ g3y/6,(g3z-g3y)/6,(2*g3z-g3y)/6,-(6*g7z+g7y-6*g3z+g3y)/12,-(2*g7z+g7y)/6,-(g7z+g
 		Interval(imin,imax)
 	}
 	
+	// Improved Perlin Noise
 	def noise3(v:Vec3):Double = noise3(v.x, v.y, v.z)
 	def noise3(x:Double, y:Double, z:Double):Double = {
 

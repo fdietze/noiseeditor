@@ -3,6 +3,8 @@ package noise
 import simplex3d.math._
 import simplex3d.math.double._
 
+// Operations for interval arithmetic
+
 package object interval {
 
 case class Interval (low:Double = 0.0, high:Double = 0.0) {

@@ -228,7 +228,7 @@ class CustomNode(title:String, id:Int, override val arguments:LanguageMap[Seq[No
 	def customfunction = NodeFunctionFull(
 		name = "custom_f" + id,
 		returntype = "Double",
-		code = if(funcfield != null) ("{" + funcfield.text + "}.toDouble") else "0.0",
+		code = if(funcfield != null) ("try{{" + funcfield.text + "}.toDouble}catch{ case _ ⇒ 0.0}") else "0.0",
 		arguments = arguments("scala"),
 		customsliders
 	)

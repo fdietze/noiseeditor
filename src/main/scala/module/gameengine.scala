@@ -152,9 +152,69 @@ object GameEngine extends Module {
 							"""(noise3_prediction((v + Volume(x,y,z))*size)+offset)*scale/size + add - sub""")
 						)
 					)
+				), // NodType
+
+
+				NodeType("3D Perlin Noise Sum", 
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec3")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v","vec3")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume")
+						)
+					),
+					Seq(
+						NodeSlider("size", "pow(256, 1-s*2)"),
+						NodeSlider("scale", "pow(256, s*2-1)"),
+						NodeSlider("offset", "s*2-1"),
+						NodeSlider("steps", "1+(s*10).floor"),
+						NodeSlider("factor", "1+s*2", 50)
+					),
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("perlinnoise3sum", "Double",
+							""" 
+val pos = v*size
+var sum = 0.0
+for(i <- 0 until steps.toInt) {
+	val f = pow(factor,i)
+	sum += noise3(pos*f)/f
+}
+(sum+offset)*scale/size""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("perlinnoise3sum", "float",
+							""" 
+vec3 pos = v*size;
+float res = 0.0;
+int intsteps = int(steps);
+for(int i = 0; i < intsteps; ++i) {
+	float f = pow(factor,i);
+	res += noise3(pos*f)/f;
+}
+return (res+offset)*scale/size;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("perlinnoise3sum", "Interval",
+							""" 
+val pos = v*size
+var sum = Interval(0.0)
+for(i <- 0 until steps.toInt) {
+	val f = pow(factor,i)
+	sum += noise3_prediction(pos*f)/f
+}
+(sum+offset)*scale/size""")
+						)
+					)
 				)
-			)
-		),
+
+
+			) // Seq
+		), // NodeCategory
 
 		NodeCategory("Math",
 			Seq(
@@ -782,9 +842,24 @@ object GameEngine extends Module {
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),
 					Seq(NodeSlider("r"), NodeSlider("g"), NodeSlider("b")),
 					LanguageMap("scala" -> Map( "m" -> NodeFunction("matrgb", "Material", "Material((r*255).toInt << 16 | (g*255).toInt << 8 | (b*255).toInt)") ),
-						"glsl" -> Map("m" -> NodeFunction("matrgb", "vec4", "return vec4(r, g, b, 0.0);")	)
+						"glsl" -> Map("m" -> NodeFunction("matrgb", "vec4", "return vec4(r, g, b, 1);")	)
 					)
 				),
+				NodeType("Vec3 to color",
+					LanguageMap(
+						"scala" -> Seq(	NodeArgument("v","Vec3")),
+						"glsl" -> Seq(NodeArgument("v","vec3"))
+					),
+					
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"m" -> NodeFunction("vectocolor", "Material", "Material(clamp(v.r*255,0,255).toInt << 16 | clamp(v.g*255,0,255).toInt << 8 | clamp(v.b*255,0,255).toInt)") ),
+						"glsl" -> Map(
+							"m" -> NodeFunction("vectocolor", "vec4", "return vec4(v,1);")	)
+					)
+				),
+				
 				NodeType("Gold",
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
 					LanguageMap("scala" -> Map( "m" -> NodeFunction("matgold", "Material", "Material(0xfab614)") ),

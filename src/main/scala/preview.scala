@@ -64,18 +64,18 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 	}
 	
 	val viewtypes = Seq(
-		"iso" -> "Iso surface",
-		"isowithdepth" -> "Iso surface depth",
-		"values" -> "Values",
-		"valueswithiso" -> "Values and Iso",
-		"valuesnormalized" -> "Values normalized"
+		'iso -> "Iso surface",
+		'isowithdepth -> "Iso surface depth",
+		'values -> "Values",
+		'valueswithiso -> "Values and Iso",
+		'valuesnormalized -> "Values normalized"
 		)
 	
 	val perspectives = Seq(
-		("sideview_zup", ((v:Vec3) => Vec3(v.x,v.z,-v.y)), "Side view (z up)"),
-		("topview_zup", ((v:Vec3) => Vec3(v.x,v.y,-v.z)), "Top view (z up)"),
-		("sideview_yup", ((v:Vec3) => Vec3(v.x,-v.y,v.z)), "Side view (y up)"),
-		("topview_yup", ((v:Vec3) => Vec3(v.x,v.z,-v.y)), "Top view (y up)")
+		('sideview_zup, ((v:Vec3) => Vec3(v.x,v.z,-v.y)), "Side view (z up)"),
+		('topview_zup, ((v:Vec3) => Vec3(v.x,v.y,-v.z)), "Top view (z up)"),
+		('sideview_yup, ((v:Vec3) => Vec3(v.x,-v.y,v.z)), "Side view (y up)"),
+		('topview_yup, ((v:Vec3) => Vec3(v.x,v.z,-v.y)), "Top view (y up)")
 		)
 		
 	val timer = new Timer
@@ -86,7 +86,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 	}
 	
 	val image = new PreviewImage
-	class PreviewImage extends Component with ScrollableZoomOffset {
+	class PreviewImage extends Component with Zoomable {
 		preferredSize = Vec2i(250, 250)
 		peer.setSize(preferredSize)
 		background = BLACK
@@ -102,12 +102,12 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 		
 		
 		override def scrolledorzoomed = {
-			depthslider.value = (100*gridIndicatorScale*z/(32*zoom))+50
+			depthslider.value = (100*defaultZoom*z/(32*zoom))+50
 			recalc
 		}
 		
 		def reset {
-			zoom = gridIndicatorScale
+			zoom = defaultZoom
 			offset = -size / 2 * zoom
 			if( depthslider != null ) depthslider.value = 50
 			recalc
@@ -141,7 +141,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 
 				val data:Array[Int] =
 				viewcombobox.selected match {
-					case "iso" =>
+					case 'iso =>
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y = i/width
@@ -152,7 +152,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 								0xFFFFFF
 						}.toArray
 
-					case "isowithdepth" =>
+					case 'isowithdepth =>
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y =i/width
@@ -178,7 +178,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 							rgbcolor(nr,ng,nb)
 						}.toArray
 
-					case "values" =>
+					case 'values =>
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y =i/width
@@ -187,7 +187,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 							graycolor(value)
 						}.toArray
 
-					case "valueswithiso" =>
+					case 'valueswithiso =>
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y =i/width
@@ -207,7 +207,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 //							}
 						}.toArray
 
-					case "valuesnormalized" =>
+					case 'valuesnormalized =>
 						var minvalue = scala.Double.MaxValue
 						var maxvalue = scala.Double.MinValue
 						(0 until width*height).par.map{i =>
@@ -227,25 +227,20 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 						}.toArray
 				}
 				timer.stop
-				def thousandspoints(s:String) = {
-					var i = 0
-					("" /: s.reverse)( (x,y) ⇒ {i+=1;x + (if(i%3==1) "." else "") +y}).drop(1).reverse
-				}
 
 				speedlabel.value = math.max((width*height)/timer.read, speedlabel.value)
-				speedlabel.text = "%s px/s max".format(thousandspoints((speedlabel.value).toLong.toString))	
+				speedlabel.text = "%s px/s max".format(thousandsseparator((speedlabel.value).toLong.toString))	
 				bufferedimage.setRGB(0, 0, width, height, data, 0, width)
 				
-				if( gridcheckbox.selected )
+				
+				if( gridcheckbox.selected ) // Draw grid
 				{
 					val ig = bufferedimage.createGraphics
 					import ig._
 					
-					val minGridSize = 5
-					
 					def drawGrid(delta:Double){
-						val alpha = map( delta, minGridSize, gridDistance*minGridSize, 0, 255).toInt
-						setColor(gridIndicatorColor.setAlpha(alpha));
+						val alpha = remap( delta, minGridSize, gridDistance*minGridSize, 0, 255).toInt
+						setColor(gridColor.setAlpha(alpha));
 						var x = mod(-offset.x / zoom, delta)
 						while( x < width ) {
 							drawLine( x.toInt, 0, x.toInt, height);
@@ -265,12 +260,10 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 					drawGrid(delta)
 					drawGrid(delta*gridDistance)
 				}
-				else
+				else // Draw Unit Square
 				{
-					// Grid indicator
 					val ig = bufferedimage.createGraphics
-					ig.setColor(gridIndicatorColor);
-					//TODO: Calculate Color to be always visible?
+					ig.setColor(gridColor);
 					ig.drawRect(10,10,(1/zoom).toInt,(1/zoom).toInt)
 				}
 				
@@ -300,7 +293,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 				case e:ValueChanged =>
 					if( floatvalue.toInt != value )
 						floatvalue = value.toDouble
-					image.z = (floatvalue-50)/100/gridIndicatorScale*32*image.zoom
+					image.z = (floatvalue-50)/100/defaultZoom*32*image.zoom
 					image.recalc
 			}
 		}
@@ -360,14 +353,11 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 		}
 	}
 
-
-
 	
 	val speedlabel = new Label(""){
 		var value:Double = 0.0
 	}
 	
-	//TODO: save grid and continous in file
 	val gridcheckbox = new CheckBox("grid") {
 		margin = new Insets(0,0,0,0)
 		reactions += {
@@ -388,6 +378,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 		contents += new BoxPanel(Vertical) {
 			contents += image
 			contents += speedlabel
+
 			contents += depthslider
 			contents += new BoxPanel(Horizontal) {
 				contents += viewcombobox
@@ -412,20 +403,24 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 			val code = CompositionManager.generatepreviewcode(outconnectors.head)
 			val compilation = InterpreterManager[Compositiontype](code) // Future
 			compilation() match {
+				// Compilation successful
 				case Some(interpretedcode) =>
 					interpretedcomposition = interpretedcode
 					involvedsliders = CompositionManager.involvedsliders(outconnectors.head)
 					speedlabel.value = 0.0
 					image.recalc
+				// Compilation not successful
 				case None =>
+					interpretedcomposition = (world:Vec3) => (0.0, Material(0xFF0000))
+					image.recalc
 			}
 		}
 	}
 	
 	listenTo(ConnectionManager, NodeManager, viewcombobox.selection, perspective.selection)
 	reactions += {
-		case NodeValueChanged(source, node, slider, value) =>
-			if( involvedsliders contains slider )
+		case e:NodeValueChanged =>
+			if( involvedsliders contains e.slider )
 				image.recalc
 		
 		case e:NodeConnected =>

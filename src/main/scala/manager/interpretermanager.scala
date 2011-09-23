@@ -2,6 +2,7 @@ package noiseeditor.manager
 
 import noiseeditor.util._
 
+// Accepts code, puts it in a queue and returns the parsed results.
 object InterpreterManager extends InterpreterQueue {
 	println("Starting InterpreterManager...")
 	

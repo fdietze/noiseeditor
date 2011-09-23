@@ -321,7 +321,7 @@ object FileManager extends Publisher {
 								import preview._
 								<size width={size.width} height={size.height} />
 								<image offsetx={image.offset.x} offsety={image.offset.y} zoom={image.zoom} />
-								<view mode={viewcombobox.selected} perspective={perspective.selectedname} />
+								<view mode={viewcombobox.selected.name} perspective={perspective.selectedname.name} />
 								<depthslider value={depthslider.value} />
 								<grid selected={gridcheckbox.selected} />
 								<continous selected={continouscheckbox.selected} />
