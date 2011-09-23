@@ -215,6 +215,7 @@ object FileManager extends Publisher {
 			
 			nodetype match {
 			case "predefined" =>
+				//TODO: try to load the newest version of this node from the module instead of the xml file
 				val predefined = Node(NodeType(title, arguments, sliders, functions), newid(id))
 				nodeforid(predefined.id) = predefined
 				NodeManager.add(predefined)
