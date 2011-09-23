@@ -20,7 +20,7 @@ object Noise {
 	def hash(x: Int) :Int = (a*(x ^ c)) >>> 16*/
 	//def hash(k:Int) = ((k*0x12345678) >> (k*0x87754351)) & 0x7FFFFFFF
 	def hash(k:Int) = mod(((k*34)+1)*k, 289).toInt
-	
+
 
 
 	// Split Bezier Curves
@@ -86,12 +86,10 @@ object Noise {
 		gradients3(hash(hash(hash(X)+Y)+Z) & 15)
 	}
 	
-	// Interval extension for Improved Perlin Noise
-	def noise3_prediction(v:Volume):Interval = noise3_prediction(v.x.low, v.y.low, v.z.low, v.x.high, v.y.high, v.z.high)
-	def nosie3_prediction(x:Interval,y:Interval,z:Interval):Interval = noise3_prediction(x.low, y.low, z.low, x.high, y.high, z.high)
-	def noise3_prediction(x0:Double, y0:Double, z0:Double, x1:Double, y1:Double, z1:Double):Interval = {
-		
-		assert(x0 < x1 && y0 < y1 && z0 < z1, "First coordinate needs to be lower in all components.\n"+(x0,y0,z0)+" < "+(x1,y1,z1))
+	def noise3_prediction(v:Volume):Interval = {
+		import v.x.{low => x0, high => x1}
+		import v.y.{low => y0, high => y1}
+		import v.z.{low => z0, high => z1}
 		
 		// Edges of the unit cube
 		val X = fastfloor(x0)
@@ -99,7 +97,6 @@ object Noise {
 		val Z = fastfloor(z0)
 		
 		// Interval needs to stay inside one unit cube of the lattice
-		
 		if( X < fastceil(x1)-1
 		 || Y < fastceil(y1)-1
 		 || Z < fastceil(z1)-1 )
@@ -220,13 +217,6 @@ g3y/6,(g3z-g3y)/6,(2*g3z-g3y)/6,-(6*g7z+g7y-6*g3z+g3y)/12,-(2*g7z+g7y)/6,-(g7z+g
 			val v = if(h<4) y else {if(h==12 || h==14) x else z}
 			(if((h&1) == 0) u else -u) + (if((h&2) == 0) v else -v)
 		}
-
-		/*def grad(hash:Int, x:Double, y:Double, z:Double) = {
-			val h = mod(hash,16)
-			val u = if(h<8) x else y
-			val v = if(h<4) y else {if(h==12 || h==14) x else z}
-			(if(mod(h,2) == 0) u else -u) + (if((mod(h,4)-mod(h,2)) == 0) v else -v)
-		}*/
 		
 		val X = fastfloor(x)
 		val Y = fastfloor(y)
