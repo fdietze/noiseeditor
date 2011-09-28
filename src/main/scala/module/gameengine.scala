@@ -1053,7 +1053,7 @@ for(i <- 0 until steps.toInt) {
 					var path = "../gameengine"
 					
 					println("clearing world cache...")
-					Runtime.getRuntime.exec("rm " + path + "/worldoctree")
+					//Runtime.getRuntime.exec("rm " + path + "/worldoctree")
 
 					println("generating scala density code...")
 					var out = new java.io.FileWriter(path + "/src/main/scala/worldfunction.scala")
@@ -1131,7 +1131,7 @@ for(i <- 0 until steps.toInt) {
 		}
 
 """ 
-package xöpäx.gen
+package openworld.gen
 
 import noise.Noise.noise3
 
@@ -1363,7 +1363,7 @@ void main(){
 		}
 		
 """ 
-package xöpäx.gen
+package openworld.gen
 
 import simplex3d.math._
 import simplex3d.math.double._
