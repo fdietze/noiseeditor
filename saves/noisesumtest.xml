@@ -1,0 +1,93 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<document>
+			<module name="GameEngine"></module>
+			<nodes><node type="predefined" title="3D Perlin Noise Sum" id="5">
+						<location x="205" y="118"></location>
+						
+						<arguments><language name="scala"><argument name="v" datatype="Vec3"></argument></language><language name="glsl"><argument name="v" datatype="vec3"></argument></language><language name="prediction"><argument name="v" datatype="Volume"></argument></language></arguments>
+
+						<sliders>
+							<slider name="size" formula="pow(256, 1-s*2)" value="76"></slider><slider name="scale" formula="pow(256, s*2-1)" value="55"></slider><slider name="offset" formula="s*2-1" value="57"></slider><slider name="steps" formula="(s*10).floor" value="49"></slider><slider name="factor" formula="1+s*3" value="33"></slider>
+						</sliders>
+		
+						<functions><language name="scala"><function name="perlinnoise3sum_uid4e7b5f6b" returntype="Double" outname="o"> 
+val pos = v*size
+var sum = 0.0
+for(i &lt;- 0 until steps.toInt) {
+	val f = pow(factor,i)
+	sum += noise3(pos*f)/f
+}
+(sum+offset)*scale/size</function></language><language name="glsl"><function name="perlinnoise3sum_uid4e7b5f6b" returntype="float" outname="o"> 
+float pos = v*size
+float sum = 0.0
+int intsteps = int(steps)
+for(i = 0; i &lt; intsteps; ++i) {
+	float f = pow(factor,i)
+	sum += noise3(pos*f)/f
+}
+return (sum+offset)*scale/size</function></language><language name="prediction"><function name="perlinnoise3sum_uid4e7b5f6b" returntype="Interval" outname="o"> 
+val pos = v*size
+var sum = Interval(0.0)
+for(i &lt;- 0 until steps.toInt) {
+	val f = pow(factor,i)
+	sum += noise3_prediction(pos*f)/f
+}
+(sum+offset)*scale/size</function></language></functions>
+					</node><node type="preview" title="Preview" id="3">
+						<location x="588" y="101"></location>
+						<size width="473" height="429"></size><image offsety="-31.00361710746843" offsetx="9.208390213232072" zoom="0.19487171000000003"></image><view mode="iso" perspective="sideview_zup"></view><depthslider value="50.0"></depthslider><grid selected="false"></grid><continous selected="false"></continous>
+						<arguments><language name="scala"><argument name="d" datatype="Double"></argument><argument name="m" datatype="Material"></argument></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="result_uid4e7b5f6b" returntype="(Double, Material)" outname="result">(d,m)</function></language></functions>
+					</node><node type="predefined" title="Diff 2" id="6">
+						<location x="445" y="134"></location>
+						
+						<arguments><language name="scala"><argument name="a" datatype="Double"></argument><argument name="b" datatype="Double"></argument></language><language name="glsl"><argument name="a" datatype="float"></argument><argument name="b" datatype="float"></argument></language><language name="prediction"><argument name="a" datatype="Interval"></argument><argument name="b" datatype="Interval"></argument></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="diff2_uid4e7b5f6b" returntype="Double" outname="o">a-b</function></language><language name="glsl"><function name="diff2_uid4e7b5f6b" returntype="float" outname="o">return a-b;</function></language><language name="prediction"><function name="diff2_uid4e7b5f6b" returntype="Interval" outname="o">a-b</function></language></functions>
+					</node><node type="predefined" title="RGB" id="4">
+						<location x="149" y="397"></location>
+						
+						<arguments><language name="scala"></language><language name="glsl"></language></arguments>
+
+						<sliders>
+							<slider name="r" formula="s" value="4"></slider><slider name="g" formula="s" value="30"></slider><slider name="b" formula="s" value="43"></slider>
+						</sliders>
+		
+						<functions><language name="scala"><function name="matrgb_uid4e7b5f6b" returntype="Material" outname="m">Material((r*255).toInt &lt;&lt; 16 | (g*255).toInt &lt;&lt; 8 | (b*255).toInt);</function></language><language name="glsl"><function name="matrgb_uid4e7b5f6b" returntype="vec4" outname="m">return vec4(r, g, b, 0.0);</function></language></functions>
+					</node><node type="predefined" title="World coordinates" id="2">
+						<location x="17" y="147"></location>
+						
+						<arguments><language name="scala"></language><language name="glsl"></language><language name="prediction"></language></arguments>
+
+						<sliders>
+							<slider name="scale" formula="pow(256,((0.5-s)*2))" value="50"></slider>
+						</sliders>
+		
+						<functions><language name="scala"><function name="scalesrcv_uid4e7b5f6b" returntype="Vec3" outname="v">world   * scale</function><function name="scalesrcx_uid4e7b5f6b" returntype="Double" outname="x">world.x * scale</function><function name="scalesrcy_uid4e7b5f6b" returntype="Double" outname="y">world.y * scale</function><function name="scalesrcz_uid4e7b5f6b" returntype="Double" outname="z">world.z * scale</function></language><language name="glsl"><function name="scalesrcv_uid4e7b5f6b" returntype="vec3" outname="v">return world.xyz * scale;</function><function name="scalesrcx_uid4e7b5f6b" returntype="float" outname="x">return world.x * scale;</function><function name="scalesrcy_uid4e7b5f6b" returntype="float" outname="y">return world.y * scale;</function><function name="scalesrcz_uid4e7b5f6b" returntype="float" outname="z">return world.z * scale;</function></language><language name="prediction"><function name="scalesrcv_uid4e7b5f6b" returntype="Volume" outname="v">world   * scale</function><function name="scalesrcx_uid4e7b5f6b" returntype="Interval" outname="x">world.x * scale</function><function name="scalesrcy_uid4e7b5f6b" returntype="Interval" outname="y">world.y * scale</function><function name="scalesrcz_uid4e7b5f6b" returntype="Interval" outname="z">world.z * scale</function></language></functions>
+					</node></nodes>
+			<connections><connection>
+						<in nodeid="3" connector="0"></in>
+						<out nodeid="6" connector="0"></out>
+					</connection><connection>
+						<in nodeid="6" connector="0"></in>
+						<out nodeid="5" connector="0"></out>
+					</connection><connection>
+						<in nodeid="6" connector="1"></in>
+						<out nodeid="2" connector="3"></out>
+					</connection><connection>
+						<in nodeid="3" connector="1"></in>
+						<out nodeid="4" connector="0"></out>
+					</connection><connection>
+						<in nodeid="5" connector="0"></in>
+						<out nodeid="2" connector="0"></out>
+					</connection></connections>
+		</document>
