@@ -1052,7 +1052,8 @@ for(i <- 0 until steps.toInt) {
 					
 					var path = "../gameengine"
 					
-					println("clearing world cache...")
+					//println("clearing world cache...")
+					//TODO: remove or do it with the java-api
 					//Runtime.getRuntime.exec("rm " + path + "/worldoctree")
 
 					println("generating scala density code...")
@@ -1060,12 +1061,17 @@ for(i <- 0 until steps.toInt) {
 					out.write(generatescaladensitycode)
 					out.close
 
-					println("generating glsl code...")
+					println("generating scala material code...")
+					out = new java.io.FileWriter(path + "/src/main/scala/worldmaterial.scala")
+					out.write(generatescalamaterialcode)
+					out.close
+
+					println("generating glsl material code...")
 					out = new java.io.FileWriter(path + "/src/main/resources/shaders/screen.frag")
 					out.write(generateglslmaterialcode)
 					out.close
 				
-					println("generating prediction code...")
+					println("generating scala density prediction code...")
 					out = new java.io.FileWriter(path + "/src/main/scala/worldprediction.scala")
 					out.write(generatepredictiondensitycode)
 					out.close
@@ -1139,7 +1145,8 @@ import simplex3d.math._
 import simplex3d.math.double._
 import simplex3d.math.double.functions._
 
-case class Material(color:Int = 0x000000)
+// case class Material(color:Int = 0x000000)
+import openworld.Util.Material
 
 object %s {
 
