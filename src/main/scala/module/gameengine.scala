@@ -52,6 +52,9 @@ object GameEngine extends Module {
 
 	override lazy val nodecategories:Seq[NodeCategory] = Seq(
 
+//******************************************************************************
+//******************* Sources **************************************************
+//******************************************************************************
 		NodeCategory("Sources",
 			Seq(
 				NodeType("World coordinates",
@@ -99,9 +102,114 @@ object GameEngine extends Module {
 							"s" -> NodeFunction("timeseconds", "float",   "return time;")
 						)
 					)
+				),
+				NodeType("Exponential slider: Scalar",
+					LanguageMap(
+						"scala" -> Nil,
+						"glsl" -> Nil,
+						"prediction" -> Nil
+					),
+					Seq(
+						NodeSlider("value", "pow(256, s*2-1)")
+					),
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("expconstant", "Double",
+							"""value""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("expconstant", "float",
+							"""return value;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("expconstant", "Interval",
+							"""Interval(value)""")
+						)
+					)
+				),
+				NodeType("Linear slider: Scalar",
+					LanguageMap(
+						"scala" -> Nil,
+						"glsl" -> Nil,
+						"prediction" -> Nil
+					),
+					Seq(
+						NodeSlider("value", "s*2-1"),
+						NodeSlider("scale", "pow(256, s*2-1)")
+					),
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("linearconstant", "Double",
+							"""value*scale""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("linearconstant", "float",
+							"""return value*scale;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("linearconstant", "Interval",
+							"""Interval(value*scale)""")
+						)
+					)
+				),
+				NodeType("Exponential slider: Vec3",
+					LanguageMap(
+						"scala" -> Nil,
+						"glsl" -> Nil,
+						"prediction" -> Nil
+					),
+					Seq(
+						NodeSlider("x", "pow(256, s*2-1)"),
+						NodeSlider("y", "pow(256, s*2-1)"),
+						NodeSlider("z", "pow(256, s*2-1)")
+					),
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("expconstantvec3", "Vec3",
+							"""Vec3(x,y,z)""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("expconstantvec3", "vec3",
+							"""return vec3(x,y,z);""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("expconstantvec3", "Volume",
+							"""Volume(Vec3(x,y,z))""")
+						)
+					)
+				),
+				NodeType("Linear slider: Vec3",
+					LanguageMap(
+						"scala" -> Nil,
+						"glsl" -> Nil,
+						"prediction" -> Nil
+					),
+					Seq(
+						NodeSlider("x", "s*2-1"),
+						NodeSlider("y", "s*2-1"),
+						NodeSlider("z", "s*2-1"),
+						NodeSlider("scale", "pow(256, s*2-1)")
+					),
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("linearconstantvec3", "Vec3",
+							"""Vec3(x,y,z)*scale""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("linearconstantvec3", "vec3",
+							"""return vec3(x,y,z)*scale;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("linearconstantvec3", "Volume",
+							"""Volume(Vec3(x,y,z)*scale)""")
+						)
+					)
 				)
 			)
 		),
+//******************************************************************************
+//******************* Noise ****************************************************
+//******************************************************************************
 
 		NodeCategory("Noise",
 			Seq(
@@ -215,140 +323,12 @@ for(i <- 0 until steps.toInt) {
 
 			) // Seq
 		), // NodeCategory
-
-		NodeCategory("Math",
+//******************************************************************************
+//******************* Basic Math ***********************************************
+//******************************************************************************
+		NodeCategory("Basic Math",
 			Seq(
-				NodeType("Min 2",
-					LanguageMap(
-						"scala" -> Seq(
-							NodeArgument("a","Double"),
-							NodeArgument("b","Double")
-						),
-						"glsl" -> Seq(
-							NodeArgument("a","float"),
-							NodeArgument("b","float")
-						),
-						"prediction" -> Seq(
-							NodeArgument("a","Interval"),
-							NodeArgument("b","Interval")
-						)
-					),
-					Nil,
-					LanguageMap(
-						"scala" -> Map(
-							"o" -> NodeFunction("min2", "Double",
-							"""min(a,b)""")
-						),
-						"glsl" -> Map(
-							"o" -> NodeFunction("min2", "float",
-							"""return min(a,b);""")
-						),
-						"prediction" -> Map(
-							"o" -> NodeFunction("min2", "Interval",
-							"""interval.min(a,b)""")
-						)
-					)
-				),
-				NodeType("Min 3",
-					LanguageMap(
-						"scala" -> Seq(
-							NodeArgument("a","Double"),
-							NodeArgument("b","Double"),
-							NodeArgument("c","Double")
-						),
-						"glsl" -> Seq(
-							NodeArgument("a","float"),
-							NodeArgument("b","float"),
-							NodeArgument("c","float")
-						),
-						"prediction" -> Seq(
-							NodeArgument("a","Interval"),
-							NodeArgument("b","Interval"),
-							NodeArgument("c","Interval")
-						)
-					),
-					Nil,
-					LanguageMap(
-						"scala" -> Map(
-							"o" -> NodeFunction("min3", "Double",
-							"""min(min(a,b),c)""")
-						),
-						"glsl" -> Map(
-							"o" -> NodeFunction("min3", "float",
-							"""return min(min(a,b),c);""")
-						),
-						"prediction" -> Map(
-							"o" -> NodeFunction("min3", "Interval",
-							"""interval.min(interval.min(a,b),c)""")
-						)
-					)
-				),
-				NodeType("Max 2",
-					LanguageMap(
-						"scala" -> Seq(
-							NodeArgument("a","Double"),
-							NodeArgument("b","Double")
-						),
-						"glsl" -> Seq(
-							NodeArgument("a","float"),
-							NodeArgument("b","float")
-						),
-						"prediction" -> Seq(
-							NodeArgument("a","Interval"),
-							NodeArgument("b","Interval")
-						)
-					),
-					Nil,
-					LanguageMap(
-						"scala" -> Map(
-							"o" -> NodeFunction("max2", "Double",
-							"""max(a,b)""")
-						),
-						"glsl" -> Map(
-							"o" -> NodeFunction("max2", "float",
-							"""return max(a,b);""")
-						),
-						"prediction" -> Map(
-							"o" -> NodeFunction("max2", "Interval",
-							"""interval.max(a,b)""")
-						)
-					)
-				),
-				NodeType("Max 3",
-					LanguageMap(
-						"scala" -> Seq(
-							NodeArgument("a","Double"),
-							NodeArgument("b","Double"),
-							NodeArgument("c","Double")
-						),
-						"glsl" -> Seq(
-							NodeArgument("a","float"),
-							NodeArgument("b","float"),
-							NodeArgument("c","float")
-						),
-						"prediction" -> Seq(
-							NodeArgument("a","Interval"),
-							NodeArgument("b","Interval"),
-							NodeArgument("c","Interval")
-						)
-					),
-					Nil,
-					LanguageMap(
-						"scala" -> Map(
-							"o" -> NodeFunction("max3", "Double",
-							"""max(max(a,b),c)""")
-						),
-						"glsl" -> Map(
-							"o" -> NodeFunction("max3", "float",
-							"""return max(max(a,b),c);""")
-						),
-						"prediction" -> Map(
-							"o" -> NodeFunction("max3", "Interval",
-							"""interval.max(interval.max(a,b),c)""")
-						)
-					)
-				),
-				NodeType("Sum 2",
+				NodeType("a + b",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("a","Double"),
@@ -379,7 +359,7 @@ for(i <- 0 until steps.toInt) {
 						)
 					)
 				),
-				NodeType("Sum 3",
+				NodeType("a + b + c",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("a","Double"),
@@ -413,7 +393,96 @@ for(i <- 0 until steps.toInt) {
 						)
 					)
 				),
-				NodeType("Product 2",
+				NodeType("a + Exp Slider",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval")
+						)
+					),
+					Seq(
+						NodeSlider("value", "val s1 = (s*2-1); if(s1 >= 0) pow(257, s1)-1 else 1-pow(257, -s1)")
+					),
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("addconstantexp", "Double",
+							"""a+value""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("addconstantexp", "float",
+							"""return a+value;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("addconstantexp", "Interval",
+							"""a+value""")
+						)
+					)
+				),
+				NodeType("a - b",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double"),
+							NodeArgument("b","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float"),
+							NodeArgument("b","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval"),
+							NodeArgument("b","Interval")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("diff2", "Double",
+							"""a-b""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("diff2", "float",
+							"""return a-b;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("diff2", "Interval",
+							"""a-b""")
+						)
+					)
+				),
+				NodeType("-a",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("negate", "Double",
+							"""-a""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("negate", "float",
+							"""return -a;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("negate", "Interval",
+							"""-a""")
+						)
+					)
+				),
+				NodeType("a * b",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("a","Double", "1.0"),
@@ -444,7 +513,7 @@ for(i <- 0 until steps.toInt) {
 						)
 					)
 				),
-				NodeType("Product 3",
+				NodeType("a * b * c",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("a","Double", "1.0"),
@@ -478,144 +547,7 @@ for(i <- 0 until steps.toInt) {
 						)
 					)
 				),
-				NodeType("Diff 2",
-					LanguageMap(
-						"scala" -> Seq(
-							NodeArgument("a","Double"),
-							NodeArgument("b","Double")
-						),
-						"glsl" -> Seq(
-							NodeArgument("a","float"),
-							NodeArgument("b","float")
-						),
-						"prediction" -> Seq(
-							NodeArgument("a","Interval"),
-							NodeArgument("b","Interval")
-						)
-					),
-					Nil,
-					LanguageMap(
-						"scala" -> Map(
-							"o" -> NodeFunction("diff2", "Double",
-							"""a-b""")
-						),
-						"glsl" -> Map(
-							"o" -> NodeFunction("diff2", "float",
-							"""return a-b;""")
-						),
-						"prediction" -> Map(
-							"o" -> NodeFunction("diff2", "Interval",
-							"""a-b""")
-						)
-					)
-				),
-				NodeType("Negate",
-					LanguageMap(
-						"scala" -> Seq(
-							NodeArgument("a","Double")
-						),
-						"glsl" -> Seq(
-							NodeArgument("a","float")
-						),
-						"prediction" -> Seq(
-							NodeArgument("a","Interval")
-						)
-					),
-					Nil,
-					LanguageMap(
-						"scala" -> Map(
-							"o" -> NodeFunction("negate", "Double",
-							"""-a""")
-						),
-						"glsl" -> Map(
-							"o" -> NodeFunction("negate", "float",
-							"""return -a;""")
-						),
-						"prediction" -> Map(
-							"o" -> NodeFunction("negate", "Interval",
-							"""-a""")
-						)
-					)
-				),
-				NodeType("Constant Exp",
-					LanguageMap(
-						"scala" -> Nil,
-						"glsl" -> Nil,
-						"prediction" -> Nil
-					),
-					Seq(
-						NodeSlider("value", "pow(256, s*2-1)")
-					),
-					LanguageMap(
-						"scala" -> Map(
-							"o" -> NodeFunction("constantexp", "Double",
-							"""value""")
-						),
-						"glsl" -> Map(
-							"o" -> NodeFunction("constantexp", "float",
-							"""return value;""")
-						),
-						"prediction" -> Map(
-							"o" -> NodeFunction("constantexp", "Interval",
-							"""Interval(value)""")
-						)
-					)
-				),
-				NodeType("Constant -1..1",
-					LanguageMap(
-						"scala" -> Nil,
-						"glsl" -> Nil,
-						"prediction" -> Nil
-					),
-					Seq(
-						NodeSlider("value", "s*2-1")
-					),
-					LanguageMap(
-						"scala" -> Map(
-							"o" -> NodeFunction("constant1", "Double",
-							"""value""")
-						),
-						"glsl" -> Map(
-							"o" -> NodeFunction("constant1", "float",
-							"""return value;""")
-						),
-						"prediction" -> Map(
-							"o" -> NodeFunction("constant1", "Interval",
-							"""Interval(value)""")
-						)
-					)
-				),
-				NodeType("Add Exp Constant",
-					LanguageMap(
-						"scala" -> Seq(
-							NodeArgument("a","Double")
-						),
-						"glsl" -> Seq(
-							NodeArgument("a","float")
-						),
-						"prediction" -> Seq(
-							NodeArgument("a","Interval")
-						)
-					),
-					Seq(
-						NodeSlider("value", "val s1 = (s*2-1); if(s1 >= 0) pow(257, s1)-1 else 1-pow(257, -s1)")
-					),
-					LanguageMap(
-						"scala" -> Map(
-							"o" -> NodeFunction("addconstantexp", "Double",
-							"""a+value""")
-						),
-						"glsl" -> Map(
-							"o" -> NodeFunction("addconstantexp", "float",
-							"""return a+value;""")
-						),
-						"prediction" -> Map(
-							"o" -> NodeFunction("addconstantexp", "Interval",
-							"""a+value""")
-						)
-					)
-				),
-				NodeType("Multiply Exp Constant",
+				NodeType("a * Exp Slider",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("a","Double")
@@ -645,130 +577,273 @@ for(i <- 0 until steps.toInt) {
 						)
 					)
 				),
-				NodeType("Scale Vec3",
+				NodeType("a / b",
 					LanguageMap(
 						"scala" -> Seq(
-							NodeArgument("v","Vec3")
+							NodeArgument("a","Double","1"),
+							NodeArgument("b","Double","1")
 						),
 						"glsl" -> Seq(
-							NodeArgument("v","vec3")
+							NodeArgument("a","float","1"),
+							NodeArgument("b","float","1")
 						),
 						"prediction" -> Seq(
-							NodeArgument("v","Volume")
-						)
-					),
-					Seq(
-						NodeSlider("x", "pow(256, s*2-1)"),
-						NodeSlider("y", "pow(256, s*2-1)"),
-						NodeSlider("z", "pow(256, s*2-1)")
-					),
-					LanguageMap(
-						"scala" -> Map(
-							"o" -> NodeFunction("scalevec3", "Vec3",
-							"""v*Vec3(x,y,z)""")
-						),
-						"glsl" -> Map(
-							"o" -> NodeFunction("scalevec3", "vec3",
-							"""return v*vec3(x,y,z);""")
-						),
-						"prediction" -> Map(
-							"o" -> NodeFunction("scalevec3", "Volume",
-							"""v*Volume(Vec3(x,y,z))""")
-						)
-					)
-				),
-				NodeType("Sphere",
-					LanguageMap(
-						"scala" -> Seq(
-							NodeArgument("v","Vec3")
-						),
-						"glsl" -> Seq(
-							NodeArgument("v","vec3")
-						),
-						"prediction" -> Seq(
-							NodeArgument("v","Volume")
-						)
-					),
-					Seq(
-						NodeSlider("radius", "pow(256, s*2-1)")
-					),
-					LanguageMap(
-						"scala" -> Map(
-							"o" -> NodeFunction("sphere", "Double",
-							"""radius - sqrt(dot(v,v))""")
-						),
-						"glsl" -> Map(
-							"o" -> NodeFunction("sphere", "float",
-							"""return radius - sqrt(dot(v,v));""")
-						),
-						"prediction" -> Map(
-							"o" -> NodeFunction("sphere", "Interval",
-							"""-interval.length(v) + radius""")
-						)
-					)
-				),
-				NodeType("Z-Rotation",
-					LanguageMap(
-						"scala" -> Seq(
-							NodeArgument("v","Vec3"),
-							NodeArgument("angle","Double")
-						),
-						"glsl" -> Seq(
-							NodeArgument("v","vec3"),
-							NodeArgument("angle","float")
-						),
-						"prediction" -> Seq(
-							NodeArgument("v","Volume"),
-							NodeArgument("angle","Interval")
+							NodeArgument("a","Interval","1"),
+							NodeArgument("b","Interval","1")
 						)
 					),
 					Nil,
 					LanguageMap(
 						"scala" -> Map(
-							"o" -> NodeFunction("rotate", "Vec3",
-							"""Mat3(Mat3x4 rotateZ angle) * v""")
-						)
-/*						"glsl" -> Map(
-							"o" -> NodeFunction("rotate", "vec3",
-							"""Mat3(Mat3x4 rotateZ angle) * v""")
+							"o" -> NodeFunction("divide2", "Double",
+							"""a/b""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("divide2", "float",
+							"""return a/b;""")
 						),
 						"prediction" -> Map(
-							"o" -> NodeFunction("rotate", "Volume",
-							"""Mat3(Mat3x4 rotateZ angle) * v""")
-						)*/
+							"o" -> NodeFunction("divide2", "Interval",
+							"""a/b""")
+						)
 					)
 				),
-				NodeType("Z-Rotation Slider",
+				NodeType("exp(x)",
 					LanguageMap(
 						"scala" -> Seq(
-							NodeArgument("v","Vec3")
+							NodeArgument("x","Double","1")
 						),
 						"glsl" -> Seq(
-							NodeArgument("v","vec3")
+							NodeArgument("x","float","1")
 						),
 						"prediction" -> Seq(
-							NodeArgument("v","Volume")
+							NodeArgument("x","Interval","Interval(1)")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("exponential", "Double",
+							"""exp(x)""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("exponential", "float",
+							"""return exp(x);""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("exponential", "Interval",
+							"""interval.exp(x)""")
+						)
+					)
+				),
+				NodeType("Min(a,b)",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double"),
+							NodeArgument("b","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float"),
+							NodeArgument("b","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval"),
+							NodeArgument("b","Interval")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("min2", "Double",
+							"""min(a,b)""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("min2", "float",
+							"""return min(a,b);""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("min2", "Interval",
+							"""interval.min(a,b)""")
+						)
+					)
+				),
+				NodeType("Min(a,b,c)",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double"),
+							NodeArgument("b","Double"),
+							NodeArgument("c","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float"),
+							NodeArgument("b","float"),
+							NodeArgument("c","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval"),
+							NodeArgument("b","Interval"),
+							NodeArgument("c","Interval")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("min3", "Double",
+							"""min(min(a,b),c)""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("min3", "float",
+							"""return min(min(a,b),c);""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("min3", "Interval",
+							"""interval.min(interval.min(a,b),c)""")
+						)
+					)
+				),
+				NodeType("Max(a,b)",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double"),
+							NodeArgument("b","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float"),
+							NodeArgument("b","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval"),
+							NodeArgument("b","Interval")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("max2", "Double",
+							"""max(a,b)""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("max2", "float",
+							"""return max(a,b);""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("max2", "Interval",
+							"""interval.max(a,b)""")
+						)
+					)
+				),
+				NodeType("Max(a,b)",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double"),
+							NodeArgument("b","Double"),
+							NodeArgument("c","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float"),
+							NodeArgument("b","float"),
+							NodeArgument("c","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval"),
+							NodeArgument("b","Interval"),
+							NodeArgument("c","Interval")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("max3", "Double",
+							"""max(max(a,b),c)""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("max3", "float",
+							"""return max(max(a,b),c);""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("max3", "Interval",
+							"""interval.max(interval.max(a,b),c)""")
+						)
+					)
+				)
+			)
+		),
+
+		NodeCategory("Extended Math",
+			Seq(
+				NodeType("Lerp with Slider",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double"),
+							NodeArgument("b","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float"),
+							NodeArgument("b","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval"),
+							NodeArgument("b","Interval")
 						)
 					),
 					Seq(
-						NodeSlider("angle", "(s*2-1)*Pi")
+						NodeSlider("t")
 					),
 					LanguageMap(
 						"scala" -> Map(
-							"o" -> NodeFunction("rotate", "Vec3",
-							"""Mat3(Mat3x4 rotateZ angle) * v""")
-						)
-/*						"glsl" -> Map(
-							"o" -> NodeFunction("rotate", "vec3",
-							"""Mat3(Mat3x4 rotateZ angle) * v""")
+							"o" -> NodeFunction("lerpslider", "Double",
+							"""a + t * (b - a)""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("lerpslider", "float",
+							"""return a + t * (b - a);""")
 						),
 						"prediction" -> Map(
-							"o" -> NodeFunction("rotate", "Volume",
-							"""Mat3(Mat3x4 rotateZ angle) * v""")
-						)*/
+							"o" -> NodeFunction("lerpslider", "Interval",
+							"""a + t * (b - a)""")
+						)
 					)
 				),
-				NodeType("Vec3",
+				NodeType("Lerp",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("a","Double"),
+							NodeArgument("t","Double"),
+							NodeArgument("b","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("a","float"),
+							NodeArgument("t","float"),
+							NodeArgument("b","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("a","Interval"),
+							NodeArgument("t","Interval"),
+							NodeArgument("b","Interval")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("lerp", "Double",
+							"""a + clamp(t,0,1) * (b - a)""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("lerp", "float",
+							"""return a + clamp(t,0,1) * (b - a);""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("lerp", "Interval",
+							"""a + clamp(t,0,1) * (b - a)""")
+						)
+					)
+				)
+			)
+		),
+
+		NodeCategory("Linear Algebra",
+			Seq(
+				NodeType("Vec3(x,y,z)",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("x","Double"),
@@ -832,7 +907,351 @@ for(i <- 0 until steps.toInt) {
 							"z" -> NodeFunction("vec3z", "Interval","v.z")
 						)
 					)
-				)			
+				),
+				NodeType("Vec3 + Scalar",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec3"),
+							NodeArgument("s","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v","vec3"),
+							NodeArgument("s","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume"),
+							NodeArgument("s","Interval")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("scalarplusvec3", "Vec3",
+							"""v+s""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("scalarplusvec3", "vec3",
+							"""return v+s;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("scalarplusvec3", "Volume",
+							"""v+s""")
+						)
+					)
+				),
+				NodeType("Vec3 - Scalar",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec3"),
+							NodeArgument("s","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v","vec3"),
+							NodeArgument("s","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume"),
+							NodeArgument("s","Interval")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("scalarminusvec3", "Vec3",
+							"""v-s""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("scalarminusvec3", "vec3",
+							"""return v-s;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("scalarminusvec3", "Volume",
+							"""v-s""")
+						)
+					)
+				),
+				NodeType("Vec3 * Scalar",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec3"),
+							NodeArgument("s","Double","1")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v","vec3"),
+							NodeArgument("s","float","1")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume"),
+							NodeArgument("s","Interval","Interval(1)")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("scalartimesvec3", "Vec3",
+							"""v*s""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("scalartimesvec3", "vec3",
+							"""return v*s;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("scalartimesvec3", "Volume",
+							"""v*s""")
+						)
+					)
+				),
+				NodeType("Vec3 / Scalar",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec3"),
+							NodeArgument("s","Double","1")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v","vec3"),
+							NodeArgument("s","float","1")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume"),
+							NodeArgument("s","Interval","Interval(1)")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("dividevec3byscalar", "Vec3",
+							"""v/s""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("dividevec3byscalar", "vec3",
+							"""return v/s;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("dividevec3byscalar", "Volume",
+							"""v/s""")
+						)
+					)
+				),
+				NodeType("Vec3 + Vec3",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v1","Vec3"),
+							NodeArgument("v2","Vec3")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v1","vec3"),
+							NodeArgument("v2","vec3")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v1","Volume"),
+							NodeArgument("v2","Volume")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("vec3plusvec3", "Vec3",
+							"""v1+v2""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("vec3plusvec3", "vec3",
+							"""return v1+v2;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("vec3plusvec3", "Volume",
+							"""v1+v2""")
+						)
+					)
+				),
+				NodeType("Vec3 - Vec3",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v1","Vec3"),
+							NodeArgument("v2","Vec3")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v1","vec3"),
+							NodeArgument("v2","vec3")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v1","Volume"),
+							NodeArgument("v2","Volume")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("vec3minusvec3", "Vec3",
+							"""v1-v2""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("vec3minusvec3", "vec3",
+							"""return v1-v2;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("vec3minusvec3", "Volume",
+							"""v1-v2""")
+						)
+					)
+				),
+				NodeType("Vec3 * Vec3",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v1","Vec3","Vec3(1)"),
+							NodeArgument("v2","Vec3","Vec3(1)")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v1","vec3","vec3(1)"),
+							NodeArgument("v2","vec3","vec3(1)")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v1","Volume","Volume(1)"),
+							NodeArgument("v2","Volume","Volume(1)")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("vec3timesvec3", "Vec3",
+							"""v1*v2""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("vec3timesvec3", "vec3",
+							"""return v1*v2;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("vec3timesvec3", "Volume",
+							"""v1*v2""")
+						)
+					)
+				),
+				NodeType("Vec3 / Vec3",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v1","Vec3","Vec3(1)"),
+							NodeArgument("v2","Vec3","Vec3(1)")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v1","vec3","vec3(1)"),
+							NodeArgument("v2","vec3","vec3(1)")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v1","Volume","Volume(1)"),
+							NodeArgument("v2","Volume","Volume(1)")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("dividevec3byvec3", "Vec3",
+							"""v1/v2""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("dividevec3vec3", "vec3",
+							"""return v1/v2;""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("dividevec3vec3", "Volume",
+							"""v1/v2""")
+						)
+					)
+				),
+				NodeType("Z-Rotation",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec3"),
+							NodeArgument("angle","Double")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v","vec3"),
+							NodeArgument("angle","float")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume"),
+							NodeArgument("angle","Interval")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("rotate", "Vec3",
+							"""Mat3(Mat3x4 rotateZ angle) * v""")
+						)
+/*						"glsl" -> Map(
+							"o" -> NodeFunction("rotate", "vec3",
+							"""Mat3(Mat3x4 rotateZ angle) * v""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("rotate", "Volume",
+							"""Mat3(Mat3x4 rotateZ angle) * v""")
+						)*/
+					)
+				),
+				NodeType("Z-Rotation Slider",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec3")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v","vec3")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume")
+						)
+					),
+					Seq(
+						NodeSlider("angle", "(s*2-1)*Pi")
+					),
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("rotate", "Vec3",
+							"""Mat3(Mat3x4 rotateZ angle) * v""")
+						)
+/*						"glsl" -> Map(
+							"o" -> NodeFunction("rotate", "vec3",
+							"""Mat3(Mat3x4 rotateZ angle) * v""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("rotate", "Volume",
+							"""Mat3(Mat3x4 rotateZ angle) * v""")
+						)*/
+					)
+				)
+			)
+		),
+
+		NodeCategory("Single Objects",
+			Seq(
+				NodeType("Sphere",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec3")
+						),
+						"glsl" -> Seq(
+							NodeArgument("v","vec3")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume")
+						)
+					),
+					Seq(
+						NodeSlider("radius", "pow(256, s*2-1)")
+					),
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("sphere", "Double",
+							"""radius - sqrt(dot(v,v))""")
+						),
+						"glsl" -> Map(
+							"o" -> NodeFunction("sphere", "float",
+							"""return radius - sqrt(dot(v,v));""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("sphere", "Interval",
+							"""-interval.length(v) + radius""")
+						)
+					)
+				)
 			)
 		),
 
