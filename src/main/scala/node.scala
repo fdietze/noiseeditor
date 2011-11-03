@@ -23,6 +23,7 @@ import simplex3d.math.double.functions._
 import actors.Futures.future
 
 //TODO: comments and help in Nodes
+//TODO: feature to replace nodes
 
 object Node {
 	var id = 0
