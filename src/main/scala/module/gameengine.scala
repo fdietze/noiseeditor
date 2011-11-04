@@ -441,6 +441,7 @@ for(i <- 0 until steps.toInt) {
 					Nil,
 					LanguageMap(
 						"scala" -> Map(
+
 							"o" -> NodeFunction("diff2", "Double",
 							"""a-b""")
 						),
@@ -648,6 +649,7 @@ for(i <- 0 until steps.toInt) {
 						),
 						"prediction" -> Seq(
 							NodeArgument("a","Interval"),
+
 							NodeArgument("b","Interval")
 						)
 					),
@@ -1254,10 +1256,10 @@ for(i <- 0 until steps.toInt) {
 				)
 			)
 		),
-		NodeCategory("Material",
+		NodeCategory("Materials",
 			GameEngineUtil.readMaterials
 		),
-		NodeCategory("Material",
+		NodeCategory("Material Functions",
 			Seq(
 				/*NodeType("RGB",
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),
@@ -1278,38 +1280,6 @@ for(i <- 0 until steps.toInt) {
 							"m" -> NodeFunction("vectocolor", "Material", "Material(clamp(v.r*255,0,255).toInt << 16 | clamp(v.g*255,0,255).toInt << 8 | clamp(v.b*255,0,255).toInt)") ),
 						"glsl" -> Map(
 							"m" -> NodeFunction("vectocolor", "vec4", "return vec4(v,1);")	)
-					)
-				),*/
-				
-/*				NodeType("Gold",
-					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
-					LanguageMap(
-						"scala" -> Map( "m" -> NodeFunction("matgold", "Material", "Material(0xfab614)") ),
-						"glsl" -> Map("m" -> NodeFunction("matgold", "vec4", "return vec4(0.98, 0.71, 0.08, 0.0);")	)
-					)
-				),
-				
-				NodeType("Stone",
-					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
-					LanguageMap(
-						"scala" -> Map( "m" -> NodeFunction("matstone", "Material", "Material(0x8e8e8e)") ),
-						"glsl" -> Map("m" -> NodeFunction("matstone", "vec4", "return vec4(0.56, 0.56, 0.56, 0.0);")	)
-					)
-				),
-				
-				NodeType("Gravel",
-					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
-					LanguageMap(
-						"scala" -> Map( "m" -> NodeFunction("matgravel", "Material", "Material(0x4f4f4f)") ),
-						"glsl" -> Map("m" -> NodeFunction("matgravel", "vec4", "return vec4(0.31, 0.31, 0.31, 0.0);")	)
-					)
-				),
-				
-				NodeType("Earth",
-					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
-					LanguageMap(
-						"scala" -> Map( "m" -> NodeFunction("matearth", "Material", "Material(0x5a3910)") ),
-						"glsl" -> Map("m" -> NodeFunction("matearth", "vec4", "return vec4(0.35, 0.22, 0.06, 0.0);")	)
 					)
 				),*/
 				
@@ -1513,6 +1483,7 @@ for(i <- 0 until steps.toInt) {
 			e.printStackTrace()
 		}
 	}
+
 	
 	
 	def generatescalacode(functionname:String, defaultreturn:String, outconnector:Option[OutConnector]):String = {
