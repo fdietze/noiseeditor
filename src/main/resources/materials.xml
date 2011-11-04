@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<document>
+ <materials>
+  <material name="stone" />
+  <material name="gravel" />
+  <material name="soil" />
+  <material name="gold" />
+  <material name="notexture" />
+ </materials>
+</document>

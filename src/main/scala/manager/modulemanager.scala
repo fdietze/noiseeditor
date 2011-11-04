@@ -26,6 +26,7 @@ object ModuleManager{
 					// Load some preconnected nodes
 					try {
 						//TODO: Different Resourcepath on Mac OSX?
+						FileManager.newSession
 						FileManager.readSession(
 							getClass.getClassLoader.getResource("default_"+moduletitle+".xml").getPath
 						)

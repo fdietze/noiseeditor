@@ -9,8 +9,6 @@ libraryDependencies ++= Seq(
 	"org.scala-lang" % "scala-compiler" % "2.9.0-1"
 )
 
-defaultExcludes ~= (filter => filter || "*~")
-
 //fork in run := true
 
 scalacOptions += "-deprecation"

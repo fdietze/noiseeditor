@@ -25,7 +25,7 @@ import simplex3d.math.double.functions._
 
 import actors.Futures.future
 
-case class Material(color:Int = materialDefaultColor)
+case class Material(color:Int = materialDefaultColor, name:Symbol = 'default)
 
 class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with Resizable {
 	def thispreview = this

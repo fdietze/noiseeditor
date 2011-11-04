@@ -1254,17 +1254,19 @@ for(i <- 0 until steps.toInt) {
 				)
 			)
 		),
-
-		NodeCategory("Materials",
+		NodeCategory("Material",
+			GameEngineUtil.readMaterials
+		),
+		NodeCategory("Material",
 			Seq(
-				NodeType("RGB",
+				/*NodeType("RGB",
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),
 					Seq(NodeSlider("r"), NodeSlider("g"), NodeSlider("b")),
 					LanguageMap("scala" -> Map( "m" -> NodeFunction("matrgb", "Material", "Material((r*255).toInt << 16 | (g*255).toInt << 8 | (b*255).toInt)") ),
 						"glsl" -> Map("m" -> NodeFunction("matrgb", "vec4", "return vec4(r, g, b, 1);")	)
 					)
-				),
-				NodeType("Vec3 to color",
+				),*/
+				/*NodeType("Vec3 to color",
 					LanguageMap(
 						"scala" -> Seq(	NodeArgument("v","Vec3")),
 						"glsl" -> Seq(NodeArgument("v","vec3"))
@@ -1277,32 +1279,41 @@ for(i <- 0 until steps.toInt) {
 						"glsl" -> Map(
 							"m" -> NodeFunction("vectocolor", "vec4", "return vec4(v,1);")	)
 					)
-				),
+				),*/
 				
-				NodeType("Gold",
+/*				NodeType("Gold",
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
-					LanguageMap("scala" -> Map( "m" -> NodeFunction("matgold", "Material", "Material(0xfab614)") ),
+					LanguageMap(
+						"scala" -> Map( "m" -> NodeFunction("matgold", "Material", "Material(0xfab614)") ),
 						"glsl" -> Map("m" -> NodeFunction("matgold", "vec4", "return vec4(0.98, 0.71, 0.08, 0.0);")	)
 					)
 				),
+				
 				NodeType("Stone",
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
-					LanguageMap("scala" -> Map( "m" -> NodeFunction("matstone", "Material", "Material(0x8e8e8e)") ),
+					LanguageMap(
+						"scala" -> Map( "m" -> NodeFunction("matstone", "Material", "Material(0x8e8e8e)") ),
 						"glsl" -> Map("m" -> NodeFunction("matstone", "vec4", "return vec4(0.56, 0.56, 0.56, 0.0);")	)
 					)
 				),
+				
 				NodeType("Gravel",
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
-					LanguageMap("scala" -> Map( "m" -> NodeFunction("matgravel", "Material", "Material(0x4f4f4f)") ),
+					LanguageMap(
+						"scala" -> Map( "m" -> NodeFunction("matgravel", "Material", "Material(0x4f4f4f)") ),
 						"glsl" -> Map("m" -> NodeFunction("matgravel", "vec4", "return vec4(0.31, 0.31, 0.31, 0.0);")	)
 					)
 				),
+				
 				NodeType("Earth",
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
-					LanguageMap("scala" -> Map( "m" -> NodeFunction("matearth", "Material", "Material(0x5a3910)") ),
+					LanguageMap(
+						"scala" -> Map( "m" -> NodeFunction("matearth", "Material", "Material(0x5a3910)") ),
 						"glsl" -> Map("m" -> NodeFunction("matearth", "vec4", "return vec4(0.35, 0.22, 0.06, 0.0);")	)
 					)
-				),
+				),*/
+				
+				
 				NodeType("Mix Materials",
 					LanguageMap(
 						"scala" -> Seq(
@@ -1328,7 +1339,7 @@ for(i <- 0 until steps.toInt) {
 						)
 					)
 				),
-				NodeType("Blend Materials (not working yet)",
+/*				NodeType("Blend Materials (not working yet)",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("m1","Material"),
@@ -1352,7 +1363,7 @@ for(i <- 0 until steps.toInt) {
 							"m" -> NodeFunction("matthreshold", "vec4", "return ;")
 						)
 					)
-				),
+				),*/
 				NodeType("Switch 2 Materials",
 					LanguageMap(
 						"scala" -> Seq(
@@ -1816,4 +1827,3 @@ def apply(world:Volume) = {
 
 
 }
-
