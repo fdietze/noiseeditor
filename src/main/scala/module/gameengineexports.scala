@@ -73,6 +73,7 @@ object GameEngineExports {
 package openworld.gen
 
 import noise.Noise.noise3
+import noise.Worley.cellnoise
 
 import simplex3d.math._
 import simplex3d.math.double._
@@ -312,7 +313,7 @@ import simplex3d.math.double.functions._
 
 import noise.Noise.noise3_prediction
 import noise.interval
-import noise.interval.{Interval, Volume}
+import noise.interval.{Interval, Volume, Interval4D}
 
 object prediction {
 

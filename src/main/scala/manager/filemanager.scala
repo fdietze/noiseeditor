@@ -300,7 +300,8 @@ object FileManager extends Publisher {
 			val suffix = "_uid" + (System.currentTimeMillis/1000).toHexString
 			name.split("_uid").head + suffix
 		}
-		
+		/*TODO: BUG: CustomNode speichert try-catch-Codewrapper. fix: if(nodetype == "custom") node.asInstanceOf[CustomNode].funcfield.text else */
+		/* TODO: BUG: Vorschau wird nicht gespeichert/geladen?*/
 		val document = 
 		<document>
 			<module name={ModuleManager.title} />
@@ -345,7 +346,7 @@ object FileManager extends Publisher {
 							{sliders.map( slider => <slider name={slider.name} formula={slider.formula} value={slider.value} /> )}
 						</sliders>
 		
-						<functions>{ //TODO: if(nodetype == "custom") node.asInstanceOf[CustomNode].funcfield.text else 
+						<functions>{ 
 							for( (language, nodefunctions) <- functions ) yield {
 								<language name={language}>{
 									for( (outname, NodeFunctionFull(name, returntype, code, _, _)) <- nodefunctions ) yield {

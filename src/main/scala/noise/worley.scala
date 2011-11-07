@@ -7,7 +7,11 @@ import simplex3d.math.double.functions._
 
 object Worley {
 
-	//def mod(x: Double, y: Double) :Double = x - y*math.floor(x/y)
+	def intfloor(x:Double) = x.floor.toInt
+	def coordhash(X:Int,Y:Int,Z:Int) = (702395077*X + 915488749*Y + 2120969693*Z) & 0x7FFFFFFF
+	def nextrandom(last:Int) = (1402024253*last + 586950981) & 0x7FFFFFFF
+	def distance(x0:Double,y0:Double,z0:Double,x1:Double,y1:Double,z1:Double) = (x0-x1)*(x0-x1) + (y0-y1)*(y0-y1) + (z0-z1)*(z0-z1)
+	def randomfloat(rand:Int) = rand / 2147483647.0 // maxRand
 
 
 	val pointspercube = Array(
@@ -24,18 +28,9 @@ object Worley {
 		2, 4, 4, 5, 3, 2, 2, 2, 1, 4, 2, 3, 3, 4, 2, 5, 4, 2, 4, 2, 2, 2, 4, 
 		5, 3, 2 )
 
-	//TODO: val densityadjustment = 0.398150
-
-	def cellnoise(x:Double,y:Double,z:Double):Vec4 = {
-		def intfloor(x:Double) = x.floor.toInt
-		def coordhash(X:Int,Y:Int,Z:Int) = (702395077*X + 915488749*Y + 2120969693*Z) & 0x7FFFFFFF
-		def nextrandom(last:Int) = (1402024253*last + 586950981) & 0x7FFFFFFF
-		//def hash(k:Int) = mod(((k*34)+1)*k, 289).toInt
-		//def coordhash(X:Int,Y:Int,Z:Int) = hash(hash(hash(X)+Y)+Z)
-		//def nextrandom(last:Int) = (1103515245 * last + 12345) & 0x7FFFFFFF
-		def distance(x0:Double,y0:Double,z0:Double,x1:Double,y1:Double,z1:Double) = (x0-x1)*(x0-x1) + (y0-y1)*(y0-y1) + (z0-z1)*(z0-z1)
-		def randomfloat(rand:Int) = rand / 2147483647.0 // maxRand
+	def cellnoise(v:Vec3):Vec4 = cellnoise(v.x, v.y, v.z)
 	
+	def cellnoise(x:Double,y:Double,z:Double):Vec4 = {
 		val X = intfloor(x)
 		val Y = intfloor(y)
 		val Z = intfloor(z)

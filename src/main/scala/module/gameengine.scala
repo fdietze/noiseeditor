@@ -20,6 +20,7 @@ object GameEngine extends Module {
 
 	override val scalainitcode = """
 		import noise.Noise.noise3
+		import noise.Worley.cellnoise
 	"""
 	
 	override val typedefaults = LanguageMap(
@@ -29,6 +30,7 @@ object GameEngine extends Module {
 			"Seq" -> "Nil",
 			"Vec2" -> "Vec2(0)",
 			"Vec3" -> "Vec3(0)",
+			"Vec4" -> "Vec4(0)",
 			"Material" -> "Material(0x000000)"
 		),
 		"glsl" -> 	Map(
@@ -41,7 +43,8 @@ object GameEngine extends Module {
 		),
 		"prediction" -> 	Map(
 			"Interval" -> "Interval(0,0)",
-			"Volume" -> "Volume(Vec3(0),Vec3(0))"
+			"Volume" -> "Volume(Vec3(0),Vec3(0))",
+			"Interval4D" -> "Interval4D(Vec4(0),Vec4(0))"
 		)
 	)
 	
@@ -247,7 +250,7 @@ object GameEngine extends Module {
 						NodeSlider("scale", "pow(256, s*2-1)"),
 						NodeSlider("offset", "s*2-1")
 					),
-					//TODO: transpose language and function map to reduce errors when writing definitions?
+					
 					LanguageMap(
 						"scala" -> Map(
 							"o" -> NodeFunction("perlinnoise3", "Double",
@@ -262,7 +265,29 @@ object GameEngine extends Module {
 							"""(noise3_prediction((v + Volume(x,y,z))*size)+offset)*scale/size + add - sub""")
 						)
 					)
-				), // NodType
+				),
+				
+				NodeType("3D Worley Noise",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec3")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"o" -> NodeFunction("worleynoise3", "Vec4",
+							"""cellnoise(v)""")
+						),
+						"prediction" -> Map(
+							"o" -> NodeFunction("worleynoise3", "Interval4D",
+							"""Interval4D(Vec4(0.0), Vec4(6.0))""")
+						)
+					)
+				),
 
 
 				NodeType("3D Perlin Noise Sum", 
@@ -1161,6 +1186,33 @@ for(i <- 0 until steps.toInt) {
 						)
 					)
 				),
+				NodeType("Extract Vec4",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec4")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Interval4D")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"x" -> NodeFunction("vec4x", "Double","v.x"),
+							"y" -> NodeFunction("vec4y", "Double","v.y"),
+							"z" -> NodeFunction("vec4z", "Double","v.z"),
+							"w" -> NodeFunction("vec4w", "Double","v.w")
+						),
+						"prediction" -> Map(
+							"x" -> NodeFunction("vec4x", "Interval","v.x"),
+							"y" -> NodeFunction("vec4y", "Interval","v.y"),
+							"z" -> NodeFunction("vec4z", "Interval","v.z"),
+							"w" -> NodeFunction("vec4w", "Interval","v.w")
+						)
+					)
+				),
+
+				
 				NodeType("Z-Rotation",
 					LanguageMap(
 						"scala" -> Seq(
@@ -1222,6 +1274,7 @@ for(i <- 0 until steps.toInt) {
 						)*/
 					)
 				)
+
 			)
 		),
 
