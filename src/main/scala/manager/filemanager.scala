@@ -345,7 +345,7 @@ object FileManager extends Publisher {
 							{sliders.map( slider => <slider name={slider.name} formula={slider.formula} value={slider.value} /> )}
 						</sliders>
 		
-						<functions>{
+						<functions>{ //TODO: if(nodetype == "custom") node.asInstanceOf[CustomNode].funcfield.text else 
 							for( (language, nodefunctions) <- functions ) yield {
 								<language name={language}>{
 									for( (outname, NodeFunctionFull(name, returntype, code, _, _)) <- nodefunctions ) yield {
