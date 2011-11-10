@@ -267,29 +267,6 @@ object GameEngine extends Module {
 					)
 				),
 				
-				NodeType("3D Worley Noise",
-					LanguageMap(
-						"scala" -> Seq(
-							NodeArgument("v","Vec3")
-						),
-						"prediction" -> Seq(
-							NodeArgument("v","Volume")
-						)
-					),
-					Nil,
-					LanguageMap(
-						"scala" -> Map(
-							"o" -> NodeFunction("worleynoise3", "Vec4",
-							"""cellnoise(v)""")
-						),
-						"prediction" -> Map(
-							"o" -> NodeFunction("worleynoise3", "Interval4D",
-							"""Interval4D(Vec4(0.0), Vec4(6.0))""")
-						)
-					)
-				),
-
-
 				NodeType("3D Perlin Noise Sum", 
 					LanguageMap(
 						"scala" -> Seq(
@@ -343,6 +320,29 @@ for(i <- 0 until steps.toInt) {
 	sum += noise3_prediction(pos*f)/f
 }
 (sum+offset)*scale/size""")
+						)
+					)
+				),
+				
+				
+				NodeType("3D Worley Noise",
+					LanguageMap(
+						"scala" -> Seq(
+							NodeArgument("v","Vec3")
+						),
+						"prediction" -> Seq(
+							NodeArgument("v","Volume")
+						)
+					),
+					Nil,
+					LanguageMap(
+						"scala" -> Map(
+							"v4" -> NodeFunction("worleynoise3", "Vec4",
+							"""cellnoise(v)""")
+						),
+						"prediction" -> Map(
+							"v4" -> NodeFunction("worleynoise3", "Interval4D",
+							"""Interval4D(Vec4(0.0), Vec4(6.0))""")
 						)
 					)
 				)
@@ -940,6 +940,7 @@ for(i <- 0 until steps.toInt) {
 				),
 				NodeType("Vec3 + Scalar",
 					LanguageMap(
+
 						"scala" -> Seq(
 							NodeArgument("v","Vec3"),
 							NodeArgument("s","Double")
