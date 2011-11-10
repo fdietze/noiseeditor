@@ -10,7 +10,12 @@ package object config {
 
 
 	// Preview and Grid:
-	val gridColor:Color = new Color(0x39B3E9)
+	val gridColors:IndexedSeq[Color] = IndexedSeq(
+		new Color(0x39B3E9),
+		new Color(0xB339E9),
+		new Color(0xE9B339),
+		new Color(0x39E9B3)
+	)
 	val isolineColor:Int = 0x39E9B3 // Type: Integer, because it is used on the underlying integer array of the preview image
 	// the minimum distance of gridlines in pixels 
 	val minGridSize = 5

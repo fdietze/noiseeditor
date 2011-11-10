@@ -238,9 +238,9 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 					val ig = bufferedimage.createGraphics
 					import ig._
 					
-					def drawGrid(delta:Double){
+					def drawGrid(delta:Double, colorindex:Int) {
 						val alpha = remap( delta, minGridSize, gridDistance*minGridSize, 0, 255).toInt
-						setColor(gridColor.setAlpha(alpha));
+						setColor(gridColors( mod(colorindex,gridColors.size).toInt ).setAlpha(alpha));
 						var x = mod(-offset.x / zoom, delta)
 						while( x < width ) {
 							drawLine( x.toInt, 0, x.toInt, height);
@@ -255,15 +255,15 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 					
 					// Choose Grid distances depending on the zoom level
 					// http://www.wolframalpha.com/input/?i=plot+3^ceil%28log%285%2Fx%29%2Flog%283%29%29%2C+x*3^ceil%28log%285%2Fx%29%2Flog%283%29%29+from+x+%3D+0..5
-					var delta = 1/zoom * pow(gridDistance,ceil(log(minGridSize * zoom)/log(gridDistance)))
-					
-					drawGrid(delta)
-					drawGrid(delta*gridDistance)
+					val delta = 1/zoom * pow(gridDistance,ceil(log(minGridSize * zoom)/log(gridDistance)))
+					val colorindex = ceil(log(minGridSize*zoom)/log(gridDistance)).toInt
+					drawGrid(delta, colorindex)
+					drawGrid(delta*gridDistance, colorindex + 1)
 				}
 				else // Draw Unit Square
 				{
 					val ig = bufferedimage.createGraphics
-					ig.setColor(gridColor);
+					ig.setColor(gridColors(0));
 					ig.drawRect(10,10,(1/zoom).toInt,(1/zoom).toInt)
 				}
 				
