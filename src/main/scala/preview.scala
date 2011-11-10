@@ -253,10 +253,11 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 						}
 					}
 					
-					// Choose Grid distances depending on the zoom level
-					// http://www.wolframalpha.com/input/?i=plot+3^ceil%28log%285%2Fx%29%2Flog%283%29%29%2C+x*3^ceil%28log%285%2Fx%29%2Flog%283%29%29+from+x+%3D+0..5
+					// Choose Grid distances and colors depending on the zoom level
+					// http://www3.wolframalpha.com/input/?i=plot+3%5Eceil%28log%285%2Fx%29%2Flog%283%29%29%2C+x*3%5Eceil%28log%285%2Fx%29%2Flog%283%29%29%2C+ceil%28log%285%2Fx%29%2Flog%283%29%29++from+x+%3D+0..5
 					val delta = 1/zoom * pow(gridDistance,ceil(log(minGridSize * zoom)/log(gridDistance)))
 					val colorindex = ceil(log(minGridSize*zoom)/log(gridDistance)).toInt
+					
 					drawGrid(delta, colorindex)
 					drawGrid(delta*gridDistance, colorindex + 1)
 				}
