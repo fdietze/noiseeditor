@@ -342,7 +342,7 @@ for(i <- 0 until steps.toInt) {
 						),
 						"prediction" -> Map(
 							"v4" -> NodeFunction("worleynoise3", "Interval4D",
-							"""Interval4D(Vec4(0.0), Vec4(6.0))""")
+							"""cellnoise_prediction(v)""")
 						)
 					)
 				)
