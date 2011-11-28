@@ -1,0 +1,235 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<document>
+			<module name="GameEngine"></module>
+			<nodes><node type="predefined" title="Mix Materials" id="6">
+						<location x="336" y="122"></location>
+						
+						<arguments><language name="scala"><argument name="m1" datatype="Material"></argument><argument name="t" datatype="Double"></argument><argument name="m2" datatype="Material"></argument></language><language name="glsl"><argument name="m1" datatype="vec4"></argument><argument name="t" datatype="float"></argument><argument name="m2" datatype="vec4"></argument></language></arguments>
+
+						<sliders>
+							<slider name="shift" formula="val s1 = (s*2-1); if(s1 &gt;= 0) pow(257, s1)-1 else 1-pow(257, -s1)" value="50"></slider>
+						</sliders>
+		
+						<functions><language name="scala"><function name="matmix_uid4ecab79e" returntype="Material" outname="m">if(t &gt;= shift) m1 else m2</function></language><language name="glsl"><function name="matmix_uid4ecab79e" returntype="vec4" outname="m">return t &gt;= shift ? m1 : m2;</function></language></functions>
+					</node><node type="predefined" title="Mix Materials" id="13">
+						<location x="311" y="262"></location>
+						
+						<arguments><language name="scala"><argument name="m1" datatype="Material"></argument><argument name="t" datatype="Double"></argument><argument name="m2" datatype="Material"></argument></language><language name="glsl"><argument name="m1" datatype="vec4"></argument><argument name="t" datatype="float"></argument><argument name="m2" datatype="vec4"></argument></language></arguments>
+
+						<sliders>
+							<slider name="shift" formula="val s1 = (s*2-1); if(s1 &gt;= 0) pow(257, s1)-1 else 1-pow(257, -s1)" value="50"></slider>
+						</sliders>
+		
+						<functions><language name="scala"><function name="matmix_uid4ecab79e" returntype="Material" outname="m">if(t &gt;= shift) m1 else m2</function></language><language name="glsl"><function name="matmix_uid4ecab79e" returntype="vec4" outname="m">return t &gt;= shift ? m1 : m2;</function></language></functions>
+					</node><node type="predefined" title="stone" id="9">
+						<location x="189" y="107"></location>
+						
+						<arguments><language name="scala"></language><language name="glsl"></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="matstone_uid4ecab79e" returntype="Material" outname="m">Material(-4605767,0)</function></language><language name="glsl"><function name="matstone_uid4ecab79e" returntype="vec4" outname="m">return vec4(-0.277344, 0.718750, 0.722656, 0);</function></language></functions>
+					</node><node type="predefined" title="soil" id="5">
+						<location x="179" y="236"></location>
+						
+						<arguments><language name="scala"></language><language name="glsl"></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="matsoil_uid4ecab79e" returntype="Material" outname="m">Material(-6649231,2)</function></language><language name="glsl"><function name="matsoil_uid4ecab79e" returntype="vec4" outname="m">return vec4(-0.398438, 0.539063, 0.441406, 0);</function></language></functions>
+					</node><node type="predefined" title="3D Perlin Noise" id="8">
+						<location x="-79" y="148"></location>
+						
+						<arguments><language name="scala"><argument name="v" datatype="Vec3"></argument><argument name="x" datatype="Double"></argument><argument name="y" datatype="Double"></argument><argument name="z" datatype="Double"></argument><argument name="add" datatype="Double"></argument><argument name="sub" datatype="Double"></argument></language><language name="glsl"><argument name="v" datatype="vec3"></argument><argument name="x" datatype="float"></argument><argument name="y" datatype="float"></argument><argument name="z" datatype="float"></argument><argument name="add" datatype="float"></argument><argument name="sub" datatype="float"></argument></language><language name="prediction"><argument name="v" datatype="Volume"></argument><argument name="x" datatype="Interval"></argument><argument name="y" datatype="Interval"></argument><argument name="z" datatype="Interval"></argument><argument name="add" datatype="Interval"></argument><argument name="sub" datatype="Interval"></argument></language></arguments>
+
+						<sliders>
+							<slider name="size" formula="pow(256, 1-s*2)" value="82"></slider><slider name="scale" formula="pow(256, s*2-1)" value="51"></slider><slider name="offset" formula="s*2-1" value="0"></slider>
+						</sliders>
+		
+						<functions><language name="scala"><function name="perlinnoise3_uid4ecab79e" returntype="Double" outname="o">(noise3((v + Vec3(x,y,z))*size)+offset)*scale/size + add - sub</function></language><language name="glsl"><function name="perlinnoise3_uid4ecab79e" returntype="float" outname="o">return (noise3((v + vec3(x,y,z))*size)+offset)*scale/size + add - sub;</function></language><language name="prediction"><function name="perlinnoise3_uid4ecab79e" returntype="Interval" outname="o">(noise3_prediction((v + Volume(x,y,z))*size)+offset)*scale/size + add - sub</function></language></functions>
+					</node><node type="predefined" title="Max(a,b)" id="20">
+						<location x="623" y="451"></location>
+						
+						<arguments><language name="scala"><argument name="a" datatype="Double"></argument><argument name="b" datatype="Double"></argument></language><language name="glsl"><argument name="a" datatype="float"></argument><argument name="b" datatype="float"></argument></language><language name="prediction"><argument name="a" datatype="Interval"></argument><argument name="b" datatype="Interval"></argument></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="max2_uid4ecab79e" returntype="Double" outname="o">max(a,b)</function></language><language name="glsl"><function name="max2_uid4ecab79e" returntype="float" outname="o">return max(a,b);</function></language><language name="prediction"><function name="max2_uid4ecab79e" returntype="Interval" outname="o">interval.max(a,b)</function></language></functions>
+					</node><node type="preview" title="Preview" id="3">
+						<location x="585" y="-66"></location>
+						<size width="418" height="376"></size><image offsety="-109.2783886478098" offsetx="-248.38586972556922" zoom="1.0834705943388392"></image><view mode="iso" perspective="sideview_zup"></view><depthslider value="50.0"></depthslider><grid selected="true"></grid><continous selected="false"></continous>
+						<arguments><language name="scala"><argument name="d" datatype="Double"></argument><argument name="m" datatype="Material"></argument></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="result_uid4ecab79e" returntype="(Double, Material)" outname="result">(d,m)</function></language></functions>
+					</node><node type="predefined" title="3D Perlin Noise" id="17">
+						<location x="275" y="483"></location>
+						
+						<arguments><language name="scala"><argument name="v" datatype="Vec3"></argument><argument name="x" datatype="Double"></argument><argument name="y" datatype="Double"></argument><argument name="z" datatype="Double"></argument><argument name="add" datatype="Double"></argument><argument name="sub" datatype="Double"></argument></language><language name="glsl"><argument name="v" datatype="vec3"></argument><argument name="x" datatype="float"></argument><argument name="y" datatype="float"></argument><argument name="z" datatype="float"></argument><argument name="add" datatype="float"></argument><argument name="sub" datatype="float"></argument></language><language name="prediction"><argument name="v" datatype="Volume"></argument><argument name="x" datatype="Interval"></argument><argument name="y" datatype="Interval"></argument><argument name="z" datatype="Interval"></argument><argument name="add" datatype="Interval"></argument><argument name="sub" datatype="Interval"></argument></language></arguments>
+
+						<sliders>
+							<slider name="size" formula="pow(256, 1-s*2)" value="65"></slider><slider name="scale" formula="pow(256, s*2-1)" value="50"></slider><slider name="offset" formula="s*2-1" value="71"></slider>
+						</sliders>
+		
+						<functions><language name="scala"><function name="perlinnoise3_uid4ecab79e" returntype="Double" outname="o">(noise3((v + Vec3(x,y,z))*size)+offset)*scale/size + add - sub</function></language><language name="glsl"><function name="perlinnoise3_uid4ecab79e" returntype="float" outname="o">return (noise3((v + vec3(x,y,z))*size)+offset)*scale/size + add - sub;</function></language><language name="prediction"><function name="perlinnoise3_uid4ecab79e" returntype="Interval" outname="o">(noise3_prediction((v + Volume(x,y,z))*size)+offset)*scale/size + add - sub</function></language></functions>
+					</node><node type="predefined" title="Mix Materials" id="15">
+						<location x="646" y="323"></location>
+						
+						<arguments><language name="scala"><argument name="m1" datatype="Material"></argument><argument name="t" datatype="Double"></argument><argument name="m2" datatype="Material"></argument></language><language name="glsl"><argument name="m1" datatype="vec4"></argument><argument name="t" datatype="float"></argument><argument name="m2" datatype="vec4"></argument></language></arguments>
+
+						<sliders>
+							<slider name="shift" formula="val s1 = (s*2-1); if(s1 &gt;= 0) pow(257, s1)-1 else 1-pow(257, -s1)" value="50"></slider>
+						</sliders>
+		
+						<functions><language name="scala"><function name="matmix_uid4ecab79e" returntype="Material" outname="m">if(t &gt;= shift) m1 else m2</function></language><language name="glsl"><function name="matmix_uid4ecab79e" returntype="vec4" outname="m">return t &gt;= shift ? m1 : m2;</function></language></functions>
+					</node><node type="predefined" title="3D Perlin Noise" id="1">
+						<location x="79" y="-128"></location>
+						
+						<arguments><language name="scala"><argument name="v" datatype="Vec3"></argument><argument name="x" datatype="Double"></argument><argument name="y" datatype="Double"></argument><argument name="z" datatype="Double"></argument><argument name="add" datatype="Double"></argument><argument name="sub" datatype="Double"></argument></language><language name="glsl"><argument name="v" datatype="vec3"></argument><argument name="x" datatype="float"></argument><argument name="y" datatype="float"></argument><argument name="z" datatype="float"></argument><argument name="add" datatype="float"></argument><argument name="sub" datatype="float"></argument></language><language name="prediction"><argument name="v" datatype="Volume"></argument><argument name="x" datatype="Interval"></argument><argument name="y" datatype="Interval"></argument><argument name="z" datatype="Interval"></argument><argument name="add" datatype="Interval"></argument><argument name="sub" datatype="Interval"></argument></language></arguments>
+
+						<sliders>
+							<slider name="size" formula="pow(256,((0.5-s)*2))" value="79"></slider><slider name="scale" formula="pow(256,((s-0.5)*2))" value="29"></slider><slider name="offset" formula="(s-0.5)*2" value="50"></slider>
+						</sliders>
+		
+						<functions><language name="scala"><function name="perlinnoise3_uid4ecab79e" returntype="Double" outname="o">(noise3((v + Vec3(x,y,z))*size)+offset)*scale/size + add - sub</function></language><language name="glsl"><function name="perlinnoise3_uid4ecab79e" returntype="float" outname="o">return (noise3((v + vec3(x,y,z))*size)+offset)*scale/size + add - sub;</function></language><language name="prediction"><function name="perlinnoise3_uid4ecab79e" returntype="Interval" outname="o">(noise3_prediction((v + Volume(x,y,z))*size)+offset)*scale/size + add - sub</function></language></functions>
+					</node><node type="predefined" title="3D Perlin Noise" id="10">
+						<location x="-14" y="379"></location>
+						
+						<arguments><language name="scala"><argument name="v" datatype="Vec3"></argument><argument name="x" datatype="Double"></argument><argument name="y" datatype="Double"></argument><argument name="z" datatype="Double"></argument><argument name="add" datatype="Double"></argument><argument name="sub" datatype="Double"></argument></language><language name="glsl"><argument name="v" datatype="vec3"></argument><argument name="x" datatype="float"></argument><argument name="y" datatype="float"></argument><argument name="z" datatype="float"></argument><argument name="add" datatype="float"></argument><argument name="sub" datatype="float"></argument></language><language name="prediction"><argument name="v" datatype="Volume"></argument><argument name="x" datatype="Interval"></argument><argument name="y" datatype="Interval"></argument><argument name="z" datatype="Interval"></argument><argument name="add" datatype="Interval"></argument><argument name="sub" datatype="Interval"></argument></language></arguments>
+
+						<sliders>
+							<slider name="size" formula="pow(256, 1-s*2)" value="90"></slider><slider name="scale" formula="pow(256, s*2-1)" value="48"></slider><slider name="offset" formula="s*2-1" value="50"></slider>
+						</sliders>
+		
+						<functions><language name="scala"><function name="perlinnoise3_uid4ecab79e" returntype="Double" outname="o">(noise3((v + Vec3(x,y,z))*size)+offset)*scale/size + add - sub</function></language><language name="glsl"><function name="perlinnoise3_uid4ecab79e" returntype="float" outname="o">return (noise3((v + vec3(x,y,z))*size)+offset)*scale/size + add - sub;</function></language><language name="prediction"><function name="perlinnoise3_uid4ecab79e" returntype="Interval" outname="o">(noise3_prediction((v + Volume(x,y,z))*size)+offset)*scale/size + add - sub</function></language></functions>
+					</node><node type="predefined" title="-a" id="21">
+						<location x="488" y="405"></location>
+						
+						<arguments><language name="scala"><argument name="a" datatype="Double"></argument></language><language name="glsl"><argument name="a" datatype="float"></argument></language><language name="prediction"><argument name="a" datatype="Interval"></argument></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="negate_uid4ecab79e" returntype="Double" outname="o">-a</function></language><language name="glsl"><function name="negate_uid4ecab79e" returntype="float" outname="o">return -a;</function></language><language name="prediction"><function name="negate_uid4ecab79e" returntype="Interval" outname="o">-a</function></language></functions>
+					</node><node type="predefined" title="gravel" id="14">
+						<location x="242" y="394"></location>
+						
+						<arguments><language name="scala"></language><language name="glsl"></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="matgravel_uid4ecab79e" returntype="Material" outname="m">Material(-6452106,1)</function></language><language name="glsl"><function name="matgravel_uid4ecab79e" returntype="vec4" outname="m">return vec4(-0.386719, 0.546875, 0.460938, 0);</function></language></functions>
+					</node><node type="predefined" title="gold" id="16">
+						<location x="552" y="606"></location>
+						
+						<arguments><language name="scala"></language><language name="glsl"></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="matgold_uid4ecab79e" returntype="Material" outname="m">Material(-5732529,3)</function></language><language name="glsl"><function name="matgold_uid4ecab79e" returntype="vec4" outname="m">return vec4(-0.343750, 0.527344, 0.308594, 0);</function></language></functions>
+					</node><node type="predefined" title="Max(a,b)" id="11">
+						<location x="357" y="-14"></location>
+						
+						<arguments><language name="scala"><argument name="a" datatype="Double"></argument><argument name="b" datatype="Double"></argument></language><language name="glsl"><argument name="a" datatype="float"></argument><argument name="b" datatype="float"></argument></language><language name="prediction"><argument name="a" datatype="Interval"></argument><argument name="b" datatype="Interval"></argument></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="max2_uid4ecab79e" returntype="Double" outname="o">max(a,b)</function></language><language name="glsl"><function name="max2_uid4ecab79e" returntype="float" outname="o">return max(a,b);</function></language><language name="prediction"><function name="max2_uid4ecab79e" returntype="Interval" outname="o">interval.max(a,b)</function></language></functions>
+					</node><node type="predefined" title="World coordinates" id="2">
+						<location x="-103" y="-89"></location>
+						
+						<arguments><language name="scala"></language><language name="glsl"></language><language name="prediction"></language></arguments>
+
+						<sliders>
+							<slider name="scale" formula="pow(256,((0.5-s)*2))" value="50"></slider>
+						</sliders>
+		
+						<functions><language name="scala"><function name="scalesrcv_uid4ecab79e" returntype="Vec3" outname="v">world   * scale</function><function name="scalesrcx_uid4ecab79e" returntype="Double" outname="x">world.x * scale</function><function name="scalesrcy_uid4ecab79e" returntype="Double" outname="y">world.y * scale</function><function name="scalesrcz_uid4ecab79e" returntype="Double" outname="z">world.z * scale</function></language><language name="glsl"><function name="scalesrcv_uid4ecab79e" returntype="vec3" outname="v">return world.xyz * scale;</function><function name="scalesrcx_uid4ecab79e" returntype="float" outname="x">return world.x * scale;</function><function name="scalesrcy_uid4ecab79e" returntype="float" outname="y">return world.y * scale;</function><function name="scalesrcz_uid4ecab79e" returntype="float" outname="z">return world.z * scale;</function></language><language name="prediction"><function name="scalesrcv_uid4ecab79e" returntype="Volume" outname="v">world   * scale</function><function name="scalesrcx_uid4ecab79e" returntype="Interval" outname="x">world.x * scale</function><function name="scalesrcy_uid4ecab79e" returntype="Interval" outname="y">world.y * scale</function><function name="scalesrcz_uid4ecab79e" returntype="Interval" outname="z">world.z * scale</function></language></functions>
+					</node></nodes>
+			<connections><connection>
+						<in nodeid="21" connector="0"></in>
+						<out nodeid="8" connector="0"></out>
+					</connection><connection>
+						<in nodeid="15" connector="0"></in>
+						<out nodeid="6" connector="0"></out>
+					</connection><connection>
+						<in nodeid="15" connector="1"></in>
+						<out nodeid="20" connector="0"></out>
+					</connection><connection>
+						<in nodeid="20" connector="0"></in>
+						<out nodeid="21" connector="0"></out>
+					</connection><connection>
+						<in nodeid="17" connector="0"></in>
+						<out nodeid="2" connector="0"></out>
+					</connection><connection>
+						<in nodeid="8" connector="0"></in>
+						<out nodeid="2" connector="0"></out>
+					</connection><connection>
+						<in nodeid="1" connector="5"></in>
+						<out nodeid="2" connector="3"></out>
+					</connection><connection>
+						<in nodeid="3" connector="1"></in>
+						<out nodeid="15" connector="0"></out>
+					</connection><connection>
+						<in nodeid="8" connector="5"></in>
+						<out nodeid="2" connector="3"></out>
+					</connection><connection>
+						<in nodeid="13" connector="1"></in>
+						<out nodeid="10" connector="0"></out>
+					</connection><connection>
+						<in nodeid="11" connector="1"></in>
+						<out nodeid="10" connector="0"></out>
+					</connection><connection>
+						<in nodeid="6" connector="0"></in>
+						<out nodeid="9" connector="0"></out>
+					</connection><connection>
+						<in nodeid="13" connector="2"></in>
+						<out nodeid="14" connector="0"></out>
+					</connection><connection>
+						<in nodeid="1" connector="0"></in>
+						<out nodeid="2" connector="0"></out>
+					</connection><connection>
+						<in nodeid="10" connector="5"></in>
+						<out nodeid="2" connector="3"></out>
+					</connection><connection>
+						<in nodeid="6" connector="1"></in>
+						<out nodeid="8" connector="0"></out>
+					</connection><connection>
+						<in nodeid="6" connector="2"></in>
+						<out nodeid="13" connector="0"></out>
+					</connection><connection>
+						<in nodeid="11" connector="0"></in>
+						<out nodeid="1" connector="0"></out>
+					</connection><connection>
+						<in nodeid="13" connector="0"></in>
+						<out nodeid="5" connector="0"></out>
+					</connection><connection>
+						<in nodeid="3" connector="0"></in>
+						<out nodeid="11" connector="0"></out>
+					</connection><connection>
+						<in nodeid="10" connector="0"></in>
+						<out nodeid="2" connector="0"></out>
+					</connection><connection>
+						<in nodeid="20" connector="1"></in>
+						<out nodeid="17" connector="0"></out>
+					</connection><connection>
+						<in nodeid="15" connector="2"></in>
+						<out nodeid="16" connector="0"></out>
+					</connection></connections>
+		</document>
