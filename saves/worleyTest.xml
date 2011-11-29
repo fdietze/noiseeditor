@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<document>
+			<module name="GameEngine"></module>
+			<nodes><node type="predefined" title="stone" id="17">
+						<location x="510" y="879"></location>
+						
+						<arguments><language name="scala"></language><language name="glsl"></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="matstone_uid4ebbc46b" returntype="Material" outname="m">Material(-4605767,0)</function></language><language name="glsl"><function name="matstone_uid4ebbc46b" returntype="vec4" outname="m">return vec4(-0,277344, 0,718750, 0,722656, 0);</function></language></functions>
+					</node><node type="preview" title="Preview" id="3">
+						<location x="980" y="299"></location>
+						<size width="508" height="554"></size><image offsety="-551.3486088362192" offsetx="-710.8764173985593" zoom="4.525925556817609"></image><view mode="iso" perspective="sideview_zup"></view><depthslider value="50.4852377646141"></depthslider><grid selected="true"></grid><continous selected="false"></continous>
+						<arguments><language name="scala"><argument name="d" datatype="Double"></argument><argument name="m" datatype="Material"></argument></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="result_uid4ebbc46b" returntype="(Double, Material)" outname="result">(d,m)</function></language></functions>
+					</node><node type="predefined" title="a * b" id="23">
+						<location x="699" y="223"></location>
+						
+						<arguments><language name="scala"><argument name="a" datatype="Double"></argument><argument name="b" datatype="Double"></argument></language><language name="glsl"><argument name="a" datatype="float"></argument><argument name="b" datatype="float"></argument></language><language name="prediction"><argument name="a" datatype="Interval"></argument><argument name="b" datatype="Interval"></argument></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="product2_uid4ebbc46b" returntype="Double" outname="o">a*b</function></language><language name="glsl"><function name="product2_uid4ebbc46b" returntype="float" outname="o">return a*b;</function></language><language name="prediction"><function name="product2_uid4ebbc46b" returntype="Interval" outname="o">a*b</function></language></functions>
+					</node><node type="predefined" title="3D Worley Noise" id="5">
+						<location x="160" y="140"></location>
+						
+						<arguments><language name="scala"><argument name="v" datatype="Vec3"></argument></language><language name="prediction"><argument name="v" datatype="Volume"></argument></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="worleynoise3_uid4ebbc46b" returntype="Vec4" outname="o">cellnoise(v)</function></language><language name="prediction"><function name="worleynoise3_uid4ebbc46b" returntype="Interval4D" outname="o">Interval4D(Vec4(0.0), Vec4(6.0))</function></language></functions>
+					</node><node type="predefined" title="-a" id="19">
+						<location x="1025" y="189"></location>
+						
+						<arguments><language name="scala"><argument name="a" datatype="Double"></argument></language><language name="glsl"><argument name="a" datatype="float"></argument></language><language name="prediction"><argument name="a" datatype="Interval"></argument></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="negate_uid4ebbc46b" returntype="Double" outname="o">-a</function></language><language name="glsl"><function name="negate_uid4ebbc46b" returntype="float" outname="o">return -a;</function></language><language name="prediction"><function name="negate_uid4ebbc46b" returntype="Interval" outname="o">-a</function></language></functions>
+					</node><node type="predefined" title="a * Exp Slider" id="22">
+						<location x="425" y="308"></location>
+						
+						<arguments><language name="scala"><argument name="a" datatype="Double"></argument></language><language name="glsl"><argument name="a" datatype="float"></argument></language><language name="prediction"><argument name="a" datatype="Interval"></argument></language></arguments>
+
+						<sliders>
+							<slider name="value" formula="pow(256, s*2-1)" value="46"></slider>
+						</sliders>
+		
+						<functions><language name="scala"><function name="multiplyconstantexp_uid4ebbc46b" returntype="Double" outname="o">a*value</function></language><language name="glsl"><function name="multiplyconstantexp_uid4ebbc46b" returntype="float" outname="o">return a*value;</function></language><language name="prediction"><function name="multiplyconstantexp_uid4ebbc46b" returntype="Interval" outname="o">a*value</function></language></functions>
+					</node><node type="predefined" title="a * Exp Slider" id="15">
+						<location x="442" y="423"></location>
+						
+						<arguments><language name="scala"><argument name="a" datatype="Double"></argument></language><language name="glsl"><argument name="a" datatype="float"></argument></language><language name="prediction"><argument name="a" datatype="Interval"></argument></language></arguments>
+
+						<sliders>
+							<slider name="value" formula="pow(256, s*2-1)" value="20"></slider>
+						</sliders>
+		
+						<functions><language name="scala"><function name="multiplyconstantexp_uid4ebbc46b" returntype="Double" outname="o">a*value</function></language><language name="glsl"><function name="multiplyconstantexp_uid4ebbc46b" returntype="float" outname="o">return a*value;</function></language><language name="prediction"><function name="multiplyconstantexp_uid4ebbc46b" returntype="Interval" outname="o">a*value</function></language></functions>
+					</node><node type="predefined" title="Extract Vec4" id="7">
+						<location x="291" y="101"></location>
+						
+						<arguments><language name="scala"><argument name="v" datatype="Vec4"></argument></language><language name="prediction"><argument name="v" datatype="Interval4D"></argument></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="vec4x_uid4ebbc46b" returntype="Double" outname="x">v.x</function><function name="vec4y_uid4ebbc46b" returntype="Double" outname="y">v.y</function><function name="vec4z_uid4ebbc46b" returntype="Double" outname="z">v.z</function><function name="vec4w_uid4ebbc46b" returntype="Double" outname="w">v.w</function></language><language name="prediction"><function name="vec4x_uid4ebbc46b" returntype="Interval" outname="x">v.x</function><function name="vec4y_uid4ebbc46b" returntype="Interval" outname="y">v.y</function><function name="vec4z_uid4ebbc46b" returntype="Interval" outname="z">v.z</function><function name="vec4w_uid4ebbc46b" returntype="Interval" outname="w">v.w</function></language></functions>
+					</node><node type="predefined" title="World coordinates" id="2">
+						<location x="142" y="320"></location>
+						
+						<arguments><language name="scala"></language><language name="glsl"></language><language name="prediction"></language></arguments>
+
+						<sliders>
+							<slider name="scale" formula="pow(256,((0.5-s)*2))" value="79"></slider>
+						</sliders>
+		
+						<functions><language name="scala"><function name="scalesrcv_uid4ebbc46b" returntype="Vec3" outname="v">world   * scale</function><function name="scalesrcx_uid4ebbc46b" returntype="Double" outname="x">world.x * scale</function><function name="scalesrcy_uid4ebbc46b" returntype="Double" outname="y">world.y * scale</function><function name="scalesrcz_uid4ebbc46b" returntype="Double" outname="z">world.z * scale</function></language><language name="glsl"><function name="scalesrcv_uid4ebbc46b" returntype="vec3" outname="v">return world.xyz * scale;</function><function name="scalesrcx_uid4ebbc46b" returntype="float" outname="x">return world.x * scale;</function><function name="scalesrcy_uid4ebbc46b" returntype="float" outname="y">return world.y * scale;</function><function name="scalesrcz_uid4ebbc46b" returntype="float" outname="z">return world.z * scale;</function></language><language name="prediction"><function name="scalesrcv_uid4ebbc46b" returntype="Volume" outname="v">world   * scale</function><function name="scalesrcx_uid4ebbc46b" returntype="Interval" outname="x">world.x * scale</function><function name="scalesrcy_uid4ebbc46b" returntype="Interval" outname="y">world.y * scale</function><function name="scalesrcz_uid4ebbc46b" returntype="Interval" outname="z">world.z * scale</function></language></functions>
+					</node><node type="predefined" title="a * b * c" id="21">
+						<location x="518" y="103"></location>
+						
+						<arguments><language name="scala"><argument name="a" datatype="Double"></argument><argument name="b" datatype="Double"></argument><argument name="c" datatype="Double"></argument></language><language name="glsl"><argument name="a" datatype="float"></argument><argument name="b" datatype="float"></argument><argument name="c" datatype="float"></argument></language><language name="prediction"><argument name="a" datatype="Interval"></argument><argument name="b" datatype="Interval"></argument><argument name="c" datatype="Interval"></argument></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="product3_uid4ebbc46b" returntype="Double" outname="o">a*b*c</function></language><language name="glsl"><function name="product3_uid4ebbc46b" returntype="float" outname="o">return a*b*c;</function></language><language name="prediction"><function name="product3_uid4ebbc46b" returntype="Interval" outname="o">a*b*c</function></language></functions>
+					</node><node type="predefined" title="a - b" id="20">
+						<location x="797" y="412"></location>
+						
+						<arguments><language name="scala"><argument name="a" datatype="Double"></argument><argument name="b" datatype="Double"></argument></language><language name="glsl"><argument name="a" datatype="float"></argument><argument name="b" datatype="float"></argument></language><language name="prediction"><argument name="a" datatype="Interval"></argument><argument name="b" datatype="Interval"></argument></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function name="diff2_uid4ebbc46b" returntype="Double" outname="o">a-b</function></language><language name="glsl"><function name="diff2_uid4ebbc46b" returntype="float" outname="o">return a-b;</function></language><language name="prediction"><function name="diff2_uid4ebbc46b" returntype="Interval" outname="o">a-b</function></language></functions>
+					</node></nodes>
+			<connections><connection>
+						<in nodeid="22" connector="0"></in>
+						<out nodeid="2" connector="1"></out>
+					</connection><connection>
+						<in nodeid="20" connector="0"></in>
+						<out nodeid="23" connector="0"></out>
+					</connection><connection>
+						<in nodeid="7" connector="0"></in>
+						<out nodeid="5" connector="0"></out>
+					</connection><connection>
+						<in nodeid="23" connector="1"></in>
+						<out nodeid="22" connector="0"></out>
+					</connection><connection>
+						<in nodeid="23" connector="0"></in>
+						<out nodeid="21" connector="0"></out>
+					</connection><connection>
+						<in nodeid="19" connector="0"></in>
+						<out nodeid="21" connector="0"></out>
+					</connection><connection>
+						<in nodeid="20" connector="1"></in>
+						<out nodeid="15" connector="0"></out>
+					</connection><connection>
+						<in nodeid="3" connector="1"></in>
+						<out nodeid="17" connector="0"></out>
+					</connection><connection>
+						<in nodeid="15" connector="0"></in>
+						<out nodeid="2" connector="3"></out>
+					</connection><connection>
+						<in nodeid="3" connector="0"></in>
+						<out nodeid="20" connector="0"></out>
+					</connection><connection>
+						<in nodeid="21" connector="2"></in>
+						<out nodeid="7" connector="2"></out>
+					</connection><connection>
+						<in nodeid="21" connector="0"></in>
+						<out nodeid="7" connector="0"></out>
+					</connection><connection>
+						<in nodeid="5" connector="0"></in>
+						<out nodeid="2" connector="0"></out>
+					</connection><connection>
+						<in nodeid="21" connector="1"></in>
+						<out nodeid="7" connector="1"></out>
+					</connection></connections>
+		</document>
