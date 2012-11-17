@@ -1,14 +1,3 @@
 target/
 project/boot/
-.idea*
 *~
-thesis/*.tex.properties.xml
-thesis/.fuse_hidden*
-thesis/*.aux
-thesis/*.bbl
-thesis/*.blg
-thesis/*.dvi
-thesis/*.pdf
-thesis/*.glo
-thesis/*.log
-thesis/*.toc

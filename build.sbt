@@ -16,7 +16,7 @@ scalacOptions += "-deprecation"
 
 scalacOptions += "-unchecked"
 
-// scalacOptions += "-optimize"
+scalacOptions += "-optimize"
 
 
 // ScalaCL:
