@@ -152,7 +152,7 @@ trait NodeInit extends Node with DelayedInit {
 			case e:ButtonClicked =>
 				Dialog.showInput(
 					parent = NoiseEditor.window.contents.head,
-					message = "Enter new Name: ",
+					message = "Enter new name: ",
 					title = "Rename Node",
 					messageType = Dialog.Message.Plain,
 					icon = null,

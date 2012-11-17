@@ -31,7 +31,7 @@ object GameEngine extends Module {
 			"Vec2" -> "Vec2(0)",
 			"Vec3" -> "Vec3(0)",
 			"Vec4" -> "Vec4(0)",
-			"Material" -> "Material(0x000000)"
+			"Material" -> "ColorMaterial(0x000000)"
 		),
 		"glsl" -> 	Map(
 			"int" -> "0",
@@ -39,7 +39,7 @@ object GameEngine extends Module {
 			"vec2" -> "vec2(0)",
 			"vec3" -> "vec3(0)",
 			"vec4" -> "vec4(0)",
-			"Material" -> "Material(0x000000)"
+			"Material" -> "ColorMaterial(0x000000)"
 		),
 		"prediction" -> 	Map(
 			"Interval" -> "Interval(0,0)",
@@ -1314,18 +1314,20 @@ for(i <- 0 until steps.toInt) {
 			)
 		),
 		NodeCategory("Materials",
+			Seq(
+				NodeType("RGB Color",
+					LanguageMap("scala" -> Nil, "glsl" -> Nil),
+					Seq(NodeSlider("r"), NodeSlider("g"), NodeSlider("b")),
+					LanguageMap("scala" -> Map( "m" -> NodeFunction("matrgb", "Material", "ColorMaterial(r,g,b)") ),
+						"glsl" -> Map("m" -> NodeFunction("matrgb", "vec4", "return vec4(r, g, b, 1);")	)
+					)
+				)
+			) ++
 			GameEngineMaterials.nodeTypes
 		),
 		NodeCategory("Material Functions",
 			Seq(
-				/*NodeType("RGB",
-					LanguageMap("scala" -> Nil, "glsl" -> Nil),
-					Seq(NodeSlider("r"), NodeSlider("g"), NodeSlider("b")),
-					LanguageMap("scala" -> Map( "m" -> NodeFunction("matrgb", "Material", "Material((r*255).toInt << 16 | (g*255).toInt << 8 | (b*255).toInt)") ),
-						"glsl" -> Map("m" -> NodeFunction("matrgb", "vec4", "return vec4(r, g, b, 1);")	)
-					)
-				),*/
-				/*NodeType("Vec3 to color",
+				NodeType("Vec3 to color",
 					LanguageMap(
 						"scala" -> Seq(	NodeArgument("v","Vec3")),
 						"glsl" -> Seq(NodeArgument("v","vec3"))
@@ -1334,11 +1336,11 @@ for(i <- 0 until steps.toInt) {
 					Nil,
 					LanguageMap(
 						"scala" -> Map(
-							"m" -> NodeFunction("vectocolor", "Material", "Material(clamp(v.r*255,0,255).toInt << 16 | clamp(v.g*255,0,255).toInt << 8 | clamp(v.b*255,0,255).toInt)") ),
+							"m" -> NodeFunction("vectocolor", "Material", "ColorMaterial(r, g, b)") ),
 						"glsl" -> Map(
 							"m" -> NodeFunction("vectocolor", "vec4", "return vec4(v,1);")	)
 					)
-				),*/
+				),
 				
 				
 				NodeType("Mix Materials",
@@ -1486,7 +1488,7 @@ for(i <- 0 until steps.toInt) {
 
 	override def export(preview:Preview, exporttype:String) {
 		def generatescaladensitycode  = generatescalacode("density", "0.0", preview.connectedoutconnector("d"))
-		def generatescalamaterialcode = generatescalacode("material", "Material()", preview.connectedoutconnector("m"))
+		def generatescalamaterialcode = generatescalacode("material", "ColorMaterial()", preview.connectedoutconnector("m"))
 		def generateglslmaterialcode  = generateglslcode (preview.connectedoutconnector("m"))
 		def generatepredictiondensitycode = generatepredictioncode(preview.connectedoutconnector("d"))
 

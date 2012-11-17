@@ -101,7 +101,7 @@ object FileManager extends Publisher {
 		if( filechanged && NodeManager.nodes.size > 0 ) {
 			Dialog.showConfirmation(
 				parent = NoiseEditor.window.contents.head,
-				message = "Leaving unsaved Session. Save it now?",
+				message = "Leaving unsaved session. Save it now?",
 				optionType = Dialog.Options.YesNoCancel
 				
 			) match {

@@ -1,16 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <document>
 			<module name="GameEngine"></module>
-			<nodes><node type="preview" title="Preview" id="1">
-						<location x="625" y="16"></location>
-						<size width="388" height="383"></size><image offsety="-1.8515549649576541" offsetx="-5.841987328514233" zoom="0.028966437973668775"></image><view mode="values" perspective="sideview_zup"></view><depthslider value="50.0"></depthslider><grid selected="false"></grid><continous selected="false"></continous>
-						<arguments><language name="scala"><argument name="d" datatype="Double"></argument><argument name="m" datatype="Material"></argument></language></arguments>
+			<nodes><node type="predefined" title="World coordinates" id="3">
+						<location x="13" y="20"></location>
+						
+						<arguments><language name="scala"></language><language name="glsl"></language><language name="prediction"></language></arguments>
 
 						<sliders>
-							
+							<slider name="scale" formula="pow(256, 1-s*2)" value="50"></slider>
 						</sliders>
 		
-						<functions><language name="scala"><function name="result_uid4eb7fb6f" returntype="(Double, Material)" outname="result">(d,m)</function></language></functions>
+						<functions><language name="scala"><function name="scalesrcv_uid50a7b50d" returntype="Vec3" outname="v">world   * scale</function><function name="scalesrcx_uid50a7b50d" returntype="Double" outname="x">world.x * scale</function><function name="scalesrcy_uid50a7b50d" returntype="Double" outname="y">world.y * scale</function><function name="scalesrcz_uid50a7b50d" returntype="Double" outname="z">world.z * scale</function></language><language name="glsl"><function name="scalesrcv_uid50a7b50d" returntype="vec3" outname="v">return world.xyz * scale;</function><function name="scalesrcx_uid50a7b50d" returntype="float" outname="x">return world.x * scale;</function><function name="scalesrcy_uid50a7b50d" returntype="float" outname="y">return world.y * scale;</function><function name="scalesrcz_uid50a7b50d" returntype="float" outname="z">return world.z * scale;</function></language><language name="prediction"><function name="scalesrcv_uid50a7b50d" returntype="Volume" outname="v">world   * scale</function><function name="scalesrcx_uid50a7b50d" returntype="Interval" outname="x">world.x * scale</function><function name="scalesrcy_uid50a7b50d" returntype="Interval" outname="y">world.y * scale</function><function name="scalesrcz_uid50a7b50d" returntype="Interval" outname="z">world.z * scale</function></language></functions>
 					</node><node type="custom" title="Custom" id="2">
 						<location x="200" y="23"></location>
 						<size width="417" height="633"></size>
@@ -20,7 +20,7 @@
 							<slider name="lin1" formula="s" value="50"></slider><slider name="lin2" formula="s" value="50"></slider><slider name="exp1" formula="pow(256,((s-0.5)*2))" value="50"></slider><slider name="exp2" formula="pow(256,((s-0.5)*2))" value="50"></slider>
 						</sliders>
 		
-						<functions><language name="scala"><function name="custom_f2_uid4eb7fb6f" returntype="Double" outname="o">try{{	val pointspercube = Array(
+						<functions><language name="scala"><function name="custom_f2_uid50a7b50d" returntype="Double" outname="o">try{{try{{	val pointspercube = Array(
 		4, 3, 1, 1, 1, 2, 4, 2, 2, 2, 5, 1, 0, 2, 1, 2, 2, 0, 4, 3, 2, 1, 2, 
 		1, 3, 2, 2, 4, 2, 2, 5, 1, 2, 3, 2, 2, 2, 2, 2, 3, 2, 4, 2, 5, 3, 2, 
 		2, 2, 5, 3, 3, 5, 2, 1, 3, 3, 4, 4, 2, 3, 0, 4, 2, 2, 2, 1, 3, 2, 2, 
@@ -127,29 +127,29 @@
 		return mindistance
 	}
 
-worley(a,b,c)}.toDouble}catch{ case _ ⇒ 0.0}</function></language></functions>
-					</node><node type="predefined" title="World coordinates" id="3">
-						<location x="13" y="20"></location>
-						
-						<arguments><language name="scala"></language><language name="glsl"></language><language name="prediction"></language></arguments>
+worley(a,b,c)}.toDouble}catch{ case _ ⇒ 0.0}}.toDouble}catch{ case _ ⇒ 0.0}</function></language></functions>
+					</node><node type="preview" title="Preview" id="1">
+						<location x="625" y="16"></location>
+						<size width="388" height="383"></size><image offsety="-2.0253535927996666" offsetx="-5.9288866424352396" zoom="0.028966437973668775"></image><view mode="values" perspective="sideview_zup"></view><depthslider value="50.0"></depthslider><grid selected="false"></grid><continous selected="false"></continous>
+						<arguments><language name="scala"><argument name="d" datatype="Double"></argument><argument name="m" datatype="Material"></argument></language></arguments>
 
 						<sliders>
-							<slider name="scale" formula="pow(256, 1-s*2)" value="50"></slider>
+							
 						</sliders>
 		
-						<functions><language name="scala"><function name="scalesrcv_uid4eb7fb6f" returntype="Vec3" outname="v">world   * scale</function><function name="scalesrcx_uid4eb7fb6f" returntype="Double" outname="x">world.x * scale</function><function name="scalesrcy_uid4eb7fb6f" returntype="Double" outname="y">world.y * scale</function><function name="scalesrcz_uid4eb7fb6f" returntype="Double" outname="z">world.z * scale</function></language><language name="glsl"><function name="scalesrcv_uid4eb7fb6f" returntype="vec3" outname="v">return world.xyz * scale;</function><function name="scalesrcx_uid4eb7fb6f" returntype="float" outname="x">return world.x * scale;</function><function name="scalesrcy_uid4eb7fb6f" returntype="float" outname="y">return world.y * scale;</function><function name="scalesrcz_uid4eb7fb6f" returntype="float" outname="z">return world.z * scale;</function></language><language name="prediction"><function name="scalesrcv_uid4eb7fb6f" returntype="Volume" outname="v">world   * scale</function><function name="scalesrcx_uid4eb7fb6f" returntype="Interval" outname="x">world.x * scale</function><function name="scalesrcy_uid4eb7fb6f" returntype="Interval" outname="y">world.y * scale</function><function name="scalesrcz_uid4eb7fb6f" returntype="Interval" outname="z">world.z * scale</function></language></functions>
+						<functions><language name="scala"><function name="result_uid50a7b50d" returntype="(Double, Material)" outname="result">(d,m)</function></language></functions>
 					</node></nodes>
 			<connections><connection>
-						<in nodeid="2" connector="2"></in>
-						<out nodeid="3" connector="2"></out>
+						<in nodeid="1" connector="0"></in>
+						<out nodeid="2" connector="0"></out>
 					</connection><connection>
 						<in nodeid="2" connector="1"></in>
 						<out nodeid="3" connector="1"></out>
 					</connection><connection>
+						<in nodeid="2" connector="2"></in>
+						<out nodeid="3" connector="2"></out>
+					</connection><connection>
 						<in nodeid="2" connector="3"></in>
 						<out nodeid="3" connector="3"></out>
-					</connection><connection>
-						<in nodeid="1" connector="0"></in>
-						<out nodeid="2" connector="0"></out>
 					</connection></connections>
 		</document>
