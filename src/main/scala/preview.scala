@@ -28,6 +28,8 @@ import actors.Futures.future
 trait Material { def color:Int }
 object Material {
   def apply(color:Int) = ColorMaterial(color)
+  def apply(r:Int, g:Int, b:Int) = ColorMaterial(r,g,b)
+  def apply(r:Double, g:Double, b:Double) = ColorMaterial(r,g,b)
   def apply(color:Int, id:Int) = TextureMaterial(color,id)
 }
 object ColorMaterial {

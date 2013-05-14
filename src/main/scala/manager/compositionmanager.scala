@@ -17,7 +17,7 @@ object CompositionManager {
 
 	// Walks through the connected Nodes starting at given OutConnector
 	// and creates a simple data structure for code generation
-	def create(out:OutConnector, language:String):Composition = {
+	def create(out:OutConnector, language:String, fallbackLanguage:String = null):Composition = {
 		import ConnectionManager.connections
 
 		val functions = collection.mutable.Set[NodeFunctionFull]()
@@ -25,17 +25,24 @@ object CompositionManager {
 		def tree( out: OutConnector ):CompositionTree = {
 			// for each connection create a new tree
 			// for no connection give the argument's default
+      val argumentLanguage = if(out.node.arguments.isDefinedAt(language)) language else fallbackLanguage
 			val arguments = (out.node.inconnectors.map( connections(_) )
-			     zip out.node.arguments(language)).map {
+			     zip out.node.arguments(argumentLanguage)).map {
 				case (connection, argument) =>
 					connection match {
 						case Some(outconnector) => Right(tree(outconnector)) // recursion
 						case None => Left(argument.default)
 					}
 			}
-			if( out.function.isDefinedAt(language) )
-				functions += out.function(language)
-			return CompositionTree(out.function(language), out.node.id, out.node.sliders, arguments)
+      if( out.function.isDefinedAt(language) ) {
+        functions += out.function(language)
+        return CompositionTree(out.function(language), out.node.id, out.node.sliders, arguments)
+      }
+      else {
+        functions += out.function(fallbackLanguage)
+        return CompositionTree(out.function(fallbackLanguage), out.node.id, out.node.sliders, arguments)
+      }
+
 		}
 		
 		val compositiontree = tree(out)

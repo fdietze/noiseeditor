@@ -19,9 +19,10 @@ object GameEngine extends Module {
 	override val languages = Seq("scala", "glsl", "prediction")
 
 	override val scalainitcode = """
-		import noise.Noise.noise3
-		import noise.Worley.cellnoise
-	"""
+                                 |import noise.Noise.{noise3 => perlinNoise3}
+                                 |import noise.Worley.{cellnoise => worleyNoise3}
+                                 |
+                               """.stripMargin
 	
 	override val typedefaults = LanguageMap(
 		"scala" -> 	Map(
@@ -31,7 +32,7 @@ object GameEngine extends Module {
 			"Vec2" -> "Vec2(0)",
 			"Vec3" -> "Vec3(0)",
 			"Vec4" -> "Vec4(0)",
-			"Material" -> "ColorMaterial(0x000000)"
+			"Material" -> "Material(0x000000)"
 		),
 		"glsl" -> 	Map(
 			"int" -> "0",
@@ -39,19 +40,25 @@ object GameEngine extends Module {
 			"vec2" -> "vec2(0)",
 			"vec3" -> "vec3(0)",
 			"vec4" -> "vec4(0)",
-			"Material" -> "ColorMaterial(0x000000)"
+			"Material" -> "Material(0x000000)"
 		),
 		"prediction" -> 	Map(
 			"Interval" -> "Interval(0,0)",
-			"Volume" -> "Volume(Vec3(0),Vec3(0))",
-			"Interval4D" -> "Interval4D(Vec4(0),Vec4(0))"
+			"Interval3" -> "Interval3(Vec3(0),Vec3(0))",
+			"Interval4" -> "Interval4(Vec4(0),Vec4(0))"
+		),
+		"bounds" -> 	Map(
+			"Interval" -> "Interval(0,0)",
+			"Interval3" -> "Interval3(Vec3(0),Vec3(0))",
+			"Interval4" -> "Interval4(Vec4(0),Vec4(0))"
 		)
 	)
-	
+
 	val sliderdatatypes = LanguageMap(
 		"scala"      -> "Double",
 		"glsl"       -> "float",
-		"prediction" -> "Double"
+		"prediction" -> "Double",
+		"bounds" -> "Double"
 	)
 
 
@@ -72,20 +79,20 @@ object GameEngine extends Module {
 						NodeSlider("scale","pow(256, 1-s*2)")
 					),
 					LanguageMap(
-						"scala" -> Map(	
+						"scala" -> Map(
 							"v" -> NodeFunction("scalesrcv", "Vec3",   "world   * scale"),
 							"x" -> NodeFunction("scalesrcx", "Double", "world.x * scale"),
 							"y" -> NodeFunction("scalesrcy", "Double", "world.y * scale"),
 							"z" -> NodeFunction("scalesrcz", "Double", "world.z * scale")
 						),
-						"glsl" -> Map(	
+						"glsl" -> Map(
 							"v" -> NodeFunction("scalesrcv", "vec3",   "return world.xyz * scale;"),
 							"x" -> NodeFunction("scalesrcx", "float", "return world.x * scale;"),
 							"y" -> NodeFunction("scalesrcy", "float", "return world.y * scale;"),
 							"z" -> NodeFunction("scalesrcz", "float", "return world.z * scale;")
 						),
-						"prediction" -> Map(	
-							"v" -> NodeFunction("scalesrcv", "Volume",   "world   * scale"),
+						"prediction" -> Map(
+							"v" -> NodeFunction("scalesrcv", "Interval3",   "world   * scale"),
 							"x" -> NodeFunction("scalesrcx", "Interval", "world.x * scale"),
 							"y" -> NodeFunction("scalesrcy", "Interval", "world.y * scale"),
 							"z" -> NodeFunction("scalesrcz", "Interval", "world.z * scale")
@@ -100,10 +107,10 @@ object GameEngine extends Module {
 					),
 					Nil,
 					LanguageMap(
-						"scala" -> Map(	
+						"scala" -> Map(
 							"s" -> NodeFunction("timeseconds", "Double",   "InterpreterUptime")
 						),
-						"glsl" -> Map(	
+						"glsl" -> Map(
 							"s" -> NodeFunction("timeseconds", "float",   "return time;")
 						)
 					)
@@ -178,8 +185,8 @@ object GameEngine extends Module {
 							"""return vec3(x,y,z);""")
 						),
 						"prediction" -> Map(
-							"o" -> NodeFunction("expconstantvec3", "Volume",
-							"""Volume(Vec3(x,y,z))""")
+							"o" -> NodeFunction("expconstantvec3", "Interval3",
+							"""Interval3(Vec3(x,y,z))""")
 						)
 					)
 				),
@@ -205,8 +212,8 @@ object GameEngine extends Module {
 							"""return vec3(x,y,z)*scale;""")
 						),
 						"prediction" -> Map(
-							"o" -> NodeFunction("linearconstantvec3", "Volume",
-							"""Volume(Vec3(x,y,z)*scale)""")
+							"o" -> NodeFunction("linearconstantvec3", "Interval3",
+							"""Interval3(Vec3(x,y,z)*scale)""")
 						)
 					)
 				)
@@ -236,38 +243,50 @@ object GameEngine extends Module {
 							NodeArgument("add","float"),
 							NodeArgument("sub","float")
 						),
-						"prediction" -> Seq(
-							NodeArgument("v","Volume"),
-							NodeArgument("x","Interval"),
-							NodeArgument("y","Interval"),
-							NodeArgument("z","Interval"),
-							NodeArgument("add","Interval"),
-							NodeArgument("sub","Interval")
-						)
+            "prediction" -> Seq(
+              NodeArgument("v","Interval3"),
+              NodeArgument("x","Interval"),
+              NodeArgument("y","Interval"),
+              NodeArgument("z","Interval"),
+              NodeArgument("add","Interval"),
+              NodeArgument("sub","Interval")
+            ),
+            "bounds" -> Seq(
+              NodeArgument("v","Interval3"),
+              NodeArgument("x","Interval"),
+              NodeArgument("y","Interval"),
+              NodeArgument("z","Interval"),
+              NodeArgument("add","Interval"),
+              NodeArgument("sub","Interval")
+            )
 					),
 					Seq(
 						NodeSlider("size", "pow(256, 1-s*2)"),
 						NodeSlider("scale", "pow(256, s*2-1)"),
 						NodeSlider("offset", "s*2-1")
 					),
-					
+
 					LanguageMap(
 						"scala" -> Map(
 							"o" -> NodeFunction("perlinnoise3", "Double",
-							"""(noise3((v + Vec3(x,y,z))*size)+offset)*scale/size + add - sub""")
+							"""((perlinNoise3(v + Vec3(x,y,z))*size)+offset)*scale/size + add - sub""")
 						),
 						"glsl" -> Map(
 							"o" -> NodeFunction("perlinnoise3", "float",
-							"""return (noise3((v + vec3(x,y,z))*size)+offset)*scale/size + add - sub;""")
+							"""return ((perlinNoise3(v + vec3(x,y,z))*size)+offset)*scale/size + add - sub;""")
 						),
-						"prediction" -> Map(
-							"o" -> NodeFunction("perlinnoise3", "Interval",
-							"""(noise3_prediction((v + Volume(x,y,z))*size)+offset)*scale/size + add - sub""")
-						)
+            "prediction" -> Map(
+              "o" -> NodeFunction("perlinnoise3", "Interval",
+                """((perlinNoise3Prediction(v + Interval3(x,y,z))*size)+offset)*scale/size + add - sub""")
+            ),
+            "bounds" -> Map(
+              "o" -> NodeFunction("perlinnoise3", "Interval",
+                """((perlinNoise3Bounds(v + Interval3(x,y,z))*size)+offset)*scale/size + add - sub""")
+            )
 					)
 				),
-				
-				NodeType("3D Perlin Noise Sum", 
+
+				NodeType("3D Perlin Noise Sum",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("v","Vec3")
@@ -275,9 +294,12 @@ object GameEngine extends Module {
 						"glsl" -> Seq(
 							NodeArgument("v","vec3")
 						),
-						"prediction" -> Seq(
-							NodeArgument("v","Volume")
-						)
+            "prediction" -> Seq(
+              NodeArgument("v","Interval3")
+            ),
+            "bounds" -> Seq(
+              NodeArgument("v","Interval3")
+            )
 					),
 					Seq(
 						NodeSlider("size", "pow(256, 1-s*2)"),
@@ -289,61 +311,79 @@ object GameEngine extends Module {
 					LanguageMap(
 						"scala" -> Map(
 							"o" -> NodeFunction("perlinnoise3sum", "Double",
-							""" 
+							"""
 val pos = v*size
 var sum = 0.0
 for(i <- 0 until steps.toInt) {
 	val f = pow(factor,i)
-	sum += noise3(pos*f)/f
+	sum += perlinNoise3(pos*f)/f
 }
 (sum+offset)*scale/size""")
 						),
 						"glsl" -> Map(
 							"o" -> NodeFunction("perlinnoise3sum", "float",
-							""" 
+							"""
 vec3 pos = v*size;
 float res = 0.0;
 int intsteps = int(steps);
 for(int i = 0; i < intsteps; ++i) {
 	float f = pow(factor,i);
-	res += noise3(pos*f)/f;
+	res += perlinNoise3(pos*f)/f;
 }
 return (res+offset)*scale/size;""")
 						),
-						"prediction" -> Map(
-							"o" -> NodeFunction("perlinnoise3sum", "Interval",
-							""" 
+            "prediction" -> Map(
+              "o" -> NodeFunction("perlinnoise3sum", "Interval",
+                """
 val pos = v*size
 var sum = Interval(0.0)
 for(i <- 0 until steps.toInt) {
 	val f = pow(factor,i)
-	sum += noise3_prediction(pos*f)/f
+	sum += perlinNoise3Prediction(pos*f)/f
 }
 (sum+offset)*scale/size""")
-						)
+            ),
+  "bounds" -> Map(
+    "o" -> NodeFunction("perlinnoise3sum", "Interval",
+      """
+val pos = v*size
+var sum = Interval(0.0)
+for(i <- 0 until steps.toInt) {
+	val f = pow(factor,i)
+	sum += perlinNoise3Bounds(pos*f)/f
+}
+(sum+offset)*scale/size""")
+  )
 					)
 				),
-				
-				
+
+
 				NodeType("3D Worley Noise",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("v","Vec3")
 						),
-						"prediction" -> Seq(
-							NodeArgument("v","Volume")
-						)
+            "prediction" -> Seq(
+              NodeArgument("v","Interval3")
+            ),
+            "bounds" -> Seq(
+              NodeArgument("v","Interval3")
+            )
 					),
 					Nil,
 					LanguageMap(
 						"scala" -> Map(
 							"v4" -> NodeFunction("worleynoise3", "Vec4",
-							"""cellnoise(v)""")
+							"""worleyNoise3(v)""")
 						),
-						"prediction" -> Map(
-							"v4" -> NodeFunction("worleynoise3", "Interval4D",
-							"""cellnoise_prediction(v)""")
-						)
+            "prediction" -> Map(
+              "v4" -> NodeFunction("worleynoise3", "Interval4",
+                """worleyNoise3Prediction(v)""")
+            ),
+            "bounds" -> Map(
+              "v4" -> NodeFunction("worleynoise3", "Interval4",
+                """worleyNoise3Bounds(v)""")
+            )
 					)
 				)
 
@@ -661,7 +701,7 @@ for(i <- 0 until steps.toInt) {
 						),
 						"prediction" -> Map(
 							"o" -> NodeFunction("exponential", "Interval",
-							"""interval.exp(x)""")
+							"""interval.functions.exp(x)""")
 						)
 					)
 				),
@@ -693,7 +733,7 @@ for(i <- 0 until steps.toInt) {
 						),
 						"prediction" -> Map(
 							"o" -> NodeFunction("min2", "Interval",
-							"""interval.min(a,b)""")
+							"""interval.functions.min(a,b)""")
 						)
 					)
 				),
@@ -727,7 +767,7 @@ for(i <- 0 until steps.toInt) {
 						),
 						"prediction" -> Map(
 							"o" -> NodeFunction("min3", "Interval",
-							"""interval.min(interval.min(a,b),c)""")
+							"""interval.functions.min(interval.functions.min(a,b),c)""")
 						)
 					)
 				),
@@ -758,11 +798,11 @@ for(i <- 0 until steps.toInt) {
 						),
 						"prediction" -> Map(
 							"o" -> NodeFunction("max2", "Interval",
-							"""interval.max(a,b)""")
+							"""interval.functions.max(a,b)""")
 						)
 					)
 				),
-				NodeType("Max(a,b)",
+				NodeType("Max(a,b,c)",
 					LanguageMap(
 						"scala" -> Seq(
 							NodeArgument("a","Double"),
@@ -792,7 +832,7 @@ for(i <- 0 until steps.toInt) {
 						),
 						"prediction" -> Map(
 							"o" -> NodeFunction("max3", "Interval",
-							"""interval.max(interval.max(a,b),c)""")
+							"""interval.functions.max(interval.functions.max(a,b),c)""")
 						)
 					)
 				)
@@ -902,8 +942,8 @@ for(i <- 0 until steps.toInt) {
 							"""return vec3(x,y,z);""")
 						),
 						"prediction" -> Map(
-							"v" -> NodeFunction("createvec3", "Volume",
-							"""Volume(x,y,z)""")
+							"v" -> NodeFunction("createvec3", "Interval3",
+							"""Interval3(x,y,z)""")
 						)
 					)
 				),
@@ -916,7 +956,7 @@ for(i <- 0 until steps.toInt) {
 							NodeArgument("v","vec3")
 						),
 						"prediction" -> Seq(
-							NodeArgument("v","Volume")
+							NodeArgument("v","Interval3")
 						)
 					),
 					Nil,
@@ -950,7 +990,7 @@ for(i <- 0 until steps.toInt) {
 							NodeArgument("s","float")
 						),
 						"prediction" -> Seq(
-							NodeArgument("v","Volume"),
+							NodeArgument("v","Interval3"),
 							NodeArgument("s","Interval")
 						)
 					),
@@ -965,7 +1005,7 @@ for(i <- 0 until steps.toInt) {
 							"""return v+s;""")
 						),
 						"prediction" -> Map(
-							"o" -> NodeFunction("scalarplusvec3", "Volume",
+							"o" -> NodeFunction("scalarplusvec3", "Interval3",
 							"""v+s""")
 						)
 					)
@@ -981,7 +1021,7 @@ for(i <- 0 until steps.toInt) {
 							NodeArgument("s","float")
 						),
 						"prediction" -> Seq(
-							NodeArgument("v","Volume"),
+							NodeArgument("v","Interval3"),
 							NodeArgument("s","Interval")
 						)
 					),
@@ -996,7 +1036,7 @@ for(i <- 0 until steps.toInt) {
 							"""return v-s;""")
 						),
 						"prediction" -> Map(
-							"o" -> NodeFunction("scalarminusvec3", "Volume",
+							"o" -> NodeFunction("scalarminusvec3", "Interval3",
 							"""v-s""")
 						)
 					)
@@ -1012,7 +1052,7 @@ for(i <- 0 until steps.toInt) {
 							NodeArgument("s","float","1")
 						),
 						"prediction" -> Seq(
-							NodeArgument("v","Volume"),
+							NodeArgument("v","Interval3"),
 							NodeArgument("s","Interval","Interval(1)")
 						)
 					),
@@ -1027,7 +1067,7 @@ for(i <- 0 until steps.toInt) {
 							"""return v*s;""")
 						),
 						"prediction" -> Map(
-							"o" -> NodeFunction("scalartimesvec3", "Volume",
+							"o" -> NodeFunction("scalartimesvec3", "Interval3",
 							"""v*s""")
 						)
 					)
@@ -1043,7 +1083,7 @@ for(i <- 0 until steps.toInt) {
 							NodeArgument("s","float","1")
 						),
 						"prediction" -> Seq(
-							NodeArgument("v","Volume"),
+							NodeArgument("v","Interval3"),
 							NodeArgument("s","Interval","Interval(1)")
 						)
 					),
@@ -1058,7 +1098,7 @@ for(i <- 0 until steps.toInt) {
 							"""return v/s;""")
 						),
 						"prediction" -> Map(
-							"o" -> NodeFunction("dividevec3byscalar", "Volume",
+							"o" -> NodeFunction("dividevec3byscalar", "Interval3",
 							"""v/s""")
 						)
 					)
@@ -1074,8 +1114,8 @@ for(i <- 0 until steps.toInt) {
 							NodeArgument("v2","vec3")
 						),
 						"prediction" -> Seq(
-							NodeArgument("v1","Volume"),
-							NodeArgument("v2","Volume")
+							NodeArgument("v1","Interval3"),
+							NodeArgument("v2","Interval3")
 						)
 					),
 					Nil,
@@ -1089,7 +1129,7 @@ for(i <- 0 until steps.toInt) {
 							"""return v1+v2;""")
 						),
 						"prediction" -> Map(
-							"o" -> NodeFunction("vec3plusvec3", "Volume",
+							"o" -> NodeFunction("vec3plusvec3", "Interval3",
 							"""v1+v2""")
 						)
 					)
@@ -1105,8 +1145,8 @@ for(i <- 0 until steps.toInt) {
 							NodeArgument("v2","vec3")
 						),
 						"prediction" -> Seq(
-							NodeArgument("v1","Volume"),
-							NodeArgument("v2","Volume")
+							NodeArgument("v1","Interval3"),
+							NodeArgument("v2","Interval3")
 						)
 					),
 					Nil,
@@ -1120,7 +1160,7 @@ for(i <- 0 until steps.toInt) {
 							"""return v1-v2;""")
 						),
 						"prediction" -> Map(
-							"o" -> NodeFunction("vec3minusvec3", "Volume",
+							"o" -> NodeFunction("vec3minusvec3", "Interval3",
 							"""v1-v2""")
 						)
 					)
@@ -1136,8 +1176,8 @@ for(i <- 0 until steps.toInt) {
 							NodeArgument("v2","vec3","vec3(1)")
 						),
 						"prediction" -> Seq(
-							NodeArgument("v1","Volume","Volume(1)"),
-							NodeArgument("v2","Volume","Volume(1)")
+							NodeArgument("v1","Interval3","Interval3(1)"),
+							NodeArgument("v2","Interval3","Interval3(1)")
 						)
 					),
 					Nil,
@@ -1151,7 +1191,7 @@ for(i <- 0 until steps.toInt) {
 							"""return v1*v2;""")
 						),
 						"prediction" -> Map(
-							"o" -> NodeFunction("vec3timesvec3", "Volume",
+							"o" -> NodeFunction("vec3timesvec3", "Interval3",
 							"""v1*v2""")
 						)
 					)
@@ -1167,8 +1207,8 @@ for(i <- 0 until steps.toInt) {
 							NodeArgument("v2","vec3","vec3(1)")
 						),
 						"prediction" -> Seq(
-							NodeArgument("v1","Volume","Volume(1)"),
-							NodeArgument("v2","Volume","Volume(1)")
+							NodeArgument("v1","Interval3","Interval3(1)"),
+							NodeArgument("v2","Interval3","Interval3(1)")
 						)
 					),
 					Nil,
@@ -1182,7 +1222,7 @@ for(i <- 0 until steps.toInt) {
 							"""return v1/v2;""")
 						),
 						"prediction" -> Map(
-							"o" -> NodeFunction("dividevec3vec3", "Volume",
+							"o" -> NodeFunction("dividevec3vec3", "Interval3",
 							"""v1/v2""")
 						)
 					)
@@ -1193,7 +1233,7 @@ for(i <- 0 until steps.toInt) {
 							NodeArgument("v","Vec4")
 						),
 						"prediction" -> Seq(
-							NodeArgument("v","Interval4D")
+							NodeArgument("v","Interval4")
 						)
 					),
 					Nil,
@@ -1213,7 +1253,7 @@ for(i <- 0 until steps.toInt) {
 					)
 				),
 
-				
+
 				NodeType("Z-Rotation",
 					LanguageMap(
 						"scala" -> Seq(
@@ -1225,7 +1265,7 @@ for(i <- 0 until steps.toInt) {
 							NodeArgument("angle","float")
 						),
 						"prediction" -> Seq(
-							NodeArgument("v","Volume"),
+							NodeArgument("v","Interval3"),
 							NodeArgument("angle","Interval")
 						)
 					),
@@ -1240,7 +1280,7 @@ for(i <- 0 until steps.toInt) {
 							"""Mat3(Mat3x4 rotateZ angle) * v""")
 						),
 						"prediction" -> Map(
-							"o" -> NodeFunction("rotate", "Volume",
+							"o" -> NodeFunction("rotate", "Interval3",
 							"""Mat3(Mat3x4 rotateZ angle) * v""")
 						)*/
 					)
@@ -1254,7 +1294,7 @@ for(i <- 0 until steps.toInt) {
 							NodeArgument("v","vec3")
 						),
 						"prediction" -> Seq(
-							NodeArgument("v","Volume")
+							NodeArgument("v","Interval3")
 						)
 					),
 					Seq(
@@ -1270,7 +1310,7 @@ for(i <- 0 until steps.toInt) {
 							"""Mat3(Mat3x4 rotateZ angle) * v""")
 						),
 						"prediction" -> Map(
-							"o" -> NodeFunction("rotate", "Volume",
+							"o" -> NodeFunction("rotate", "Interval3",
 							"""Mat3(Mat3x4 rotateZ angle) * v""")
 						)*/
 					)
@@ -1290,7 +1330,7 @@ for(i <- 0 until steps.toInt) {
 							NodeArgument("v","vec3")
 						),
 						"prediction" -> Seq(
-							NodeArgument("v","Volume")
+							NodeArgument("v","Interval3")
 						)
 					),
 					Seq(
@@ -1307,7 +1347,7 @@ for(i <- 0 until steps.toInt) {
 						),
 						"prediction" -> Map(
 							"o" -> NodeFunction("sphere", "Interval",
-							"""-interval.length(v) + radius""")
+							"""-interval.functions.length(v) + radius""")
 						)
 					)
 				)
@@ -1318,7 +1358,7 @@ for(i <- 0 until steps.toInt) {
 				NodeType("RGB Color",
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),
 					Seq(NodeSlider("r"), NodeSlider("g"), NodeSlider("b")),
-					LanguageMap("scala" -> Map( "m" -> NodeFunction("matrgb", "Material", "ColorMaterial(r,g,b)") ),
+					LanguageMap("scala" -> Map( "m" -> NodeFunction("matrgb", "Material", "Material(r,g,b)") ),
 						"glsl" -> Map("m" -> NodeFunction("matrgb", "vec4", "return vec4(r, g, b, 1);")	)
 					)
 				)
@@ -1332,17 +1372,17 @@ for(i <- 0 until steps.toInt) {
 						"scala" -> Seq(	NodeArgument("v","Vec3")),
 						"glsl" -> Seq(NodeArgument("v","vec3"))
 					),
-					
+
 					Nil,
 					LanguageMap(
 						"scala" -> Map(
-							"m" -> NodeFunction("vectocolor", "Material", "ColorMaterial(r, g, b)") ),
+							"m" -> NodeFunction("vectocolor", "Material", "Material(r, g, b)") ),
 						"glsl" -> Map(
 							"m" -> NodeFunction("vectocolor", "vec4", "return vec4(v,1);")	)
 					)
 				),
-				
-				
+
+
 				NodeType("Mix Materials",
 					LanguageMap(
 						"scala" -> Seq(
@@ -1424,13 +1464,13 @@ for(i <- 0 until steps.toInt) {
 
 
 	)
-		
+
 /*		FunctionNodeType("Combinations","Mix", Seq("x:Double","y:Double"), Seq("mixvalue"),
 			Function("mix", "x*(1-mixvalue)+y*mixvalue", "Double")),
-			
+
 		FunctionNodeType("Combinations", "Threshold", Seq("x:Double=1","t:Double","y:Double=0"),	Seq(("threshold","(s-0.5)*2")),
 			Function("threshold", "if(t > threshold) x else y", "Double")),
-			
+
 		FunctionNodeType("Combinations", "Threshold abs", Seq("x:Double=1","t:Double","y:Double=0"), Seq(("threshold","(s-0.5)*2")),
 			Function( "absthreshold", "if(abs(t) > threshold) x else y", "Double")),
 
@@ -1441,7 +1481,7 @@ for(i <- 0 until steps.toInt) {
 
 		FunctionNodeType("Math", "Exp Clamp 256", Seq("x:Double"), Seq(("maxabs","pow(256,((s-0.5)*2))")),
 			Function("expclamp256", "clamp(x,-maxabs,maxabs)", "Double")),
-		
+
 		FunctionNodeType("Math", "Squeeze", Seq("x:Double"), Seq(("max","pow(256,((s-0.5)*2))")),
 			Function("squeeze", "(if(x<=0) (1/(1-x)-1) else 1/(-1-x)+1)*max", "Double")),
 
@@ -1455,8 +1495,8 @@ for(i <- 0 until steps.toInt) {
 
 		FunctionNodeType("Math", "Root", Seq("a:Double"), Seq(("degree","1/pow(256, s)")),
 			Function("root", "sign(a)*pow(abs(a), degree)", "Double")),
-		
-		
+
+
 		// King Arthurs Gold
 		FunctionNodeType("Material", "Earth", Nil, Nil, Function("matearth", "Material(0x5a3910)", "Material")),
 		FunctionNodeType("Material", "Cave",  Nil, Nil, Function("matcave",  "Material(0x10000)", "Material")),
@@ -1465,15 +1505,15 @@ for(i <- 0 until steps.toInt) {
 		FunctionNodeType("Material", "Gold",  Nil, Nil, Function("matgold",  "Material(0xfab614)", "Material")),
 		FunctionNodeType("Material", "Solid", Nil, Nil, Function("matsolid", "Material(0x1e321e)", "Material")),
 		FunctionNodeType("Material", "Wood", Nil, Nil, Function("matwood",  "Material(0x097b11)", "Material"))
-		
-		
+
+
 	)
 */
 
 					/*import FileChooser.Result._
 					import FileManager.chooser
 					val oldselectedfile = chooser.selectedFile
-				
+
 					chooser.title = "Export: " + exportcombobox.selected
 					//chooser.setExtensionFilter("Scala function", "scala")
 					chooser.selectedFile = null
@@ -1487,27 +1527,28 @@ for(i <- 0 until steps.toInt) {
 					chooser.selectedFile = oldselectedfile*/
 
 	override def export(preview:Preview, exporttype:String) {
-		def generatescaladensitycode  = generatescalacode("density", "0.0", preview.connectedoutconnector("d"))
-		def generatescalamaterialcode = generatescalacode("material", "ColorMaterial()", preview.connectedoutconnector("m"))
-		def generateglslmaterialcode  = generateglslcode (preview.connectedoutconnector("m"))
-		def generatepredictiondensitycode = generatepredictioncode(preview.connectedoutconnector("d"))
+		def densityCode           = generateScalaCode("density", "0.0", preview.connectedoutconnector("d"))
+		def materialCode          = generateScalaCode("material", "Material()", preview.connectedoutconnector("m"))
+		def glslMaterialCode      = generateglslcode (preview.connectedoutconnector("m"))
+    def intervalExtensionCode = generatePredictionCode(preview.connectedoutconnector("d"))
+    def boundsCode            = generatePredictionCode(preview.connectedoutconnector("d"), onlyBounds = true)
 
 		try {
 			exporttype match {
 				case "scala_density" =>
-					println(generatescaladensitycode)
+					println(densityCode)
 				
 				case "scala_material" =>
-					println(generatescalamaterialcode)
+					println(materialCode)
 				
-				case "xml_materials" =>
-					println(generatexmlmaterials)
+//				case "xml_materials" =>
+//					println(generatexmlmaterials)
 
 				case "glsl_material" =>
-					println(generateglslmaterialcode)
+					println(glslMaterialCode)
 
 				case "prediction" =>
-					println(generatepredictiondensitycode)
+					println(intervalExtensionCode)
 
 				case "engine" =>
 					println("Exporting to Engine:")
@@ -1518,26 +1559,40 @@ for(i <- 0 until steps.toInt) {
 					//TODO: remove or do it with the java-api
 					//Runtime.getRuntime.exec("rm " + path + "/worldoctree")
 
-					println("generating scala density code...")
-					var out = new java.io.FileWriter(path + "/src/main/scala/worldfunction.scala")
-					out.write(generatescaladensitycode)
+
+          val skeleton =
+            """
+              |package downearth.generation
+              |
+              |import interval.{Interval, Interval3, Interval4}
+              |import simplex3d.math.double._
+              |import simplex3d.math.double.functions._
+              |
+              |object WorldDefinition extends WorldFunction {
+              |
+              |  %s
+              |
+              |  %s
+              |
+              |  %s
+              |
+              |  %s
+              |
+              |}
+            """.stripMargin
+
+          val worldDefinition = skeleton format(
+              densityCode,
+              materialCode,
+              boundsCode,
+              intervalExtensionCode
+            )
+
+					var out = new java.io.FileWriter(path + "/src/main/scala/downearth/generation/WorldDefinition.scala")
+					out.write(worldDefinition)
 					out.close
 
-					println("generating scala material code...")
-					out = new java.io.FileWriter(path + "/src/main/scala/worldmaterial.scala")
-					out.write(generatescalamaterialcode)
-					out.close
-
-					println("generating glsl material code...")
-					out = new java.io.FileWriter(path + "/src/main/resources/shaders/screen.frag")
-					out.write(generateglslmaterialcode)
-					out.close
-				
-					println("generating scala density prediction code...")
-					out = new java.io.FileWriter(path + "/src/main/scala/worldprediction.scala")
-					out.write(generatepredictiondensitycode)
-					out.close
-					println("done")
+          println("done.")
 			}
 		}
 		catch {

@@ -18,7 +18,7 @@ object GameEngineExports {
 		document.toString
 	}
 	
-	def generatescalacode(functionname:String, defaultreturn:String, outconnector:Option[OutConnector]):String = {
+	def generateScalaCode(functionname:String, defaultreturn:String, outconnector:Option[OutConnector]):String = {
 		var functioncode     = ""
 		var functioncallcode = ""
 		var returnvalue      = defaultreturn
@@ -70,29 +70,13 @@ object GameEngineExports {
 		}
 
 """ 
-package openworld.gen
-
-import noise.Noise.noise3
-import noise.Worley.cellnoise
-
-import simplex3d.math._
-import simplex3d.math.double._
-import simplex3d.math.double.functions._
-
-// case class Material(color:Int = 0x000000)
-import openworld.Util.Material
-
-object %s {
-
-def apply(world:Vec3) = {
+def %s(world:Vec3) = {
 
 %s
 
 %s
 
 %s
-}
-
 }
 """.format( functionname, functioncode, functioncallcode, returnvalue )
 	}
@@ -253,14 +237,17 @@ void main(){
 
 	}
 
-	def generatepredictioncode(outconnector:Option[OutConnector]):String = {
+	def generatePredictionCode(outconnector:Option[OutConnector], onlyBounds:Boolean = false):String = {
 		var functioncode     = ""
 		var functioncallcode = ""
 		var returnvalue      = "Interval(0,0)"
 
 		outconnector match {
 			case Some(out) =>
-				val composition = CompositionManager.create(out, "prediction")
+				val composition = if(onlyBounds)
+            CompositionManager.create(out, "bounds", "prediction")
+          else
+            CompositionManager.create(out, "prediction")
 				import composition._
 
 				// Function Definitions
@@ -305,21 +292,7 @@ void main(){
 		}
 		
 """ 
-package openworld.gen
-
-import simplex3d.math._
-import simplex3d.math.double._
-import simplex3d.math.double.functions._
-
-import noise.Noise.noise3_prediction
-import noise.Worley.cellnoise_prediction
-
-import noise.interval
-import noise.interval.{Interval, Volume, Interval4D}
-
-object prediction {
-
-def apply(world:Volume) = {
+def %s(world:Interval3) = {
 
 %s
 
@@ -327,8 +300,6 @@ def apply(world:Volume) = {
 
 %s
 }
-
-}
-""".format(	functioncode, functioncallcode, returnvalue	)
+""".format(if(onlyBounds) "bounds" else "intervalExtension",functioncode, functioncallcode, returnvalue	)
 	}
 }
