@@ -8,16 +8,6 @@ import java.awt.Color
 // Contains misc. functions and datastructures for general use.
 package object util {
 
-
-// measure time of a statement execute  and print it
-def time[A](msg:String)(function: => A) = {
-	val start = System.nanoTime
-	val returnvalue = function
-	val duration = (System.nanoTime-start)/1000000000.0
-	printf("%s: %fs\n", msg, duration)
-	returnvalue
-}
-
 // Can be used as stopwatch to measure times
 class Timer {
 	var starttime = 0L
@@ -74,7 +64,7 @@ class InterpreterQueue extends tools.nsc.interpreter.IMain {
 	
 	private def compile[T:Manifest](code:String):Option[T] = {
 		//TODO: Important: Better handling of wrong type
-		if( interpret(code) == Success ) {
+		if( beQuietDuring(interpret(code)) == Success ) {
 			valueOfTerm(mostRecentVar).asInstanceOf[Option[T]]
 		}
 		else {
@@ -91,7 +81,7 @@ class InterpreterQueue extends tools.nsc.interpreter.IMain {
 	
 	def fbind(name: String, boundType: String, value: Any): Future[Result] = {
 		(jq !! Job(() => {
-			super.bind(name, boundType, value)
+      beQuietDuring(super.bind(name, boundType, value))
 		})).asInstanceOf[Future[Result]]
 	}
 	
