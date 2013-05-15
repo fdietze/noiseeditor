@@ -1,10 +1,7 @@
 package noiseeditor
 
-import simplex3d.math._
-import simplex3d.math.double._
 import simplex3d.math.double.functions._
 
-import config._
 
 import java.awt.Color
 
@@ -28,15 +25,15 @@ class Timer {
 
 	def getTime = System.nanoTime
 
-	def start  { starttime = getTime }
-	def stop   { passedtime += getTime - starttime }
+	def start()  { starttime = getTime }
+	def stop()   { passedtime += getTime - starttime }
 	def measure[A](function: => A) = {
-		start
+		start()
 		val returnvalue = function
-		stop
+		stop()
 		returnvalue
 	}
-	def reset  { passedtime = 0 }
+	def reset()  { passedtime = 0 }
 	def read =   passedtime/1000000000.0
 }
 
@@ -70,7 +67,6 @@ object Box{	def apply[T](value:T) = new Box[T](value) }
 class Box[T](var value:T) { override def toString = value.toString }
 
 class InterpreterQueue extends tools.nsc.interpreter.IMain {
-	import javax.script.ScriptException
 	import tools.nsc.interpreter.Results._
 	import actors.Future
 
@@ -104,18 +100,18 @@ class InterpreterQueue extends tools.nsc.interpreter.IMain {
 		super.bind(name, boundType, value)
 	}
 	
-	override def reset {
+	override def reset() {
 	//TODO: reset actor with poison-pill
 		jq ! Job(() => {
-			super.reset
+			super.reset()
 		})
 	}
 }
 
 case class Job (function:() => Any)
 class JobQueue extends actors.DaemonActor {
-	start
-	def act = {
+	start()
+	def act() {
 		loop {
 			react {
 				case j:Job =>

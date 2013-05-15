@@ -10,12 +10,9 @@ import swingextension._
 import swing._
 import swing.event._
 import Orientation._
-import javax.swing.border._
-import javax.swing.border.BevelBorder._
 import swing.ListView._
 
 import java.awt.Graphics2D
-import java.awt.Color
 import java.awt.Color.BLACK
 import java.awt.image.BufferedImage
 
@@ -72,8 +69,8 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 	
 	minimumSize = Vec2i(100,100)
 	
-	override def resized(delta:Vec2i) = {
-		image.recalc
+	override def resized(delta:Vec2i) {
+		image.recalc()
 		image.offset -= delta / 2.0 * image.zoom
 	}
 	
@@ -95,7 +92,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 	val timer = new Timer
 	
 	override def paint(g:Graphics2D) {
-		image.repaint
+		image.repaint()
 		super.paint(g)
 	}
 	
@@ -107,24 +104,24 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 		
 		var bufferedimage:BufferedImage = null
 		var needsrecalc = true
-		def recalc {needsrecalc = true; repaint}
+		def recalc() {needsrecalc = true; repaint()}
 
 		var z = 0.0
 		
-		reset
+		reset()
 		
 		
 		
-		override def scrolledorzoomed = {
+		override def scrolledorzoomed() {
 			depthslider.value = (100*defaultZoom*z/(32*zoom))+50
-			recalc
+			recalc()
 		}
 		
-		def reset {
+		def reset() {
 			zoom = defaultZoom
 			offset = -size / 2 * zoom
 			if( depthslider != null ) depthslider.value = 50
-			recalc
+			recalc()
 		}
 		
 		def transformcoords(x:Double, y:Double, z:Double) =
@@ -150,8 +147,8 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 			Thread.sleep(max(0,minframepause - lastcalc).toInt)*/
 			
 			if( needsrecalc ) {
-				timer.reset
-				timer.start
+				timer.reset()
+				timer.start()
 
 				val data:Array[Int] =
 				viewcombobox.selected match {
@@ -205,9 +202,9 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 						(0 until width*height).par.map{i =>
 							val x = i%width
 							val y =i/width
-							val translated = transformcoords(x,y,z)
+/*							val translated = transformcoords(x,y,z)
 
-/*							if( abs(translated.x - round(translated.x)) < zoom*0.5
+							if( abs(translated.x - round(translated.x)) < zoom*0.5
 							 && abs(translated.y - round(translated.y)) < zoom*0.5
 							 && abs(translated.z - round(translated.z)) < zoom*0.5 )
 								GridColor
@@ -240,7 +237,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 								graycolor(value)
 						}.toArray
 				}
-				timer.stop
+				timer.stop()
 
 				speedlabel.value = math.max((width*height)/timer.read, speedlabel.value)
 				speedlabel.text = "%s px/s max".format(thousandsseparator((speedlabel.value).toLong.toString))	
@@ -254,16 +251,16 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 					
 					def drawGrid(delta:Double, colorindex:Int) {
 						val alpha = remap( delta, minGridSize, gridDistance*minGridSize, 0, 255).toInt
-						setColor(gridColors( mod(colorindex,gridColors.size).toInt ).setAlpha(alpha));
-						var x = mod(-offset.x / zoom, delta)
+						setColor(gridColors( mod(colorindex,gridColors.size).toInt ).setAlpha(alpha))
+            var x = mod(-offset.x / zoom, delta)
 						while( x < width ) {
-							drawLine( x.toInt, 0, x.toInt, height);
-							x += delta
+							drawLine( x.toInt, 0, x.toInt, height)
+              x += delta
 						}
 						var y = mod(-offset.y / zoom, delta)
 						while( y < height ) {
-							drawLine( 0, y.toInt, width, y.toInt);
-							y += delta
+							drawLine( 0, y.toInt, width, y.toInt)
+              y += delta
 						}
 					}
 					
@@ -278,8 +275,8 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 				else // Draw Unit Square
 				{
 					val ig = bufferedimage.createGraphics
-					ig.setColor(gridColors(0));
-					ig.drawRect(10,10,(1/zoom).toInt,(1/zoom).toInt)
+					ig.setColor(gridColors(0))
+          ig.drawRect(10,10,(1/zoom).toInt,(1/zoom).toInt)
 				}
 				
 				needsrecalc = false
@@ -288,7 +285,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 			super.paintComponent(g) // Paint background
 			drawImage(bufferedimage, null, 0, 0)
 
-			if( continouscheckbox.selected ) recalc
+			if( continouscheckbox.selected ) recalc()
 		}
 		
 		listenTo(mouse.moves, mouse.clicks)
@@ -303,20 +300,20 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 	}
 	
 	val depthslider = new BoxPanel(Horizontal) {
+    var floatvalue = 50.0
 		val slider = new Slider with ScrollableSlider {
 			reactions += {
 				case e:ValueChanged =>
 					if( floatvalue.toInt != value )
 						floatvalue = value.toDouble
 					image.z = (floatvalue-50)/100/defaultZoom*32*image.zoom
-					image.recalc
+					image.recalc()
 			}
 		}
 		contents += new Label("depth:")
 		contents += slider
-		var floatvalue = 50.0
 		def value = floatvalue
-		def value_=(x:Double) = {
+		def value_=(x:Double) {
 			floatvalue = max(0,min(x,100))
 			slider.value = floatvalue.toInt
 		}
@@ -349,7 +346,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 		margin = new Insets(0,0,0,0)
 		reactions += {
 			case e:ButtonClicked =>
-				image.reset
+				image.reset()
 		}
 	}
 
@@ -377,14 +374,14 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 		margin = new Insets(0,0,0,0)
 		reactions += {
 			case e:ButtonClicked =>
-				image.recalc
+				image.recalc()
 		}
 	}
 	val continouscheckbox = new CheckBox("continous") {
 		margin = new Insets(0,0,0,0)
 		reactions += {
 			case e:ButtonClicked =>
-				image.recalc
+				image.recalc()
 		}
 	}
 	
@@ -412,7 +409,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 		}
 	}
 
-	def recompile {
+	def recompile() {
 		println("Preview("+id+"): starting compiler in background...")
 		future {
 			val code = CompositionManager.generatepreviewcode(outconnectors.head)
@@ -423,11 +420,11 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 					interpretedcomposition = interpretedcode
 					involvedsliders = CompositionManager.involvedsliders(outconnectors.head)
 					speedlabel.value = 0.0
-					image.recalc
+					image.recalc()
 				// Compilation not successful
 				case None =>
 					interpretedcomposition = (world:Vec3) => (0.0, ColorMaterial(0xFF0000))
-					image.recalc
+					image.recalc()
 			}
 		}
 	}
@@ -436,21 +433,21 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 	reactions += {
 		case e:NodeValueChanged =>
 			if( involvedsliders contains e.slider )
-				image.recalc
+				image.recalc()
 		
 		case e:NodeConnected =>
 		//TODO: only recompile, if own composition is affected
-			recompile
+			recompile()
 		
 		case e:NodeChanged =>
-			recompile
+			recompile()
 
 		case SelectionChanged(`viewcombobox`) =>
 			speedlabel.value = 0.0
-			image.recalc
+			image.recalc()
 
 		case SelectionChanged(`perspective`) =>
 			speedlabel.value = 0.0
-			image.recalc
+			image.recalc()
 	}	
 }

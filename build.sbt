@@ -13,8 +13,12 @@ libraryDependencies ++= Seq(
 
 //fork in run := true
 
-scalacOptions += "-deprecation"
-
-scalacOptions += "-unchecked"
+scalacOptions ++= Seq(
+  "-unchecked",
+  "-deprecation",
+  "-feature",
+  "-Yinline-warnings",
+  "-language:_"
+)
 
 //scalacOptions += "-optimize"

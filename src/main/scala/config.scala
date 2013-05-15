@@ -2,7 +2,6 @@ package noiseeditor
 
 import swing._
 import java.awt.Color
-import java.awt.Color._
 
 package object config {
 	

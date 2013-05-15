@@ -5,23 +5,14 @@ import noiseeditor.event._
 import noiseeditor.NoiseEditor
 
 import noiseeditor.util._
-import noiseeditor.config._
 import noiseeditor.swingextension._
 
-import swing._
 import swing.event._
-import javax.swing.border._
-import javax.swing.border.BevelBorder._
-import Orientation._
-import java.awt.Color._
-import java.awt.event.InputEvent.{BUTTON1_DOWN_MASK, BUTTON2_DOWN_MASK}
+import java.awt.event.InputEvent.BUTTON1_DOWN_MASK
 
 
 import simplex3d.math._
-import simplex3d.math.double._
-import simplex3d.math.double.functions._
 
-import actors.Futures.future
 
 // A Component containing all Nodes
 object NodeManager extends NullPanel("NodeManager") {
@@ -70,8 +61,8 @@ object NodeManager extends NullPanel("NodeManager") {
 			publish(NodeConnected(this))
 	}
 	
-	def reset {
-		nodes.foreach(remove(_, false))
+	def reset() {
+		nodes.foreach(remove(_, publishChange = false))
 		publish(NodeConnected(this))
 	}
 
@@ -114,7 +105,7 @@ object NodeManager extends NullPanel("NodeManager") {
 		// double click with left mouse button
 		// TODO: don't use hard coded modifier: 0
 		case MouseClicked(_, point, 0, 2, _) =>
-			if( FileManager.unsavedQuestion ) FileManager.open
+			if( FileManager.unsavedQuestion() ) FileManager.open()
 	}
 	
 

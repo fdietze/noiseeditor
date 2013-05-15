@@ -2,10 +2,6 @@ package noiseeditor
 
 import swing._
 import swing.event._
-import Orientation._
-import javax.swing.border._
-import javax.swing.border.BevelBorder._
-import javax.swing.JPopupMenu
 
 import simplex3d.math._
 import simplex3d.math.double._
@@ -45,17 +41,17 @@ class NullPanel(name:String, components:Component*) extends Panel with LayoutCon
 		}
 		println(name + ": adding " + c)
 		add( c, null )
-		revalidate
-		repaint
+		revalidate()
+		repaint()
 	}
 	
 	def removeComponent( c:Component ) {
 		peer.remove(c.peer)
-		revalidate
-		repaint
+		revalidate()
+		repaint()
 	}
 	
-	override def toString = name
+	override def toString() = name
 }
 
 
@@ -82,8 +78,6 @@ trait Movable extends Component {
 
 
 trait Resizable extends Component {
-	import java.awt.Cursor
-	import java.awt.Cursor._
 	var resizestart:Vec2i = null
 	var oldsize = Vec2i(0)
 	//val resizecursor = new Cursor(SE_RESIZE_CURSOR)
@@ -102,7 +96,7 @@ trait Resizable extends Component {
 				resizestart += delta
 
 				resized(delta)
-				revalidate
+				revalidate()
 			}
 		case e:MousePressed =>
 			if( size.width - e.point.x < 15
@@ -139,14 +133,14 @@ trait Zoomable extends Component {
 	var lastpoint = Vec2(0)
 	def transformZoomOffset(v:Vec2) = v * zoom + offset
 	def transformZoomOffset(v:Vec3) = v * zoom + Vec3(offset,0.0)
-	def scrolledorzoomed {}
+	def scrolledorzoomed() {}
 	listenTo(mouse.clicks, mouse.moves, mouse.wheel)
 	reactions += {
 		case e:MouseDragged =>
 			val mousepos = Vec2(e.point)
 			offset += (lastpoint - mousepos) * zoom
 			lastpoint = mousepos
-			scrolledorzoomed
+			scrolledorzoomed()
 		case e:MousePressed =>
 			val mousepos = Vec2(e.point)
 			lastpoint = mousepos
@@ -160,7 +154,7 @@ trait Zoomable extends Component {
 				zoom /= zoomFactor
 				offset += mousepos*zoom*zoomFactor - mousepos*zoom
 			}
-			scrolledorzoomed
+			scrolledorzoomed()
 	}
 }
 
@@ -176,7 +170,7 @@ trait ScrollableSlider extends Slider {
 
 
 import javax.swing.JPopupMenu
-import scala.swing.{ Component, MenuItem }
+import scala.swing.Component
 import scala.swing.SequentialContainer.Wrapper
 
 object PopupMenu {
@@ -188,7 +182,9 @@ class PopupMenu extends Component with Wrapper {
 		def popupMenuWrapper = PopupMenu.this
 	}
 
-	def show(invoker: Component, x: Int, y: Int): Unit = peer.show(invoker.peer, x, y)
+	def show(invoker: Component, x: Int, y: Int) {
+    peer.show(invoker.peer, x, y)
+  }
 }
 
 

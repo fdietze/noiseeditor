@@ -4,7 +4,6 @@ import noiseeditor.event._
 import noiseeditor.connector._
 import noiseeditor.manager._
 
-import noiseeditor.util._
 import noiseeditor.config._
 import noiseeditor.swingextension._
 import noiseeditor.datastructure._
@@ -14,13 +13,10 @@ import swing.event._
 import javax.swing.border._
 import javax.swing.border.BevelBorder._
 import Orientation._
-import java.awt.Color._
 
 import simplex3d.math._
-import simplex3d.math.double._
 import simplex3d.math.double.functions._
 
-import actors.Futures.future
 
 //TODO: comments and help in Nodes
 //TODO: feature to replace nodes
@@ -32,12 +28,12 @@ object Node {
 		id
 	}
 	
-	def reset {
+	def reset() {
 		id = 0
 	}
 	
 	def getIdMapping(ids:Seq[Int]) = {
-		ids map (_ -> nextid) toMap
+		(ids map (_ -> nextid)).toMap
 	}
 
 	def apply(nodetype:NodeType, id:Int = nextid) = {
@@ -83,7 +79,7 @@ abstract class Node(var title:String, val id:Int = Node.nextid) extends BoxPanel
 	val outconnectors:Seq[OutConnector] = Nil
 
 	def thisnode = this // For accessing the node instance in inner classes
-	override def toString = getClass.getName + "(" + title + ")"
+	override def toString() = getClass.getName + "(" + title + ")"
 }
 
 
@@ -163,8 +159,8 @@ trait NodeInit extends Node with DelayedInit {
 						thisnode.title = newname
 						titledborder.setTitle(thisnode.title)
 						thisnode.peer.setSize(max(titledborder.getMinimumSize(thisnode.peer), thisnode.preferredSize))
-						thisnode.revalidate
-						thisnode.repaint
+						thisnode.revalidate()
+						thisnode.repaint()
 					case None =>
 				}
 		}
@@ -202,7 +198,7 @@ trait NodeInit extends Node with DelayedInit {
 		peer.setSize(preferredSize)
 	}
 	
-	override def toString = "Node("+title+")"
+	override def toString() = "Node("+title+")"
 }
 
 class PredefinedNode(title:String, id:Int, nodetype:NodeType) extends Node(title, id) with NodeInit {
@@ -244,11 +240,11 @@ class CustomNode(title:String, id:Int, override val arguments:LanguageMap[Seq[No
 	val compilebutton = new Button("compile") {
 		margin = new Insets(0,0,0,0)
 		reactions += {
-			case e:ButtonClicked => compile
+			case e:ButtonClicked => compile()
 		}
 	}
 
-	def compile {
+	def compile() {
 		outconnectors(0).function = LanguageMap("scala" -> customfunction)
 		publish(NodeChanged(source = thisnode, node = thisnode))
 	}

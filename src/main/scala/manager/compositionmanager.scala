@@ -1,16 +1,8 @@
 package noiseeditor.manager
 
-import swing._
 
-import noiseeditor.config._
-import noiseeditor.util._
 import noiseeditor.datastructure._
 import noiseeditor.connector._
-
-import simplex3d.math._
-import simplex3d.math.double._
-import simplex3d.math.double.functions._
-
 
 
 object CompositionManager {
@@ -36,11 +28,11 @@ object CompositionManager {
 			}
       if( out.function.isDefinedAt(language) ) {
         functions += out.function(language)
-        return CompositionTree(out.function(language), out.node.id, out.node.sliders, arguments)
+        CompositionTree(out.function(language), out.node.id, out.node.sliders, arguments)
       }
       else {
         functions += out.function(fallbackLanguage)
-        return CompositionTree(out.function(fallbackLanguage), out.node.id, out.node.sliders, arguments)
+        CompositionTree(out.function(fallbackLanguage), out.node.id, out.node.sliders, arguments)
       }
 
 		}
@@ -58,7 +50,7 @@ object CompositionManager {
 		val nexttrees = new collection.mutable.Queue[CompositionTree]
 		nexttrees += calltree
 		while( nexttrees.nonEmpty ) {
-			val currenttree = nexttrees.dequeue
+			val currenttree = nexttrees.dequeue()
 			import currenttree._
 			involved ++= sliders.map(_.globalname)
 			// Move on with all arguments referring to other functions
@@ -89,7 +81,7 @@ object CompositionManager {
 		val nexttrees = new collection.mutable.Queue[CompositionTree]
 		nexttrees += calltree
 		while( nexttrees.nonEmpty ) {
-			val currenttree = nexttrees.dequeue
+			val currenttree = nexttrees.dequeue()
 			import currenttree._
 			functioncalls +:= "val %s = %s(%s)".format(
 				varname,

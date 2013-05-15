@@ -1,6 +1,5 @@
 package noiseeditor.modules
 
-import noiseeditor.util._
 import noiseeditor.datastructure._
 
 import noiseeditor.manager.CompositionManager
@@ -11,11 +10,11 @@ object GameEngineExports {
 	def generatexmlmaterials:String = {
 		val document =
 		<document>{
-		for( (matname, index) <- GameEngineMaterials.materialNames zipWithIndex ) yield {
+		for( (matname, index) <- GameEngineMaterials.materialNames.zipWithIndex ) yield {
 			<material id={index.toString} name={matname} />
 		}
 		}</document>
-		document.toString
+		document.toString()
 	}
 	
 	def generateScalaCode(functionname:String, defaultreturn:String, outconnector:Option[OutConnector]):String = {
@@ -44,7 +43,7 @@ object GameEngineExports {
 				val nexttrees = new collection.mutable.Queue[CompositionTree]
 				nexttrees += calltree
 				while( nexttrees.nonEmpty ) {
-					val currenttree = nexttrees.dequeue
+					val currenttree = nexttrees.dequeue()
 					import currenttree._
 					functioncalls +:= "val %s = %s(%s)".format(
 						varname,
@@ -109,7 +108,7 @@ def %s(world:Vec3) = {
 				val nexttrees = new collection.mutable.Queue[CompositionTree]
 				nexttrees += calltree
 				while( nexttrees.nonEmpty ) {
-					val currenttree = nexttrees.dequeue
+					val currenttree = nexttrees.dequeue()
 					import currenttree._
 					functioncalls +:= "%s %s = %s(%s);".format(
 						function.returntype,
@@ -266,7 +265,7 @@ void main(){
 				val nexttrees = new collection.mutable.Queue[CompositionTree]
 				nexttrees += calltree
 				while( nexttrees.nonEmpty ) {
-					val currenttree = nexttrees.dequeue
+					val currenttree = nexttrees.dequeue()
 					import currenttree._
 					functioncalls +:= "val %s = %s(%s)".format(
 						varname,

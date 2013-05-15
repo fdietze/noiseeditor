@@ -4,20 +4,17 @@ import noiseeditor.event._
 import noiseeditor.{Node, PredefinedNode, CustomNode, Preview}
 import noiseeditor.NoiseEditor
 
-import noiseeditor.util._
 import noiseeditor.datastructure._
 import noiseeditor.swingextension._
 
 import swing._
 import swing.event._
-import Orientation._
 
 import xml._
 import java.io.File
 
 import simplex3d.math._
 import simplex3d.math.double._
-import simplex3d.math.double.functions._
 
 
 object FileManager extends Publisher {
@@ -31,7 +28,7 @@ object FileManager extends Publisher {
 		fileSelectionMode = FileChooser.SelectionMode.FilesOnly
 	
 		def setExtensionFilter(description:String, extension:String) {
-			peer.resetChoosableFileFilters
+			peer.resetChoosableFileFilters()
 			peer.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(description, extension) )
 		}
 	
@@ -42,31 +39,31 @@ object FileManager extends Publisher {
 	var currentFile:Option[File] = None
 	var filechanged:Boolean = false
 	
-	def newSession {
-		ConnectionManager.reset
-		NodeManager.reset
-		Node.reset
+	def newSession() {
+		ConnectionManager.reset()
+		NodeManager.reset()
+		Node.reset()
 
 		currentFile = None
-		setFileunchanged
+		setFileunchanged()
 	}
 	
-	def open {
+	def open() {
 		import FileChooser.Result._
 		chooser.title = "Open Composition"
 		chooser.setExtensionFilter("XML Files", "xml")
 		chooser.showOpenDialog match {
 			case Approve =>
-				newSession
+				newSession()
 				FileManager.readSession(chooser.selectedFile)
 				currentFile = Some(chooser.selectedFile)
-				setFileunchanged
+				setFileunchanged()
 			case Cancel =>
 		}
 	}
 	
 
-	def saveAs:Boolean = {
+	def saveAs():Boolean = {
 		import FileChooser.Result._
 		chooser.title = "Save Composition"
 		chooser.setExtensionFilter("XML Files", "xml")
@@ -78,25 +75,24 @@ object FileManager extends Publisher {
 				//TODO: Ask if overwriting file	
 				FileManager.writeSession(file)
 				currentFile = Some(file)
-				setFileunchanged
+				setFileunchanged()
 				true
 			case Cancel =>
 				false
 		}
 	}
 	
-	def save {
+	def save() {
 		currentFile match {
 			case Some(file) =>
 				FileManager.writeSession(currentFile.get)
-				setFileunchanged
-				true
+				setFileunchanged()
 			case None =>
-				saveAs
+				saveAs()
 		}
 	}
 
-	def unsavedQuestion:Boolean = {
+	def unsavedQuestion():Boolean = {
 		import Dialog.Result._
 		if( filechanged && NodeManager.nodes.size > 0 ) {
 			Dialog.showConfirmation(
@@ -106,7 +102,7 @@ object FileManager extends Publisher {
 				
 			) match {
 				case Ok =>
-					save
+					save()
 					true
 				case No =>
 					true
@@ -141,7 +137,7 @@ object FileManager extends Publisher {
 		}
 	}
 
-	def setFileunchanged {
+	def setFileunchanged() {
 		filechanged = false
 		currentFile match {
 			case Some(file) =>
@@ -272,7 +268,7 @@ object FileManager extends Publisher {
 				
 				custom.peer.setLocation(location)
 				custom.peer.setSize(size)
-				custom.compile
+				custom.compile()
 			}
 		}
 
@@ -285,8 +281,8 @@ object FileManager extends Publisher {
 			val outconnector = nodeforid(newid(outnodeid)).outconnectors(outindex)
 			ConnectionManager.changeConnection(inconnector, outconnector)
 		}
-		ConnectionManager.commitconnection
-		NoiseEditor.window.repaint
+		ConnectionManager.commitconnection()
+		NoiseEditor.window.repaint()
 	}
 
 	def writeSession(file:File) {

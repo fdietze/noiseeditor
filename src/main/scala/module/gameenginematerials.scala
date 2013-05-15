@@ -4,7 +4,6 @@ import noiseeditor.util._
 import noiseeditor.datastructure._
 
 import xml._
-import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import collection.immutable.VectorBuilder
 
@@ -19,14 +18,14 @@ object GameEngineMaterials {
 			XML.load( readResource("materials.xml") )
 		}
 		catch {
-			case _ => <document/>
+			case _:Throwable => <document/>
 		}
 	
 		val namebuilder     = new VectorBuilder[String]
 		val nodetypebuilder = new VectorBuilder[NodeType]
 	
 	
-		for( (material,matid) <- (document \ "materials" \ "material") zipWithIndex ) {
+		for( (material,matid) <- (document \ "materials" \ "material").zipWithIndex ) {
 			val matname =  (material \ "@name").text
 			namebuilder += matname
 			// Texturdatei auslesen und samplen um an Farbe zu kommen
@@ -37,7 +36,7 @@ object GameEngineMaterials {
 				val colors = Array.ofDim[Int](img.getWidth * img.getHeight)
 				img.getRGB(0, 0, img.getWidth, img.getHeight, colors, 0, img.getWidth)
 			} catch {
-				case x => println("Unable to load texture: " + "materials/%s.png" format matname)
+				case x:Throwable => println("Unable to load texture: " + "materials/%s.png" format matname)
 				Array(0x0000FF)
 			}
 	
@@ -54,6 +53,6 @@ object GameEngineMaterials {
 					)
 				)
 		}
-		( namebuilder.result, nodetypebuilder.result )
+		( namebuilder.result(), nodetypebuilder.result() )
 	}
 }

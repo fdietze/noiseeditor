@@ -1,8 +1,8 @@
 package noiseeditor
 
-import util._
 import connector._
 import manager._
+import collection.mutable
 
 
 package object datastructure {
@@ -10,7 +10,7 @@ package object datastructure {
 // Map with individual values for each language
 type LanguageMap[T] = Map[String,T]
 object LanguageMap {
-	def apply[T]( args:Tuple2[String,T]* ):LanguageMap[T] = Map(args:_*)
+	def apply[T]( args:(String, T)* ):LanguageMap[T] = Map(args:_*)
 }
 
 // Transposes a Map of Sequences to a Sequence of Maps
@@ -96,12 +96,13 @@ class ConnectionTree {
 	type TO   = OutConnector
 	type NODE = Node
 	
-	import collection.mutable.HashMap
-	var edges = new HashMap[FROM,TO]
+	var edges = new mutable.HashMap[FROM,TO]
 	
 	override def toString = "NodeTree(" + edges + ")"
 	
-	def clear = edges.clear
+	def clear() {
+    edges.clear()
+  }
 	
 	// add edge and tell if something changed
 	def += (edge:(FROM,TO)):Boolean = {
@@ -167,13 +168,13 @@ class ConnectionTree {
 		var nextnodes = new collection.mutable.Queue[Node]
 		nextnodes += to.node
 		while( nextnodes.nonEmpty ) {
-			val currentnode = nextnodes.dequeue
+			val currentnode = nextnodes.dequeue()
 			val froms = currentnode.inconnectors
 			if( froms contains from )
 				return true
 			nextnodes ++= froms.map(apply _).flatten.map(_.node).distinct
 		}
-		return false
+		false
 	}
 }
 

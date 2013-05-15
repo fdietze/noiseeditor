@@ -1,6 +1,5 @@
 package noise
 
-import simplex3d.math._
 import simplex3d.math.double._
 import simplex3d.math.double.functions._
 
@@ -129,6 +128,6 @@ object Worley {
 			}
 		}
 
-		return sqrt(mindistances)
+		sqrt(mindistances)
 	}
 }

@@ -4,7 +4,6 @@ import noiseeditor.Module
 import noiseeditor.modules
 import noiseeditor.NoiseEditor
 
-import noiseeditor.util._
 import noiseeditor.datastructure._
 
 // Loads modules and provides access to the currently loaded module
@@ -20,20 +19,20 @@ object ModuleManager{
 			case Some(module) =>
 				//if( check(module) ) {
 					currentmodule = module
-					InterpreterManager.reset
+					InterpreterManager.reset()
 					InterpreterManager(ModuleManager.scalainitcode)
-					NoiseEditor.rebuildmenu
+					NoiseEditor.rebuildmenu()
 					// Load some preconnected nodes
 					try {
 						//TODO: Different Resourcepath on Mac OSX?
-						FileManager.newSession
+						FileManager.newSession()
 						FileManager.readSession(
 							getClass.getClassLoader.getResource("default_"+moduletitle+".xml").getPath
 						)
 					}
 					catch {
 						case e:Exception =>
-							FileManager.newSession
+							FileManager.newSession()
 					}
 /*					}
 				else {
@@ -69,6 +68,6 @@ object ModuleManager{
 				}
 			}
 		}
-		return isvalid
+		isvalid
 	}
 }

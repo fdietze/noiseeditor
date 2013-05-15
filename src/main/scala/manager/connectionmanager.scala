@@ -7,18 +7,14 @@ import noiseeditor.connector._
 import noiseeditor.event._
 
 import noiseeditor.util._
-import noiseeditor.config._
 import noiseeditor.datastructure._
 import noiseeditor.swingextension._
 
 import swing._
 import swing.event._
 import javax.swing.SwingUtilities._
-import Orientation._
 import java.awt.Color
-import java.awt.Color._
 
-import simplex3d.math._
 import simplex3d.math.double._
 import simplex3d.math.double.functions._
 
@@ -28,22 +24,21 @@ object ConnectionManager extends Component {
 	
 	val connections = new ConnectionTree
 
-	def reset {
-		connections.clear
-		commitconnection
+	def reset() {
+		connections.clear()
+		commitconnection()
 	}
 	
 	// removes all connections to a node
 	def removeNode(node:Node) {
 		connections -= node
-		resetconnstart
+		resetconnstart()
 	}
 	
 	
 	override def paint(g:Graphics2D) {
-		import java.awt.Color._
-		
-		super.paintComponent(g)
+
+    super.paintComponent(g)
 		import g._
 		
 		for( ( a, b ) <- connections.edges ){
@@ -63,7 +58,7 @@ object ConnectionManager extends Component {
 
 	var connstart:Option[Connector] = None
 
-	def resetconnstart {
+	def resetconnstart() {
 		connstart match {
 			case Some(connector) =>
 				connector.background = connector.originalbackground
@@ -73,13 +68,13 @@ object ConnectionManager extends Component {
 	}
 	
 	def setconnstart(connector:Connector) {
-		resetconnstart
+		resetconnstart()
 		connstart = Some(connector)
 		connstart.get.background = connstart.get.highlightbackground
 	}
 	
-	def commitconnection {
-		resetconnstart
+	def commitconnection() {
+		resetconnstart()
 		publish(NodeConnected(this))
 	}
 	
@@ -97,7 +92,7 @@ object ConnectionManager extends Component {
 			{
 				// add or replace connection
 				if( connections += (in -> out) ) {
-					this.repaint
+					this.repaint()
 					true
 				}
 				else // Connection would produce cycle
@@ -116,26 +111,26 @@ object ConnectionManager extends Component {
 				case in:InConnector => connections -= in
 				case out:OutConnector => connections -= out
 			}
-			commitconnection
+			commitconnection()
 		
 		// Single Click on Connector
 		case HitConnector(source, connector, 1) =>
 			(connstart, connector) match {
 				case (Some(in:InConnector), out:OutConnector) =>
 					if( changeConnection(in, out) )
-						commitconnection
+						commitconnection()
 					else
 						setconnstart(connector)
 				
 				case (Some(out:OutConnector), in:InConnector) =>
 					if( changeConnection(in, out) )
-						commitconnection
+						commitconnection()
 					else
 						setconnstart(connector)
 				
 				// Hit the same connector again
 				case (Some(connectora), connectorb) if( connectora eq connectorb)=>
-					resetconnstart
+					resetconnstart()
 				
 				// Hit a connector on the same Node
 				case (Some(connectora), connectorb) if( connectora.node eq connectorb.node)=>
@@ -146,17 +141,17 @@ object ConnectionManager extends Component {
 			}
 
 		case e:NodeMoved =>
-			this.repaint
+			this.repaint()
 
 		case e:NodeResized =>
-			this.repaint
+			this.repaint()
 			
 		case e:NodeConnected =>
-			this.repaint
+			this.repaint()
 		
 		case UIElementResized(source) if( source eq NoiseEditor.window) =>
 			peer.setSize(source.size)
 	}
 
-	override def toString = "ConnectionManager"
+	override def toString() = "ConnectionManager"
 }

@@ -1,11 +1,8 @@
 package noiseeditor.modules
 
-import noiseeditor.util._
 import noiseeditor.datastructure._
 
 import noiseeditor.{Preview, Module}
-import noiseeditor.manager.CompositionManager
-import noiseeditor.connector.OutConnector
 
 import GameEngineExports._
 
@@ -1590,7 +1587,7 @@ for(i <- 0 until steps.toInt) {
 
 					var out = new java.io.FileWriter(path + "/src/main/scala/downearth/generation/WorldDefinition.scala")
 					out.write(worldDefinition)
-					out.close
+					out.close()
 
           println("done.")
 			}

@@ -13,7 +13,7 @@ object InterpreterManager extends InterpreterQueue {
 	Seq("lib/simplex3d-math-core.jar","lib/simplex3d-math-double.jar").
 			foreach (settings.classpath.append _)
 	
-	def init {
+	def init() {
 		val imports =
 			"""import simplex3d.math._
 			import simplex3d.math.double._
@@ -31,10 +31,10 @@ object InterpreterManager extends InterpreterQueue {
 		apply(imports)
 	}
 	
-	override def reset {
+	override def reset() {
 		println("InterpreterManager: reset")
-		super.reset
-		init
+		super.reset()
+		init()
 	}
 }
 

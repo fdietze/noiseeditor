@@ -3,23 +3,15 @@ package noiseeditor
 import manager._
 
 import config._
-import util._
 import swingextension._
 import datastructure._
 
 import swing._
 import swing.event._
 import javax.swing.UIManager
-import javax.swing.SwingUtilities._
-import javax.swing.border._
-import javax.swing.border.BevelBorder._
 import javax.swing.KeyStroke.getKeyStroke
-import Orientation._
-import java.awt.Color._
 
 import simplex3d.math._
-import simplex3d.math.double._
-import simplex3d.math.double.functions._
 
 //TODO: folding nodes?
 //TODO: Metanodes?
@@ -27,8 +19,8 @@ import simplex3d.math.double.functions._
 object NoiseEditor extends SimpleSwingApplication {
 	UIManager.setLookAndFeel(lookAndFeel)
 	
-	def init {
-		InterpreterManager.reset
+	def init() {
+		InterpreterManager.reset()
 		
 		NodeManager.listenTo(window)
 		ConnectionManager.listenTo(window, NodeManager)
@@ -36,7 +28,7 @@ object NoiseEditor extends SimpleSwingApplication {
 		NodeManager.peer.setSize(window.preferredSize)
 		ConnectionManager.peer.setSize(window.preferredSize)
 		
-		rebuildmenu
+		rebuildmenu()
 		
 		
 		ModuleManager.load("GameEngine")
@@ -60,17 +52,17 @@ object NoiseEditor extends SimpleSwingApplication {
 		import javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE
 		peer.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE)
 		
-		override def closeOperation = {
-			if( FileManager.unsavedQuestion )
+		override def closeOperation() {
+			if( FileManager.unsavedQuestion() )
 				sys.exit(0)
 		}
 		
 		contents = new NullPanel("MainWindow", NodeManager, ConnectionManager)
 	}
 
-	init
+	init()
 
-	def rebuildmenu {
+	def rebuildmenu() {
 		window.menuBar = createmenu
 		//TODO: Remove Workaround: Menu repaint does not work when there is no node in the window
 		window.peer.setSize(window.size + Vec2i(1))
@@ -83,7 +75,9 @@ object NoiseEditor extends SimpleSwingApplication {
 			contents += new MenuItem("New") {
 				mnemonic = Key.O
 				action = new Action("New") {
-					def apply = if( FileManager.unsavedQuestion ) FileManager.newSession
+					def apply() {
+            if (FileManager.unsavedQuestion()) FileManager.newSession()
+          }
 					accelerator = Some(getKeyStroke("ctrl N"))
 				}
 			}				
@@ -93,7 +87,7 @@ object NoiseEditor extends SimpleSwingApplication {
 				for( module <- ModuleManager.available.map(_.title) )
 					contents += new MenuItem(module) {
 						action = new Action(module) {
-							def apply = { if( FileManager.unsavedQuestion ) ModuleManager.load(module) }
+							def apply() { if( FileManager.unsavedQuestion() ) ModuleManager.load(module) }
 						}
 					}
 			}				
@@ -102,7 +96,9 @@ object NoiseEditor extends SimpleSwingApplication {
 			contents += new MenuItem("Open") {
 				mnemonic = Key.O
 				action = new Action("Open") {
-					def apply = if( FileManager.unsavedQuestion ) FileManager.open
+					def apply() {
+            if (FileManager.unsavedQuestion()) FileManager.open()
+          }
 					accelerator = Some(getKeyStroke("ctrl O"))
 				}
 			}				
@@ -110,7 +106,9 @@ object NoiseEditor extends SimpleSwingApplication {
 			contents += new MenuItem("Save") {
 				mnemonic = Key.S
 				action = new Action("save") {
-					def apply = FileManager.save
+					def apply() {
+            FileManager.save()
+          }
 					accelerator = Some(getKeyStroke("ctrl S"))
 				}
 			}				
@@ -118,7 +116,9 @@ object NoiseEditor extends SimpleSwingApplication {
 			contents += new MenuItem("Save As") {
 				mnemonic = Key.S
 				action = new Action("save As") {
-					def apply = FileManager.saveAs
+					def apply() {
+            FileManager.saveAs()
+          }
 					accelerator = Some(getKeyStroke("ctrl shift S"))
 				}
 			}				
@@ -126,7 +126,9 @@ object NoiseEditor extends SimpleSwingApplication {
 			contents += new MenuItem("Quit") {
 				mnemonic = Key.Q
 				action = new Action("Quit") {
-					def apply() = window.closeOperation
+					def apply() {
+            window.closeOperation()
+          }
 					//TODO: Escape to quit program
 					accelerator = Some(getKeyStroke("alt Q"))
 				}
@@ -138,7 +140,9 @@ object NoiseEditor extends SimpleSwingApplication {
 				for( nodetype <- nodetypes ) {
 					contents += new MenuItem(nodetype.title) {
 						action = new Action(nodetype.title) {
-							def apply = NodeManager.add(Node(nodetype))
+							def apply() {
+                NodeManager.add(Node(nodetype))
+              }
 						}
 					}
 				}
@@ -148,7 +152,9 @@ object NoiseEditor extends SimpleSwingApplication {
 		contents += new Menu("Custom"){
 			contents += new MenuItem("Custom Node") {
 				action = new Action("Custom Node") {
-					def apply = NodeManager.add(Node.custom())
+					def apply() {
+            NodeManager.add(Node.custom())
+          }
 				}
 			}
 		}
@@ -156,7 +162,9 @@ object NoiseEditor extends SimpleSwingApplication {
 		contents += new Menu("Preview"){
 			contents += new MenuItem("Preview") {
 				action = new Action("Preview") {
-					def apply = NodeManager.add(Node.preview())
+					def apply() {
+            NodeManager.add(Node.preview())
+          }
 				}
 			}
 		}

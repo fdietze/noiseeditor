@@ -1,6 +1,5 @@
 package noiseeditor
 
-import util._
 import datastructure._
 
 trait Module {
