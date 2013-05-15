@@ -73,14 +73,12 @@ class InterpreterQueue extends tools.nsc.interpreter.IMain {
 	import javax.script.ScriptException
 	import tools.nsc.interpreter.Results._
 	import actors.Future
-	import actors.Futures.future
 
 	val jq = new JobQueue
 	
 	private def compile[T:Manifest](code:String):Option[T] = {
 		//TODO: Important: Better handling of wrong type
 		if( interpret(code) == Success ) {
-			//TODO: make the interpreter work with Scala 2.9.1
 			valueOfTerm(mostRecentVar).asInstanceOf[Option[T]]
 		}
 		else {
@@ -101,7 +99,7 @@ class InterpreterQueue extends tools.nsc.interpreter.IMain {
 		})).asInstanceOf[Future[Result]]
 	}
 	
-	override def bind(name: String, boundType: String, value: Any): Result = {
+	override def bind(name: String, boundType: String, value: Any, modifiers: List[String] = Nil): Result = {
 		println("Warning: Use fbind() instead of bind() which will return a Future[Result].")
 		super.bind(name, boundType, value)
 	}
