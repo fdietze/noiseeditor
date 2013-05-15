@@ -18,8 +18,11 @@ object GameEngine extends Module {
 	override val scalainitcode = """
                                  |import noise.Noise.{noise3 => perlinNoise3}
                                  |import noise.Worley.{cellnoise => worleyNoise3}
+                                 |//for compatibility:
+                                 |import noise.Noise.noise3
+                                 |import noise.Worley.cellnoise
                                  |
-                               """.stripMargin
+                                 |                               """.stripMargin
 	
 	override val typedefaults = LanguageMap(
 		"scala" -> 	Map(
@@ -40,9 +43,12 @@ object GameEngine extends Module {
 			"Material" -> "Material(0x000000)"
 		),
 		"prediction" -> 	Map(
-			"Interval" -> "Interval(0,0)",
-			"Interval3" -> "Interval3(Vec3(0),Vec3(0))",
-			"Interval4" -> "Interval4(Vec4(0),Vec4(0))"
+      "Interval" -> "Interval(0,0)",
+      "Interval3" -> "Interval3(Vec3(0),Vec3(0))",
+      "Interval4" -> "Interval4(Vec4(0),Vec4(0))",
+      //for compatibility:
+      "Volume" -> "Interval3(Vec3(0),Vec3(0))",
+      "Interval4D" -> "Interval4(Vec4(0),Vec4(0))"
 		),
 		"bounds" -> 	Map(
 			"Interval" -> "Interval(0,0)",
