@@ -21,7 +21,7 @@ object NodeManager extends NullPanel("NodeManager") {
 	var nodes = Set[Node]()
 	val slidervalues = new collection.mutable.HashMap[String, Box[Double]]
 	var spawnpos:Option[Vec2i] = None
-	
+
 	def add( node:Node ) {
 		nodes += node
 		addComponent(node)
@@ -97,6 +97,7 @@ object NodeManager extends NullPanel("NodeManager") {
 				spawnpos = Some(e.point)
 				popupMenu.show(this, e.point.x, e.point.y)
 			}
+    println(materialNodes)
 	}
 
 	
@@ -138,4 +139,8 @@ object NodeManager extends NullPanel("NodeManager") {
 			
 	}
 
+  def materialNodes = nodes.filter( n =>
+       n.functions("scala").head._2.returntype == "Material"
+    && n.functions("scala").head._2.arguments.isEmpty
+    ).toSeq.sortBy(_.id)
 }

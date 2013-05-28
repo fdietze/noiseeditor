@@ -26,6 +26,7 @@ trait Material { def color:Int }
 object Material {
   def apply(color:Int) = ColorMaterial(color)
   def apply(r:Int, g:Int, b:Int) = ColorMaterial(r,g,b)
+  def apply(id:Int, r:Double, g:Double, b:Double) = ColorMaterial(r,g,b)
   def apply(r:Double, g:Double, b:Double) = ColorMaterial(r,g,b)
   def apply(color:Int, id:Int) = TextureMaterial(color,id)
 }
@@ -38,9 +39,9 @@ object ColorMaterial {
 case class ColorMaterial(color:Int = materialDefaultColor) extends Material
 case class TextureMaterial(color:Int = materialDefaultColor, id:Int = -1) extends Material
 
-class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with Resizable {
+class Preview(title:String, id:Int) extends Node(title, id) with Resizable {
 	def thispreview = this
-	override def functions = LanguageMap(
+	functions = LanguageMap(
 		"scala" -> Map(
 			"result" -> NodeFunctionFull("result", "(Double, Material)", "(d,m)",
 				Seq(
@@ -52,8 +53,8 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 		)
 	)
 	
-	override def arguments = LanguageMap("scala" -> functions("scala")("result").arguments)
-	
+	arguments = LanguageMap("scala" -> functions("scala")("result").arguments)
+
 	type Compositiontype = (Vec3) => (Double, Material)
 	var interpretedcomposition:Compositiontype = (world:Vec3) => (0.0, ColorMaterial())
 	var involvedsliders = Set[String]()
@@ -384,8 +385,10 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 				image.recalc()
 		}
 	}
-	
-	contents += new BoxPanel(Horizontal) {
+
+  layout()
+
+  contents += new BoxPanel(Horizontal) {
 		contents += inconnectorpanel
 		contents += new BoxPanel(Vertical) {
 			contents += image
@@ -409,10 +412,12 @@ class Preview(title:String, id:Int) extends Node(title, id) with NodeInit with R
 		}
 	}
 
+  postinit()
+
 	def recompile() {
 		println("Preview("+id+"): starting compiler in background...")
 		future {
-			val code = CompositionManager.generatepreviewcode(outconnectors.head)
+			val code = CompositionManager.generatepreviewcode(outconnectors.head).replace("{ID}","0")
 			val compilation = InterpreterManager[Compositiontype](code) // Future
 			compilation() match {
 				// Compilation successful

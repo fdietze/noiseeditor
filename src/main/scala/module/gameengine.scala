@@ -2,9 +2,11 @@ package noiseeditor.modules
 
 import noiseeditor.datastructure._
 
+import noiseeditor.manager.NodeManager
 import noiseeditor.{Preview, Module}
 
 import GameEngineExports._
+import simplex3d.math.doublex.functions
 
 //TODO: More High Level nodes, like Surface, Layers, Fractal Noise, Turbulence
 //TODO: More Noise types, like cellular noise
@@ -1361,8 +1363,9 @@ for(i <- 0 until steps.toInt) {
 				NodeType("RGB Color",
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),
 					Seq(NodeSlider("r"), NodeSlider("g"), NodeSlider("b")),
-					LanguageMap("scala" -> Map( "m" -> NodeFunction("matrgb", "Material", "Material(r,g,b)") ),
-						"glsl" -> Map("m" -> NodeFunction("matrgb", "vec4", "return vec4(r, g, b, 1);")	)
+					LanguageMap(
+            "scala" -> Map("m" -> NodeFunction("matrgb", "Material", "Material({ID},r,g,b)") ),
+						"glsl" ->  Map("m" -> NodeFunction("matrgb", "vec4",     "return vec4(r, g, b, 1);")	)
 					)
 				)
 			) ++
@@ -1530,6 +1533,15 @@ for(i <- 0 until steps.toInt) {
 					chooser.selectedFile = oldselectedfile*/
 
 	override def export(preview:Preview, exporttype:String) {
+    // generate Materials
+    for( (materialNode,id) <- NodeManager.materialNodes zipWithIndex ) {
+      val nodeFunction = materialNode.functions("scala").head._2
+      val newNodeFunction = nodeFunction.copy(code = nodeFunction.code.replace("{ID}", id.toString))
+
+      val key = materialNode.functions("scala").head._1
+      materialNode.functions = materialNode.functions.updated("scala",Map(key -> newNodeFunction))
+    }
+
 		def densityCode           = generateScalaCode("density", "0.0", preview.connectedoutconnector("d"))
 		def materialCode          = generateScalaCode("material", "Material()", preview.connectedoutconnector("m"))
 		def glslMaterialCode      = generateglslcode (preview.connectedoutconnector("m"))

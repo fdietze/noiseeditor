@@ -70,157 +70,162 @@ object Node {
 
 
 abstract class Node(var title:String, val id:Int = Node.nextid) extends BoxPanel(Vertical) with Movable {
-	def arguments:LanguageMap[Seq[NodeArgument]] = LanguageMap()
-	def sliderdefinitions:Seq[NodeSlider] = Nil
-	def functions:LanguageMap[Map[String, NodeFunctionFull]] = LanguageMap()
+  var arguments:LanguageMap[Seq[NodeArgument]] = LanguageMap()
+  var sliderdefinitions:Seq[NodeSlider] = Nil
+	var functions:LanguageMap[Map[String, NodeFunctionFull]] = LanguageMap()
 
-	val sliders:Seq[FormulaSlider] = Nil
-	val inconnectors:Seq[InConnector] = Nil
-	val outconnectors:Seq[OutConnector] = Nil
+	var sliders:Seq[FormulaSlider] = Nil
+	var inconnectors:Seq[InConnector] = Nil
+	var outconnectors:Seq[OutConnector] = Nil
 
 	def thisnode = this // For accessing the node instance in inner classes
-	override def toString() = getClass.getName + "(" + title + ")"
+  override def toString() = "Node("+title+")"
+
+  var inconnectorpanel:Panel = null
+  var outconnectorpanel:Panel = null
+  var sliderPanel:Panel = null
+  var removebutton:Button = null
+  var renamebutton:Button = null
+
+  val titledborder = new TitledBorder(new SoftBevelBorder(RAISED), title)
+  def postinit() {
+    border = titledborder
+    // listen to all connectors and publish events for this node
+    for( connector <- inconnectors ++ outconnectors )
+      listenTo(connector)
+
+    reactions += {
+      case HitConnector(source:Connector, connector, clicks) =>
+        publish(HitConnector(source=this, connector, clicks))
+    }
+
+    // listen to sliders and publish for this node
+    for( slider <- sliders )
+      listenTo(slider)
+
+    reactions += {
+      case ValueChanged(slider:FormulaSlider) =>
+        publish(NodeValueChanged(
+          source = thisnode,
+          node = thisnode,
+          slider.globalname,
+          slider.globalvalue
+        ))
+        slider.tooltip = slider.globalvalue.toString
+    }
+
+    //Draw the complete border with title. Even if the content is smaller
+    preferredSize = max(titledborder.getMinimumSize(thisnode.peer), preferredSize)
+    peer.setSize(preferredSize)
+  }
+
+  def layout() {
+    inconnectors = for( NodeArgument(argname,argtype,argdefault) <- arguments("scala") ) yield{
+      new InConnector(argname, argtype, argdefault, thisnode)
+    }
+
+    outconnectors = (for( (title, function) <- functions.mapmaptranspose ) yield {
+      new OutConnector(title, function, thisnode)
+    }).toSeq
+
+    inconnectorpanel = new BoxPanel(Vertical) {
+      contents ++= inconnectors
+    }
+
+    outconnectorpanel = new BoxPanel(Vertical) {
+      contents ++= outconnectors
+    }
+
+    sliders =
+    for( NodeSlider(name, sformula, initvalue,  _) <- sliderdefinitions ) yield {
+      val compilation = InterpreterManager[Double => Double]("(s:Double) => {" + sformula + "}")
+      new FormulaSlider(name, nodeid = id, initvalue) {
+        // TODO: compile sliders in background for faster Composition loading
+        //				future {
+        compilation() match {
+          case Some(f) =>
+            transform = f
+            formula = sformula
+          case None =>
+        }
+        tooltip = globalvalue.toString
+        //					publish(new ValueChanged(this))
+        //				}
+      }
+    }
+
+    sliderPanel = new GridBagPanel {
+      val constraints = new Constraints
+      var row = 0
+      for( slider <- sliders ) {
+        constraints.grid = (0, row)
+        layout(new Label(slider.name)) = constraints
+        constraints.grid = (1, row)
+        layout(slider) = constraints
+        row += 1
+      }
+    }
+
+    removebutton = new RemoveButton {
+      reactions += {
+        case e:ButtonClicked =>
+          NodeManager.remove(thisnode)
+      }
+    }
+
+    renamebutton = new Button("rename") {
+      //TODO: not working correctly in CustomNodes
+      margin = new Insets(0,0,0,0)
+      reactions += {
+        case e:ButtonClicked =>
+          Dialog.showInput(
+            parent = NoiseEditor.window.contents.head,
+            message = "Enter new name: ",
+            title = "Rename Node",
+            messageType = Dialog.Message.Plain,
+            icon = null,
+            entries = Seq(),
+            initial = titledborder.getTitle
+          ) match {
+            case Some(newname) =>
+              thisnode.title = newname
+              titledborder.setTitle(thisnode.title)
+              thisnode.peer.setSize(max(titledborder.getMinimumSize(thisnode.peer), thisnode.preferredSize))
+              thisnode.revalidate()
+              thisnode.repaint()
+            case None =>
+          }
+      }
+    }
+  }
 }
 
+class PredefinedNode(title:String, id:Int, nodetype:NodeType) extends Node(title, id) {
+  functions = nodetype.functions
+	arguments = nodetype.arguments
+	sliderdefinitions = nodetype.sliders
 
+  layout()
 
-trait NodeInit extends Node with DelayedInit {
-	val titledborder = new TitledBorder(new SoftBevelBorder(RAISED), title)
-	border = titledborder
-
-	override val inconnectors = for( NodeArgument(argname,argtype,argdefault) <- arguments("scala") ) yield{
-		new InConnector(argname, argtype, argdefault, thisnode)
-	}
-	
-	override val outconnectors = (for( (title, function) <- functions.mapmaptranspose ) yield {
-		new OutConnector(title, function, thisnode)
-	}).toSeq
-	
-	val inconnectorpanel = new BoxPanel(Vertical) {
-		contents ++= inconnectors
-	}
-
-	val outconnectorpanel = new BoxPanel(Vertical) {
-		contents ++= outconnectors
-	}
-
-	override val sliders = 
-		for( NodeSlider(name, sformula, initvalue,  _) <- sliderdefinitions ) yield {
-			val compilation = InterpreterManager[Double => Double]("(s:Double) => {" + sformula + "}")
-			new FormulaSlider(name, nodeid = id, initvalue) {
-// TODO: compile sliders in background for faster Composition loading
-//				future {
-					compilation() match {
-						case Some(f) =>
-							transform = f
-							formula = sformula
-						case None =>
-					}
-					tooltip = globalvalue.toString
-//					publish(new ValueChanged(this))
-//				}
-			}
-		}
-
-	val sliderpanel = new GridBagPanel {
-		val constraints = new Constraints
-		var row = 0
-		for( slider <- sliders ) {
-			constraints.grid = (0, row)
-			layout(new Label(slider.name)) = constraints
-			constraints.grid = (1, row)
-			layout(slider) = constraints
-			row += 1
-		}
-	}
-	
-	val removebutton = new RemoveButton {
-		reactions += {
-			case e:ButtonClicked =>
-				NodeManager.remove(thisnode)
-		}
-	}
-
-	val renamebutton = new Button("rename") {
-	//TODO: not working correctly in CustomNodes
-		margin = new Insets(0,0,0,0)
-		reactions += {
-			case e:ButtonClicked =>
-				Dialog.showInput(
-					parent = NoiseEditor.window.contents.head,
-					message = "Enter new name: ",
-					title = "Rename Node",
-					messageType = Dialog.Message.Plain,
-					icon = null,
-					entries = Seq(),
-					initial = titledborder.getTitle
-				) match {
-					case Some(newname) =>
-						thisnode.title = newname
-						titledborder.setTitle(thisnode.title)
-						thisnode.peer.setSize(max(titledborder.getMinimumSize(thisnode.peer), thisnode.preferredSize))
-						thisnode.revalidate()
-						thisnode.repaint()
-					case None =>
-				}
-		}
-	}
-
-	// listen to all connectors and publish events for this node
-	for( connector <- inconnectors ++ outconnectors )
-		listenTo(connector)
-
-	reactions += {
-		case HitConnector(source:Connector, connector, clicks) =>
-			publish(HitConnector(source=this, connector, clicks))
-	}	
-
-	// listen to sliders and publish for this node
-	for( slider <- sliders )
-		listenTo(slider)
-
-	reactions += {
-		case ValueChanged(slider:FormulaSlider) =>
-			publish(NodeValueChanged(
-				source = thisnode,
-				node = thisnode,
-				slider.globalname,
-				slider.globalvalue
-			))
-			slider.tooltip = slider.globalvalue.toString
-	}
-
-	def delayedInit(constructor: => Unit) {
-		constructor
-		
-		//Draw the complete border with title. Even if the content is smaller
-		preferredSize = max(titledborder.getMinimumSize(thisnode.peer), preferredSize)
-		peer.setSize(preferredSize)
-	}
-	
-	override def toString() = "Node("+title+")"
-}
-
-class PredefinedNode(title:String, id:Int, nodetype:NodeType) extends Node(title, id) with NodeInit {
-	override def functions = nodetype.functions
-	override def arguments = nodetype.arguments
-	override def sliderdefinitions = nodetype.sliders
-
-	contents +=	new BoxPanel(Horizontal){
+  contents +=	new BoxPanel(Horizontal){
 		contents += inconnectorpanel
-		contents += sliderpanel
+		contents += sliderPanel
 		contents += outconnectorpanel
 	}
 	contents += new BoxPanel(Horizontal) {
 		contents += renamebutton
 		contents += removebutton
 	}
+
+  postinit()
 }
 
-class CustomNode(title:String, id:Int, override val arguments:LanguageMap[Seq[NodeArgument]], customsliders:Seq[NodeSlider]) extends Node(title, id) with NodeInit with Resizable {
+class CustomNode(title:String, id:Int, arguments:LanguageMap[Seq[NodeArgument]], customsliders:Seq[NodeSlider]) extends Node(title, id) with Resizable {
 	//TODO show compile errors in GUI
-	override def sliderdefinitions = customsliders
-	override def functions = LanguageMap("scala" -> Map("o" -> customfunction))
+
+  thisnode.arguments = arguments
+	sliderdefinitions = customsliders
+	functions = LanguageMap("scala" -> Map("o" -> customfunction))
 	
 	def customfunction = NodeFunctionFull(
 		name = "custom_f" + id,
@@ -251,10 +256,12 @@ class CustomNode(title:String, id:Int, override val arguments:LanguageMap[Seq[No
 	
 	val controlpanel = new BoxPanel(Horizontal) {
 			contents += inconnectorpanel
-			contents += sliderpanel
+			contents += sliderPanel
 			contents += outconnectorpanel
 			maximumSize = preferredSize
 	}
+
+  layout()
 
 	contents +=	controlpanel
 	contents += new ScrollPane(funcfield)
@@ -263,6 +270,8 @@ class CustomNode(title:String, id:Int, override val arguments:LanguageMap[Seq[No
 		contents += renamebutton
 		contents += removebutton
 	}
+
+  postinit()
 }
 
 
