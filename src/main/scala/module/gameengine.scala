@@ -1568,7 +1568,7 @@ for(i <- 0 until steps.toInt) {
 
 
     // write ids into material code, generate texture atlas
-    val resolution = 16
+    val resolution = 32
     val width = resolution * NodeManager.materialNodes.size
     val height = resolution
 
@@ -1576,12 +1576,15 @@ for(i <- 0 until steps.toInt) {
     val atlas = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
     val atlasGr = atlas.createGraphics();
 
+    println("writing ids into materials (" + NodeManager.materialNodes.size + "):")
     for( (materialNode,id) <- NodeManager.materialNodes.zipWithIndex ) {
       // replace material id
       val nodeFunction = materialNode.functions("scala").head._2
-      val newNodeFunction = nodeFunction.copy(code = setMatId(nodeFunction.code,id))
+      val newNodeFunction = nodeFunction.copy(name="material__"+id, code = setMatId(nodeFunction.code,id))
       val key = materialNode.functions("scala").head._1
       materialNode.functions = materialNode.functions.updated("scala",Map(key -> newNodeFunction))
+      materialNode.refreshConnectors()
+      assert(newNodeFunction eq materialNode.outconnectors.head.function("scala"))
 
       // create color rectangle in atlas
       val color = getColor(materialNode)

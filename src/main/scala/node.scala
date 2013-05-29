@@ -90,15 +90,6 @@ abstract class Node(var title:String, val id:Int = Node.nextid) extends BoxPanel
   val titledborder = new TitledBorder(new SoftBevelBorder(RAISED), title)
   def postinit() {
     border = titledborder
-    // listen to all connectors and publish events for this node
-    for( connector <- inconnectors ++ outconnectors )
-      listenTo(connector)
-
-    reactions += {
-      case HitConnector(source:Connector, connector, clicks) =>
-        publish(HitConnector(source=this, connector, clicks))
-    }
-
     // listen to sliders and publish for this node
     for( slider <- sliders )
       listenTo(slider)
@@ -119,7 +110,7 @@ abstract class Node(var title:String, val id:Int = Node.nextid) extends BoxPanel
     peer.setSize(preferredSize)
   }
 
-  def layout() {
+  def refreshConnectors() {
     inconnectors = for( NodeArgument(argname,argtype,argdefault) <- arguments("scala") ) yield{
       new InConnector(argname, argtype, argdefault, thisnode)
     }
@@ -127,6 +118,19 @@ abstract class Node(var title:String, val id:Int = Node.nextid) extends BoxPanel
     outconnectors = (for( (title, function) <- functions.mapmaptranspose ) yield {
       new OutConnector(title, function, thisnode)
     }).toSeq
+
+    // listen to all connectors and publish events for this node
+    for( connector <- inconnectors ++ outconnectors )
+      listenTo(connector)
+
+    reactions += {
+      case HitConnector(source:Connector, connector, clicks) =>
+        publish(HitConnector(source=this, connector, clicks))
+    }
+  }
+
+  def layout() {
+    refreshConnectors()
 
     inconnectorpanel = new BoxPanel(Vertical) {
       contents ++= inconnectors
