@@ -97,7 +97,6 @@ object NodeManager extends NullPanel("NodeManager") {
 				spawnpos = Some(e.point)
 				popupMenu.show(this, e.point.x, e.point.y)
 			}
-    println(materialNodes)
 	}
 
 	

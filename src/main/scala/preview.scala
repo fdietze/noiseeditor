@@ -22,22 +22,18 @@ import simplex3d.math.double.functions._
 
 import actors.Futures.future
 
-trait Material { def color:Int }
+case class Material(id:Int = -1, color:Int = 0xFF00FF, texture:Option[String] = None) {
+  def r = color >> 16
+  def g = (color & 0x00FF00) >> 8
+  def b = color & 0xFF
+  def rgb  = Vec3(r/255.0,g/255.0,b/255.0)
+}
 object Material {
-  def apply(color:Int) = ColorMaterial(color)
-  def apply(r:Int, g:Int, b:Int) = ColorMaterial(r,g,b)
-  def apply(id:Int, r:Double, g:Double, b:Double) = ColorMaterial(r,g,b)
-  def apply(r:Double, g:Double, b:Double) = ColorMaterial(r,g,b)
-  def apply(color:Int, id:Int) = TextureMaterial(color,id)
+  def apply(id:Int, r:Int, g:Int, b:Int):Material = new Material(id, color=clamp(r,0,0xFF) << 16 | clamp(g,0,0xFF) << 8 | clamp(b,0,0xFF) )
+  def apply(r:Int, g:Int, b:Int):Material = new Material(color=clamp(r,0,0xFF) << 16 | clamp(g,0,0xFF) << 8 | clamp(b,0,0xFF) )
+  def apply(id:Int, r:Double, g:Double, b:Double):Material = Material(id, (r*255).toInt, (g*255).toInt, (b*255).toInt)
+  def apply(r:Double, g:Double, b:Double):Material = Material((r*255).toInt, (g*255).toInt, (b*255).toInt)
 }
-object ColorMaterial {
-  def apply(r:Int, g:Int, b:Int):ColorMaterial =
-      ColorMaterial(clamp(r,0,0xFF) << 16 | clamp(g,0,0xFF) << 8 | clamp(b,0,0xFF) )
-  def apply(r:Double, g:Double, b:Double):ColorMaterial =
-    ColorMaterial((r*255).toInt, (g*255).toInt, (b*255).toInt)
-}
-case class ColorMaterial(color:Int = materialDefaultColor) extends Material
-case class TextureMaterial(color:Int = materialDefaultColor, id:Int = -1) extends Material
 
 class Preview(title:String, id:Int) extends Node(title, id) with Resizable {
 	def thispreview = this
@@ -56,7 +52,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with Resizable {
 	arguments = LanguageMap("scala" -> functions("scala")("result").arguments)
 
 	type Compositiontype = (Vec3) => (Double, Material)
-	var interpretedcomposition:Compositiontype = (world:Vec3) => (0.0, ColorMaterial())
+	var interpretedcomposition:Compositiontype = (world:Vec3) => (0.0, Material())
 	var involvedsliders = Set[String]()
 	
 	def connectedoutconnector(name:String) = {
@@ -417,7 +413,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with Resizable {
 	def recompile() {
 		println("Preview("+id+"): starting compiler in background...")
 		future {
-			val code = CompositionManager.generatepreviewcode(outconnectors.head).replace("{ID}","0")
+			val code = CompositionManager.generatepreviewcode(outconnectors.head)
 			val compilation = InterpreterManager[Compositiontype](code) // Future
 			compilation() match {
 				// Compilation successful
@@ -428,7 +424,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with Resizable {
 					image.recalc()
 				// Compilation not successful
 				case None =>
-					interpretedcomposition = (world:Vec3) => (0.0, ColorMaterial(0xFF0000))
+					interpretedcomposition = (world:Vec3) => (0.0, Material(color=0xFF0000))
 					image.recalc()
 			}
 		}

@@ -2,11 +2,19 @@ package noiseeditor.modules
 
 import noiseeditor.datastructure._
 
-import noiseeditor.manager.NodeManager
-import noiseeditor.{Preview, Module}
+import noiseeditor.datastructure.NodeArgument
+import noiseeditor.datastructure.NodeCategory
+import noiseeditor.datastructure.NodeFunction
+import noiseeditor.datastructure.NodeSlider
+import noiseeditor.manager.{InterpreterManager, CompositionManager, NodeManager}
+import noiseeditor.{Material, Preview, Module}
 
 import GameEngineExports._
 import simplex3d.math.doublex.functions
+import scala.util.matching.Regex
+import scala.util.matching.Regex.{Groups, Match}
+import simplex3d.math.double._
+import scala.Some
 
 //TODO: More High Level nodes, like Surface, Layers, Fractal Noise, Turbulence
 //TODO: More Noise types, like cellular noise
@@ -1364,7 +1372,7 @@ for(i <- 0 until steps.toInt) {
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),
 					Seq(NodeSlider("r"), NodeSlider("g"), NodeSlider("b")),
 					LanguageMap(
-            "scala" -> Map("m" -> NodeFunction("matrgb", "Material", "Material({ID},r,g,b)") ),
+            "scala" -> Map("m" -> NodeFunction("matrgb", "Material", "Material(-1,r,g,b)") ),
 						"glsl" ->  Map("m" -> NodeFunction("matrgb", "vec4",     "return vec4(r, g, b, 1);")	)
 					)
 				)
@@ -1382,7 +1390,7 @@ for(i <- 0 until steps.toInt) {
 					Nil,
 					LanguageMap(
 						"scala" -> Map(
-							"m" -> NodeFunction("vectocolor", "Material", "Material(r, g, b)") ),
+							"m" -> NodeFunction("vectocolor", "Material", "Material(-1, r, g, b)") ),
 						"glsl" -> Map(
 							"m" -> NodeFunction("vectocolor", "vec4", "return vec4(v,1);")	)
 					)
@@ -1534,9 +1542,29 @@ for(i <- 0 until steps.toInt) {
 
 	override def export(preview:Preview, exporttype:String) {
     // generate Materials
-    for( (materialNode,id) <- NodeManager.materialNodes zipWithIndex ) {
+    val matreg = new Regex("""Material\((.+),(.+),(.+),(.+)\)""","id","r","g","b")
+    def setMatId(matCode:String, id:Int) = {
+      matreg.replaceAllIn(matCode,_ match { case Groups(oldId,r,g,b) => s"Material($id,$r,$g,$b)" })
+    }
+    def getColor(matNode:noiseeditor.Node):Vec3 = {
+      import matNode.outconnectors
+      val code = CompositionManager.generatepreviewcode(outconnectors.head)
+      val compilation = InterpreterManager[(Vec3 => Material)](code) // Future
+      compilation() match {
+        // Compilation successful
+        case Some(interpretedcode) =>
+          interpretedcode(Vec3(0)).rgb
+        // Compilation not successful
+        case None => ???
+      }
+    }
+
+    // write ids into material code, generate texture atlas
+    for( (materialNode,id) <- NodeManager.materialNodes.zipWithIndex ) {
       val nodeFunction = materialNode.functions("scala").head._2
-      val newNodeFunction = nodeFunction.copy(code = nodeFunction.code.replace("{ID}", id.toString))
+      val newNodeFunction = nodeFunction.copy(code = setMatId(nodeFunction.code,id))
+
+      println(getColor(materialNode))
 
       val key = materialNode.functions("scala").head._1
       materialNode.functions = materialNode.functions.updated("scala",Map(key -> newNodeFunction))

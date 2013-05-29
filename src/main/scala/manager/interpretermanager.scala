@@ -19,8 +19,6 @@ object InterpreterManager extends InterpreterQueue {
 			import simplex3d.math.double._
 			import simplex3d.math.double.functions._
 			import noiseeditor.Material
-			import noiseeditor.ColorMaterial
-			import noiseeditor.TextureMaterial
 			import noiseeditor.util.Box"""
 		
 		apply("""

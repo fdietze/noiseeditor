@@ -48,7 +48,7 @@ object GameEngineMaterials {
 				NodeType(matname,
 					LanguageMap("scala" -> Nil, "glsl" -> Nil),	Nil,
 					LanguageMap(
-						"scala" -> Map( "m" -> NodeFunction("mat" + matname, "Material", "Material(%d,%d)" format(rgbcolor(r,g,b), matid) ) ),
+						"scala" -> Map( "m" -> NodeFunction("mat" + matname, "Material", "Material(%d,%d)" format(matid, rgbcolor(r,g,b)) ) ),
 						"glsl" -> Map("m" -> NodeFunction("mat" + matname, "vec4", "return vec4(%f, %f, %f, 0);".format(r/256.0,g/256.0,b/256.0) ) )
 					)
 				)
