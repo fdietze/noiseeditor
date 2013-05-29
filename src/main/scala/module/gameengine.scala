@@ -20,6 +20,8 @@ import java.awt.Color
 import javax.imageio.ImageIO
 import java.io.File
 
+import noiseeditor.util.{nextPowerOfTwo,hexStringtoInt,red,green,blue}
+
 //TODO: More High Level nodes, like Surface, Layers, Fractal Noise, Turbulence
 //TODO: More Noise types, like cellular noise
 //TODO: Different Noise Dimensions
@@ -46,7 +48,7 @@ object GameEngine extends Module {
 			"Vec2" -> "Vec2(0)",
 			"Vec3" -> "Vec3(0)",
 			"Vec4" -> "Vec4(0)",
-			"Material" -> "Material(0x000000)"
+			"Material" -> "Material()"
 		),
 		"glsl" -> 	Map(
 			"int" -> "0",
@@ -1547,11 +1549,36 @@ for(i <- 0 until steps.toInt) {
 	override def export(preview:Preview, exporttype:String) {
     // generate Materials
 
-    val matreg = new Regex("""Material\((.+),(.+),(.+),(.+)\)""","id","r","g","b")
+    val Matreg = new Regex(""".*Material\((.+),(.+),(.+),(.+)\).*""","id","r","g","b")
+    val MatregOld = new Regex(""".*Material\((.+),(.+),(.+)\).*""","r","g","b")
+    val MatregOld2 = new Regex(""".*Material\((.+),(.+)\).*""","color","id")
+    val MatregOld3 = new Regex(""".*Material\((.+)\).*""","color")
+    val MatregDummy = new Regex(""".*Material\((.*)\).*""","args")
+
     // replace material id in scala code of node
     def setMatId(matCode:String, id:Int) = {
-      matreg.replaceAllIn(matCode,_ match { case Groups(oldId,r,g,b) => s"Material($id,$r,$g,$b)" })
+      val c = matCode match {
+        case Matreg(_,_,_,_) =>
+          Matreg.replaceAllIn(matCode,_ match { case Groups(oldId,r,g,b) => s"Material($id,$r,$g,$b)" })
+
+        case MatregOld(_,_,_) =>
+          MatregOld.replaceAllIn(matCode,_ match { case Groups(r,g,b) => s"Material($id,$r,$g,$b)" })
+
+        case MatregOld2(_,_) =>
+          MatregOld2.replaceAllIn(matCode,_ match { case Groups(color, oldId) =>
+            s"Material($id,$color)" })
+
+        case MatregOld3(_) =>
+          MatregOld3.replaceAllIn(matCode,_ match { case Groups(color) =>
+            s"Material($id,$color)" })
+
+        case MatregDummy(_) =>
+          MatregDummy.replaceAllIn(matCode,_ match { case Groups(args) => s"Material($id,255,0,255)" })
+      }
+      println(matCode,c)
+      c
     }
+
     // compile and execute code of node to get material color
     def getColor(matNode:noiseeditor.Node):Vec3 = {
       import matNode.outconnectors
@@ -1568,8 +1595,8 @@ for(i <- 0 until steps.toInt) {
 
 
     // write ids into material code, generate texture atlas
-    val resolution = 32
-    val width = resolution * NodeManager.materialNodes.size
+    val resolution = 64
+    val width = nextPowerOfTwo(resolution * NodeManager.materialNodes.size)
     val height = resolution
 
     // TYPE_INT_ARGB specifies the image format: 8-bit RGBA packed into integer pixels

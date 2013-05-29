@@ -27,6 +27,22 @@ class Timer {
 	def read =   passedtime/1000000000.0
 }
 
+def nextPowerOfTwo(n:Int) = {
+  var m = n - 1
+  m |= m >> 1
+  m |= m >> 2
+  m |= m >> 4
+  m |= m >> 8
+  m |= m >> 16
+  m+1
+}
+
+def hexStringtoInt(hex:String) = {
+  val HexReg = """0x([0-9a-fA-F]+)""".r
+  val HexReg(base16) = hex
+  Integer.parseInt(base16,16)
+}
+
 //color manipulation
 def rgbcolor(r:Int, g:Int, b:Int) = r << 16 | g << 8 | b
 def graycolor(w:Int) = rgbcolor(w,w,w)

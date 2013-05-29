@@ -110,7 +110,7 @@ abstract class Node(var title:String, val id:Int = Node.nextid) extends BoxPanel
     peer.setSize(preferredSize)
   }
 
-  def refreshConnectors() {
+  def createConnectors() {
     inconnectors = for( NodeArgument(argname,argtype,argdefault) <- arguments("scala") ) yield{
       new InConnector(argname, argtype, argdefault, thisnode)
     }
@@ -129,8 +129,15 @@ abstract class Node(var title:String, val id:Int = Node.nextid) extends BoxPanel
     }
   }
 
+  def refreshConnectors() {
+    for( ((title, function),connector) <- functions.mapmaptranspose zip outconnectors ) yield {
+      assert(connector.title == title)
+      connector.function = function
+    }
+  }
+
   def layout() {
-    refreshConnectors()
+    createConnectors()
 
     inconnectorpanel = new BoxPanel(Vertical) {
       contents ++= inconnectors
