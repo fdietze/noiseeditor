@@ -15,6 +15,10 @@ import scala.util.matching.Regex
 import scala.util.matching.Regex.{Groups, Match}
 import simplex3d.math.double._
 import scala.Some
+import java.awt.image.BufferedImage
+import java.awt.Color
+import javax.imageio.ImageIO
+import java.io.File
 
 //TODO: More High Level nodes, like Surface, Layers, Fractal Noise, Turbulence
 //TODO: More Noise types, like cellular noise
@@ -1542,10 +1546,13 @@ for(i <- 0 until steps.toInt) {
 
 	override def export(preview:Preview, exporttype:String) {
     // generate Materials
+
     val matreg = new Regex("""Material\((.+),(.+),(.+),(.+)\)""","id","r","g","b")
+    // replace material id in scala code of node
     def setMatId(matCode:String, id:Int) = {
       matreg.replaceAllIn(matCode,_ match { case Groups(oldId,r,g,b) => s"Material($id,$r,$g,$b)" })
     }
+    // compile and execute code of node to get material color
     def getColor(matNode:noiseeditor.Node):Vec3 = {
       import matNode.outconnectors
       val code = CompositionManager.generatepreviewcode(outconnectors.head)
@@ -1559,15 +1566,27 @@ for(i <- 0 until steps.toInt) {
       }
     }
 
+
     // write ids into material code, generate texture atlas
+    val resolution = 16
+    val width = resolution * NodeManager.materialNodes.size
+    val height = resolution
+
+    // TYPE_INT_ARGB specifies the image format: 8-bit RGBA packed into integer pixels
+    val atlas = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+    val atlasGr = atlas.createGraphics();
+
     for( (materialNode,id) <- NodeManager.materialNodes.zipWithIndex ) {
+      // replace material id
       val nodeFunction = materialNode.functions("scala").head._2
       val newNodeFunction = nodeFunction.copy(code = setMatId(nodeFunction.code,id))
-
-      println(getColor(materialNode))
-
       val key = materialNode.functions("scala").head._1
       materialNode.functions = materialNode.functions.updated("scala",Map(key -> newNodeFunction))
+
+      // create color rectangle in atlas
+      val color = getColor(materialNode)
+      atlasGr.setColor(new Color(color.r.toFloat, color.g.toFloat, color.b.toFloat))
+      atlasGr.fillRect(id*resolution,0,resolution, resolution)
     }
 
 		def densityCode           = generateScalaCode("density", "0.0", preview.connectedoutconnector("d"))
@@ -1634,6 +1653,8 @@ for(i <- 0 until steps.toInt) {
 					var out = new java.io.FileWriter(path + "/src/main/scala/downearth/generation/WorldDefinition.scala")
 					out.write(worldDefinition)
 					out.close()
+
+          ImageIO.write(atlas, "PNG", new File(path + "/src/main/resources/materials.png"));
 
           println("done.")
 			}
