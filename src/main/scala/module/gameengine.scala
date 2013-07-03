@@ -1659,6 +1659,7 @@ for(i <- 0 until steps.toInt) {
               |import interval.{Interval, Interval3, Interval4}
               |import simplex3d.math.double._
               |import simplex3d.math.double.functions._
+              |import downearth.resources.Material
               |
               |object WorldDefinition extends WorldFunction {
               |
