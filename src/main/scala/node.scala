@@ -81,11 +81,11 @@ abstract class Node(var title:String, val id:Int = Node.nextid) extends BoxPanel
 	def thisnode = this // For accessing the node instance in inner classes
   override def toString() = "Node("+title+")"
 
-  var inconnectorpanel:Panel = null
-  var outconnectorpanel:Panel = null
+  var inConnectorPanel:Panel = null
+  var outConnectorPanel:Panel = null
   var sliderPanel:Panel = null
-  var removebutton:Button = null
-  var renamebutton:Button = null
+  var removeButton:Button = null
+  var renameButton:Button = null
 
   val titledborder = new TitledBorder(new SoftBevelBorder(RAISED), title)
   def postinit() {
@@ -139,11 +139,11 @@ abstract class Node(var title:String, val id:Int = Node.nextid) extends BoxPanel
   def layout() {
     createConnectors()
 
-    inconnectorpanel = new BoxPanel(Vertical) {
+    inConnectorPanel = new BoxPanel(Vertical) {
       contents ++= inconnectors
     }
 
-    outconnectorpanel = new BoxPanel(Vertical) {
+    outConnectorPanel = new BoxPanel(Vertical) {
       contents ++= outconnectors
     }
 
@@ -177,14 +177,14 @@ abstract class Node(var title:String, val id:Int = Node.nextid) extends BoxPanel
       }
     }
 
-    removebutton = new RemoveButton {
+    removeButton = new RemoveButton {
       reactions += {
         case e:ButtonClicked =>
           NodeManager.remove(thisnode)
       }
     }
 
-    renamebutton = new Button("rename") {
+    renameButton = new Button("rename") {
       //TODO: not working correctly in CustomNodes
       margin = new Insets(0,0,0,0)
       reactions += {
@@ -219,13 +219,13 @@ class PredefinedNode(title:String, id:Int, nodetype:NodeType) extends Node(title
   layout()
 
   contents +=	new BoxPanel(Horizontal){
-		contents += inconnectorpanel
+		contents += inConnectorPanel
 		contents += sliderPanel
-		contents += outconnectorpanel
+		contents += outConnectorPanel
 	}
 	contents += new BoxPanel(Horizontal) {
-		contents += renamebutton
-		contents += removebutton
+		contents += renameButton
+		contents += removeButton
 	}
 
   postinit()
@@ -266,9 +266,9 @@ class CustomNode(title:String, id:Int, arguments:LanguageMap[Seq[NodeArgument]],
 	}
 	
 	val controlpanel = new BoxPanel(Horizontal) {
-			contents += inconnectorpanel
+			contents += inConnectorPanel
 			contents += sliderPanel
-			contents += outconnectorpanel
+			contents += outConnectorPanel
 			maximumSize = preferredSize
 	}
 
@@ -278,8 +278,8 @@ class CustomNode(title:String, id:Int, arguments:LanguageMap[Seq[NodeArgument]],
 	contents += new ScrollPane(funcfield)
 	contents += new BoxPanel(Horizontal){
 		contents += compilebutton
-		contents += renamebutton
-		contents += removebutton
+		contents += renameButton
+		contents += removeButton
 	}
 
   postinit()

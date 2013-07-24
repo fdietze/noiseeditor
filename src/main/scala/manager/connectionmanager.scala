@@ -51,7 +51,14 @@ object ConnectionManager extends Component {
 			setColor(new Color(mixcolors(0x0000FF,0x000000,t)))
 			
 			//TODO: Draw Curves instead of Lines
-			drawLine( apos.x, apos.y, bpos.x, bpos.y)
+
+      val midX = (apos.x + bpos.x) / 2
+
+      val XX = Array( apos.x, midX, midX, bpos.x )
+      val YY = Array( apos.y, apos.y, bpos.y, bpos.y)
+
+      g.drawPolyline(XX,YY,4)
+			//drawLine( apos.x, apos.y, bpos.x, bpos.y)
 		}
 	}
 	

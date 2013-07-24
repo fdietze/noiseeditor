@@ -385,7 +385,7 @@ class Preview(title:String, id:Int) extends Node(title, id) with Resizable {
   layout()
 
   contents += new BoxPanel(Horizontal) {
-		contents += inconnectorpanel
+		contents += inConnectorPanel
 		contents += new BoxPanel(Vertical) {
 			contents += image
 			contents += speedlabel
@@ -402,8 +402,8 @@ class Preview(title:String, id:Int) extends Node(title, id) with Resizable {
 				contents += exportcontrols
 			}
 			contents += new BoxPanel(Horizontal) {
-				contents += renamebutton
-				contents += removebutton
+				contents += renameButton
+				contents += removeButton
 			}
 		}
 	}
