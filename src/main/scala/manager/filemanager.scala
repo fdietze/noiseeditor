@@ -261,8 +261,11 @@ object FileManager extends Publisher {
 				// add default values to arguments
 				val newarguments = arguments.map{ case (language,args) => (language -> args.map{
 					case NodeArgument(name,datatype,"") => NodeArgument(name,datatype,ModuleManager.typedefaults("scala")(datatype)) }) }
-				
-				val custom = Node.loadcustom( title, newsliders, newarguments, functions("scala").values.head.code, newid(id) )
+
+        val loadedCode = functions("scala").values.head.code
+        val code = loadedCode.stripPrefix(CustomNode.codePrefix).stripSuffix(CustomNode.codeSuffix)
+
+				val custom = Node.loadcustom( title, newsliders, newarguments, code, newid(id) )
 				nodeforid(custom.id) = custom
 				NodeManager.add(custom)
 				
@@ -306,7 +309,7 @@ object FileManager extends Publisher {
 					import node._
 					val nodetype = node match {
 						case n:PredefinedNode => "predefined"
-						case n:CustomNode => "custom"
+						case n:CustomNode => n.refreshFunctions(); "custom"
 						case n:Preview => "preview"
 					}
 				

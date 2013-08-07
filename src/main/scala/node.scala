@@ -60,6 +60,7 @@ object Node {
 	def loadcustom( title:String, sliders:Seq[NodeSlider], arguments:LanguageMap[Seq[NodeArgument]], code:String, id:Int = nextid ) = {
 		val node = new CustomNode(title, id, arguments, sliders)
 		node.funcfield.text = code
+    node.refreshFunctions()
 		node
 	}
 	
@@ -230,18 +231,23 @@ class PredefinedNode(title:String, id:Int, nodetype:NodeType) extends Node(title
 
   postinit()
 }
-
+object CustomNode {
+  val codePrefix = "try{{"
+  val codeSuffix = "}.toDouble}catch{ case _:Throwable ⇒ 0.0}"
+}
 class CustomNode(title:String, id:Int, arguments:LanguageMap[Seq[NodeArgument]], customsliders:Seq[NodeSlider]) extends Node(title, id) with Resizable {
 	//TODO show compile errors in GUI
 
   thisnode.arguments = arguments
 	sliderdefinitions = customsliders
-	functions = LanguageMap("scala" -> Map("o" -> customfunction))
-	
+  def refreshFunctions() {
+    functions = LanguageMap("scala" -> Map("o" -> customfunction))
+  }
+
 	def customfunction = NodeFunctionFull(
 		name = "custom_f" + id,
 		returntype = "Double",
-		code = if(funcfield != null) ("try{{" + funcfield.text + "}.toDouble}catch{ case _ ⇒ 0.0}") else "0.0",
+		code = if(funcfield != null) (CustomNode.codePrefix + funcfield.text + CustomNode.codeSuffix) else "0.0",
 		arguments = arguments("scala"),
 		customsliders
 	)
@@ -264,15 +270,16 @@ class CustomNode(title:String, id:Int, arguments:LanguageMap[Seq[NodeArgument]],
 		outconnectors(0).function = LanguageMap("scala" -> customfunction)
 		publish(NodeChanged(source = thisnode, node = thisnode))
 	}
-	
-	val controlpanel = new BoxPanel(Horizontal) {
+
+  refreshFunctions()
+  layout()
+
+  val controlpanel = new BoxPanel(Horizontal) {
 			contents += inConnectorPanel
 			contents += sliderPanel
 			contents += outConnectorPanel
 			maximumSize = preferredSize
 	}
-
-  layout()
 
 	contents +=	controlpanel
 	contents += new ScrollPane(funcfield)
