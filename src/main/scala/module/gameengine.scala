@@ -34,6 +34,7 @@ object GameEngine extends Module {
 	override val scalainitcode = """
                                  |import noise.Noise.{noise3 => perlinNoise3}
                                  |import noise.Worley.{cellnoise => worleyNoise3}
+                                 |import noise.split.splitNoise3
                                  |//for compatibility:
                                  |import noise.Noise.noise3
                                  |import noise.Worley.cellnoise
@@ -377,24 +378,24 @@ for(i <- 0 until steps.toInt) {
 				),
 
 
-				NodeType("3D Worley Noise",
-					LanguageMap(
-						"scala" -> Seq(
-							NodeArgument("v","Vec3")
-						),
+        NodeType("3D Worley Noise",
+          LanguageMap(
+            "scala" -> Seq(
+              NodeArgument("v","Vec3")
+            ),
             "prediction" -> Seq(
               NodeArgument("v","Interval3")
             ),
             "bounds" -> Seq(
               NodeArgument("v","Interval3")
             )
-					),
-					Nil,
-					LanguageMap(
-						"scala" -> Map(
-							"v4" -> NodeFunction("worleynoise3", "Vec4",
-							"""worleyNoise3(v)""")
-						),
+          ),
+          Nil,
+          LanguageMap(
+            "scala" -> Map(
+              "v4" -> NodeFunction("worleynoise3", "Vec4",
+                """worleyNoise3(v)""")
+            ),
             "prediction" -> Map(
               "v4" -> NodeFunction("worleynoise3", "Interval4",
                 """worleyNoise3Prediction(v)""")
@@ -403,11 +404,56 @@ for(i <- 0 until steps.toInt) {
               "v4" -> NodeFunction("worleynoise3", "Interval4",
                 """worleyNoise3Bounds(v)""")
             )
-					)
-				)
+          )
+        ),
+
+          NodeType("3D Split Noise",
+          LanguageMap(
+            "scala" -> Seq(
+              NodeArgument("v","Vec3"),
+              NodeArgument("a","Double", "-world.z"),
+              NodeArgument("b","Double", "-world.z"),
+              NodeArgument("c","Double", "-world.z"),
+              NodeArgument("d","Double", "-world.z")
+            ),
+            "prediction" -> Seq(
+              NodeArgument("v","Interval3"),
+              NodeArgument("a","Interval", "-world.z"),
+              NodeArgument("b","Interval", "-world.z"),
+              NodeArgument("c","Interval", "-world.z"),
+              NodeArgument("d","Interval", "-world.z")
+            ),
+            "bounds" -> Seq(
+              NodeArgument("v","Interval3"),
+              NodeArgument("a","Interval", "-world.z"),
+              NodeArgument("b","Interval", "-world.z"),
+              NodeArgument("c","Interval", "-world.z"),
+              NodeArgument("d","Interval", "-world.z")
+            )
+          ),
+          Nil,
+          LanguageMap(
+            "scala" -> Map(
+              "o" -> NodeFunction("splitnoise3", "Double",
+                """splitNoise3(v,4,0)*a +
+                   splitNoise3(v,4,1)*b +
+                   splitNoise3(v,4,2)*c +
+                   splitNoise3(v,4,3)*d
+                   """)
+            ),
+            "prediction" -> Map(
+              "o" -> NodeFunction("splitnoise3", "Interval",
+                """Interval(min(min(a.low,b.low),min(c.low,d.low)),max(max(a.high, b.high), max(c.high, d.high)))""")
+            ),
+            "bounds" -> Map(
+              "o" -> NodeFunction("splitnoise3", "Interval",
+                """Interval(min(min(a.low,b.low),min(c.low,d.low)),max(max(a.high, b.high), max (c.high, d.high)))""")
+            )
+          )
+          )
 
 
-			) // Seq
+      ) // Seq
 		), // NodeCategory
 //******************************************************************************
 //******************* Basic Math ***********************************************
