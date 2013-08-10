@@ -69,7 +69,7 @@ object GameEngineExports {
 		}
 
 """ 
-def %s(world:Vec3) = {
+def %s(world:ReadVec3) = {
 
 %s
 
