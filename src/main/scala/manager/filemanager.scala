@@ -196,7 +196,7 @@ object FileManager extends Publisher {
 			
 			val functions =
 				(for( language <- node \ "functions" \ "language" ) yield {
-					(language \ "@name" text) -> 
+					(language \ "@name" text) ->
 					(for( function <- language \ "function" ) yield {
 						(function \ "@outname" text) ->
 						NodeFunction(
@@ -211,12 +211,17 @@ object FileManager extends Publisher {
 			
 			nodetype match {
 			case "predefined" =>
-				//TODO: try to load the newest version of this node from the module instead of the xml file
-				val predefined = Node(NodeType(title, arguments, sliders, functions), newid(id))
-				nodeforid(predefined.id) = predefined
-				NodeManager.add(predefined)
+        val funcName = functions.values.head.values.head.name.split("_uid").head
+        val foundNodeType:Option[NodeType] = ModuleManager.findNodeType(funcName)
+				val node = if( foundNodeType.isDefined )
+            Node(NodeType(title, foundNodeType.get.arguments, sliders, foundNodeType.get.functions), newid(id))
+          else
+            Node(NodeType(title, arguments, sliders, functions), newid(id))
 
-				predefined.peer.setLocation(location)
+        nodeforid(node.id) = node
+				NodeManager.add(node)
+				node.peer.setLocation(location)
+
 			case "preview" =>
 				val width = (node \ "size" \ "@width").text.toInt
 				val height = (node \ "size" \ "@height").text.toInt

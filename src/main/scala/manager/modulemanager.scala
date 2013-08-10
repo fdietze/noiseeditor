@@ -50,7 +50,7 @@ object ModuleManager{
 	def nodecategories = if(currentmodule != null) currentmodule.nodecategories else Seq()
 	def exporttypes = if(currentmodule != null) currentmodule.exporttypes else Seq()
 	def export = currentmodule.export _
-	
+  def findNodeType(funcName:String) = nodecategories.flatMap(_.nodetypes).find(_.functions("scala").values.head.name == funcName)
 	
 	def check(module:Module):Boolean = {
 		var isvalid = true
