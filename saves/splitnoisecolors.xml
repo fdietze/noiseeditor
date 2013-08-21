@@ -1,0 +1,132 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<document>
+			<module name="GameEngine"/>
+			<nodes><node title="RGB Color" type="predefined" id="8">
+						<location x="241" y="495"/>
+						
+						<arguments><language name="scala"></language><language name="glsl"></language></arguments>
+
+						<sliders>
+							<slider name="r" formula="s" value="50"/><slider name="g" formula="s" value="94"/><slider name="b" formula="s" value="50"/>
+						</sliders>
+		
+						<functions><language name="scala"><function outname="m" name="material__3_uid5214d6f8" returntype="Material">Material(3,r,g,b)</function></language><language name="glsl"><function outname="m" name="matrgb_uid5214d6f8" returntype="vec4">return vec4(r, g, b, 1);</function></language></functions>
+					</node><node title="Preview" type="preview" id="7">
+						<location x="821" y="24"/>
+						<size width="545" height="541"/><image offsetx="-31.700000000000003" offsety="-23.800000000000004" zoom="0.1"/><view mode="iso" perspective="sideview_zup"/><depthslider value="50.0"/><grid selected="false"/><continous selected="false"/>
+						<arguments><language name="scala"><argument name="d" datatype="Double"/><argument name="m" datatype="Material"/></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function outname="result" name="result_uid5214d6f8" returntype="(Double, Material)">(d,m)</function></language></functions>
+					</node><node title="RGB Color" type="predefined" id="4">
+						<location x="250" y="375"/>
+						
+						<arguments><language name="scala"></language><language name="glsl"></language></arguments>
+
+						<sliders>
+							<slider name="r" formula="s" value="86"/><slider name="g" formula="s" value="50"/><slider name="b" formula="s" value="50"/>
+						</sliders>
+		
+						<functions><language name="scala"><function outname="m" name="material__0_uid5214d6f8" returntype="Material">Material(0,r,g,b)</function></language><language name="glsl"><function outname="m" name="matrgb_uid5214d6f8" returntype="vec4">return vec4(r, g, b, 1);</function></language></functions>
+					</node><node title="Vec3(x,y,z)" type="predefined" id="3">
+						<location x="473" y="38"/>
+						
+						<arguments><language name="scala"><argument name="x" datatype="Double"/><argument name="y" datatype="Double"/><argument name="z" datatype="Double"/></language><language name="glsl"><argument name="x" datatype="float"/><argument name="y" datatype="float"/><argument name="z" datatype="float"/></language><language name="prediction"><argument name="x" datatype="Interval"/><argument name="y" datatype="Interval"/><argument name="z" datatype="Interval"/></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function outname="v" name="createvec3_uid5214d6f8" returntype="Vec3">Vec3(x,y,z)</function></language><language name="glsl"><function outname="v" name="createvec3_uid5214d6f8" returntype="vec3">return vec3(x,y,z);</function></language><language name="prediction"><function outname="v" name="createvec3_uid5214d6f8" returntype="Interval3">Interval3(x,y,z)</function></language></functions>
+					</node><node title="RGB" type="predefined" id="6">
+						<location x="252" y="137"/>
+						
+						<arguments><language name="scala"></language><language name="glsl"></language></arguments>
+
+						<sliders>
+							<slider name="r" formula="s" value="2"/><slider name="g" formula="s" value="13"/><slider name="b" formula="s" value="43"/>
+						</sliders>
+		
+						<functions><language name="scala"><function outname="m" name="material__2_uid5214d6f8" returntype="Material">Material(2,r,g,b)</function></language><language name="glsl"><function outname="m" name="matrgb_uid5214d6f8" returntype="vec4">return vec4(r, g, b, 1);</function></language></functions>
+					</node><node title="RGB" type="predefined" id="5">
+						<location x="256" y="252"/>
+						
+						<arguments><language name="scala"></language><language name="glsl"></language></arguments>
+
+						<sliders>
+							<slider name="r" formula="s" value="23"/><slider name="g" formula="s" value="44"/><slider name="b" formula="s" value="81"/>
+						</sliders>
+		
+						<functions><language name="scala"><function outname="m" name="material__1_uid5214d6f8" returntype="Material">Material(1,r,g,b)</function></language><language name="glsl"><function outname="m" name="matrgb_uid5214d6f8" returntype="vec4">return vec4(r, g, b, 1);</function></language></functions>
+					</node><node title="3D Split Noise" type="predefined" id="2">
+						<location x="656" y="141"/>
+						
+						<arguments><language name="scala"><argument name="v" datatype="Vec3"/><argument name="a" datatype="Double"/><argument name="ma" datatype="Material"/><argument name="b" datatype="Double"/><argument name="mb" datatype="Material"/><argument name="c" datatype="Double"/><argument name="mc" datatype="Material"/><argument name="d" datatype="Double"/><argument name="md" datatype="Material"/></language><language name="prediction"><argument name="v" datatype="Interval3"/><argument name="a" datatype="Interval"/><argument name="b" datatype="Interval"/><argument name="c" datatype="Interval"/><argument name="d" datatype="Interval"/></language><language name="bounds"><argument name="v" datatype="Interval3"/><argument name="a" datatype="Interval"/><argument name="b" datatype="Interval"/><argument name="c" datatype="Interval"/><argument name="d" datatype="Interval"/></language></arguments>
+
+						<sliders>
+							
+						</sliders>
+		
+						<functions><language name="scala"><function outname="o" name="splitnoise3_uid5214d6f8" returntype="Double">splitNoise3(v,4,0)*a +
+                   splitNoise3(v,4,1)*b +
+                   splitNoise3(v,4,2)*c +
+                   splitNoise3(v,4,3)*d
+                </function><function outname="m" name="splitnoise3m_uid5214d6f8" returntype="Material">
+                  val resa = splitNoise3(v,4,0)
+                  val resb = splitNoise3(v,4,1)
+                  val resc = splitNoise3(v,4,2)
+                  val resd = splitNoise3(v,4,3)
+
+
+                  var max = resa
+                  var mat = ma
+
+                  if( resb &gt; max  ) {max = resb; mat = mb}
+                  if( resc &gt; max  ) {max = resc; mat = mc}
+                  if( resd &gt; max  ) {max = resd; mat = md}
+
+                  mat
+                </function></language><language name="prediction"><function outname="o" name="splitnoise3_uid5214d6f8" returntype="Interval">Interval(min(min(a.low,b.low),min(c.low,d.low)),max(max(a.high, b.high), max(c.high, d.high)))</function><function outname="m" name="splitnoise3m_uid5214d6f8" returntype="Material">sys.error()</function></language><language name="bounds"><function outname="o" name="splitnoise3_uid5214d6f8" returntype="Interval">Interval(min(min(a.low,b.low),min(c.low,d.low)),max(max(a.high, b.high), max (c.high, d.high)))</function><function outname="m" name="splitnoise3m_uid5214d6f8" returntype="Material">sys.error()</function></language></functions>
+					</node><node title="World coordinates" type="predefined" id="1">
+						<location x="15" y="33"/>
+						
+						<arguments><language name="scala"></language><language name="glsl"></language><language name="prediction"></language></arguments>
+
+						<sliders>
+							<slider name="scale" formula="pow(256,((0.5-s)*2))" value="74"/>
+						</sliders>
+		
+						<functions><language name="scala"><function outname="v" name="scalesrcv_uid5214d6f8" returntype="Vec3">world   * scale</function><function outname="x" name="scalesrcx_uid5214d6f8" returntype="Double">world.x * scale</function><function outname="y" name="scalesrcy_uid5214d6f8" returntype="Double">world.y * scale</function><function outname="z" name="scalesrcz_uid5214d6f8" returntype="Double">world.z * scale</function></language><language name="glsl"><function outname="v" name="scalesrcv_uid5214d6f8" returntype="vec3">return world.xyz * scale;</function><function outname="x" name="scalesrcx_uid5214d6f8" returntype="float">return world.x * scale;</function><function outname="y" name="scalesrcy_uid5214d6f8" returntype="float">return world.y * scale;</function><function outname="z" name="scalesrcz_uid5214d6f8" returntype="float">return world.z * scale;</function></language><language name="prediction"><function outname="v" name="scalesrcv_uid5214d6f8" returntype="Interval3">world   * scale</function><function outname="x" name="scalesrcx_uid5214d6f8" returntype="Interval">world.x * scale</function><function outname="y" name="scalesrcy_uid5214d6f8" returntype="Interval">world.y * scale</function><function outname="z" name="scalesrcz_uid5214d6f8" returntype="Interval">world.z * scale</function></language></functions>
+					</node></nodes>
+			<connections><connection>
+						<in nodeid="2" connector="6"/>
+						<out nodeid="4" connector="0"/>
+					</connection><connection>
+						<in nodeid="2" connector="4"/>
+						<out nodeid="5" connector="0"/>
+					</connection><connection>
+						<in nodeid="2" connector="0"/>
+						<out nodeid="3" connector="0"/>
+					</connection><connection>
+						<in nodeid="7" connector="1"/>
+						<out nodeid="2" connector="1"/>
+					</connection><connection>
+						<in nodeid="3" connector="1"/>
+						<out nodeid="1" connector="2"/>
+					</connection><connection>
+						<in nodeid="2" connector="2"/>
+						<out nodeid="6" connector="0"/>
+					</connection><connection>
+						<in nodeid="7" connector="0"/>
+						<out nodeid="2" connector="0"/>
+					</connection><connection>
+						<in nodeid="2" connector="8"/>
+						<out nodeid="8" connector="0"/>
+					</connection><connection>
+						<in nodeid="3" connector="0"/>
+						<out nodeid="1" connector="1"/>
+					</connection></connections>
+		</document>

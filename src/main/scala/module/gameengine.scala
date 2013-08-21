@@ -21,6 +21,7 @@ import javax.imageio.ImageIO
 import java.io.File
 
 import noiseeditor.util.{nextPowerOfTwo,hexStringtoInt,red,green,blue}
+import scala.Some
 
 //TODO: More High Level nodes, like Surface, Layers, Fractal Noise, Turbulence
 //TODO: More Noise types, like cellular noise
@@ -65,12 +66,14 @@ object GameEngine extends Module {
       "Interval4" -> "Interval4(Vec4(0),Vec4(0))",
       //for compatibility:
       "Volume" -> "Interval3(Vec3(0),Vec3(0))",
-      "Interval4D" -> "Interval4(Vec4(0),Vec4(0))"
+      "Interval4D" -> "Interval4(Vec4(0),Vec4(0))",
+			"Material" -> "Material()"
 		),
 		"bounds" -> 	Map(
 			"Interval" -> "Interval(0,0)",
 			"Interval3" -> "Interval3(Vec3(0),Vec3(0))",
-			"Interval4" -> "Interval4(Vec4(0),Vec4(0))"
+			"Interval4" -> "Interval4(Vec4(0),Vec4(0))",
+			"Material" -> "Material()"
 		)
 	)
 
@@ -412,23 +415,35 @@ for(i <- 0 until steps.toInt) {
             "scala" -> Seq(
               NodeArgument("v","Vec3"),
               NodeArgument("a","Double", "-world.z"),
+              NodeArgument("ma", "Material"),
               NodeArgument("b","Double", "-world.z"),
+              NodeArgument("mb", "Material"),
               NodeArgument("c","Double", "-world.z"),
-              NodeArgument("d","Double", "-world.z")
+              NodeArgument("mc", "Material"),
+              NodeArgument("d","Double", "-world.z"),
+              NodeArgument("md", "Material")
             ),
             "prediction" -> Seq(
               NodeArgument("v","Interval3"),
               NodeArgument("a","Interval", "-world.z"),
+              NodeArgument("ma", "Material"),
               NodeArgument("b","Interval", "-world.z"),
+              NodeArgument("mb", "Material"),
               NodeArgument("c","Interval", "-world.z"),
-              NodeArgument("d","Interval", "-world.z")
+              NodeArgument("mc", "Material"),
+              NodeArgument("d","Interval", "-world.z"),
+              NodeArgument("md", "Material")
             ),
             "bounds" -> Seq(
               NodeArgument("v","Interval3"),
               NodeArgument("a","Interval", "-world.z"),
+              NodeArgument("ma", "Material"),
               NodeArgument("b","Interval", "-world.z"),
+              NodeArgument("mb", "Material"),
               NodeArgument("c","Interval", "-world.z"),
-              NodeArgument("d","Interval", "-world.z")
+              NodeArgument("mc", "Material"),
+              NodeArgument("d","Interval", "-world.z"),
+              NodeArgument("md", "Material")
             )
           ),
           Nil,
@@ -439,15 +454,34 @@ for(i <- 0 until steps.toInt) {
                    splitNoise3(v,4,1)*b +
                    splitNoise3(v,4,2)*c +
                    splitNoise3(v,4,3)*d
-                   """)
+                """),
+              "m" -> NodeFunction("splitnoise3m", "Material",
+                """
+                  val resa = splitNoise3(v,4,0)
+                  val resb = splitNoise3(v,4,1)
+                  val resc = splitNoise3(v,4,2)
+                  val resd = splitNoise3(v,4,3)
+
+
+                  var max = resa
+                  var mat = ma
+
+                  if( resb > max  ) {max = resb; mat = mb}
+                  if( resc > max  ) {max = resc; mat = mc}
+                  if( resd > max  ) {max = resd; mat = md}
+
+                  mat
+                """)
             ),
             "prediction" -> Map(
               "o" -> NodeFunction("splitnoise3", "Interval",
-                """Interval(min(min(a.low,b.low),min(c.low,d.low)),max(max(a.high, b.high), max(c.high, d.high)))""")
+                """Interval(min(min(a.low,b.low),min(c.low,d.low)),max(max(a.high, b.high), max(c.high, d.high)))"""),
+              "m" -> NodeFunction("splitnoise3m", "Material", """sys.error()""")
             ),
             "bounds" -> Map(
               "o" -> NodeFunction("splitnoise3", "Interval",
-                """Interval(min(min(a.low,b.low),min(c.low,d.low)),max(max(a.high, b.high), max (c.high, d.high)))""")
+                """Interval(min(min(a.low,b.low),min(c.low,d.low)),max(max(a.high, b.high), max (c.high, d.high)))"""),
+              "m" -> NodeFunction("splitnoise3m", "Material", """sys.error()""")
             )
           )
           )
